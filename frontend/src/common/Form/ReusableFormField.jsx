@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import EnhancedAttachmentInput from '@/components/ui/EnhancedAttachmentInput';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { TagInput } from '@/components/ui/tag/tag-input';
+import Combobox from '@/components/ui/combobox';
 
 
 const ReusableFormField = ({
@@ -121,6 +122,17 @@ const ReusableFormField = ({
                             </SelectGroup>
                         </SelectContent>
                     </Select>
+                );
+            case 'combobox':
+                return (
+                    <Combobox
+                        options={options}
+                        field={field}
+                        placeholder={placeholder}
+                        disabled={disabled}
+                        inputClassName={inputClassName}
+                        onValueChange={onValueChange}
+                    />
                 );
             case 'multiSelect':
                 return (

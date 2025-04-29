@@ -26,14 +26,14 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const sql = `INSERT INTO users (unique_id, first_name, last_name, mobile, email, password) VALUES (?, ?, ?, ?, ?, ?)`;
-        const result = await query(sql, [createUniqueId('USER'),firstName, lastName, mobileNo, email, hashedPassword]);
+        const result = await query(sql, [createUniqueId('USER'), firstName, lastName, mobileNo, email, hashedPassword]);
 
         if (result?.affectedRows > 0) {
             return res.status(201).json({ message: 'User created successfully' });
         } else {
             return res.status(400).json({ message: 'Failed to create user' });
         }
-        
+
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             handleError('user.controller.js', 'registerUser', res, error, 'Email or mobile already exists')

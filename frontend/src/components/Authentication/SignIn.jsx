@@ -128,6 +128,5 @@ export default function SignIn() {
                 </CardContent>
             </Card>
         </div>
-
     )
 }
