@@ -6,8 +6,9 @@ import { Check, ChevronDown } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from './scroll-area';
+import PulsatingDots from './loaders/PulsatingDots';
 
-export default function Combobox({ options, field, placeholder, disabled, inputClassName, onValueChange }) {
+export default function Combobox({ options, field, placeholder, disabled, inputClassName, onValueChange, isLoading }) {
 
     const [isOpen, setIsOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState("");
@@ -31,7 +32,6 @@ export default function Combobox({ options, field, placeholder, disabled, inputC
     return (
         <Popover open={isOpen} onOpenChange={(e) => {
             setIsOpen(!isOpen)
-            e.stopPropagation()
         }}  >
             <PopoverTrigger asChild>
                 <FormControl className={cn("md:flex-none flex-1 w-full mx-0", inputClassName)} ref={popoverRef} >
@@ -39,13 +39,17 @@ export default function Combobox({ options, field, placeholder, disabled, inputC
                         variant="outline"
                         role="combobox"
                         aria-expanded={isOpen}
-                        className={cn(" flex justify-between tw-text-secondary shadow-sm", inputClassName)}
-                        disabled={disabled}
+                        className={cn(" flex justify-between tw-text-secondary shadow-sm h-9", inputClassName, isLoading && 'justify-center')}
+                        disabled={disabled || isLoading}
                     >
-                        {field.value
-                            ? options.find((option) => option.value === field.value)?.label
-                            : placeholder}
-                        <ChevronDown className="ml-auto self-end h-4 w-4 shrink-0 opacity-50" />
+                        {
+                            isLoading ? <PulsatingDots className='size-1' /> : 
+                            <>
+                            {field.value ? options.find((option) => option.value === field.value)?.label : placeholder}
+                            <ChevronDown className="ml-auto self-end h-4 w-4 shrink-0 opacity-50" />
+                            </>
+                        }
+                        
                     </Button>
                 </FormControl>
             </PopoverTrigger>

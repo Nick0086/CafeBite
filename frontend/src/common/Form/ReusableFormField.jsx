@@ -130,6 +130,7 @@ const ReusableFormField = ({
                         field={field}
                         placeholder={placeholder}
                         disabled={disabled}
+                        isLoading={isLoading}
                         inputClassName={inputClassName}
                         onValueChange={onValueChange}
                     />
@@ -337,7 +338,7 @@ const ReusableFormField = ({
                     </div>
                     <div className={cn("w-full", containerClassName)}>
                         <div className={cn("", labelClassName)}></div>
-                        <FormMessage className={cn("", inputClassName)} />
+                        <FormMessage className={cn("")} />
                     </div>
                 </FormItem>
             )}
