@@ -2,7 +2,7 @@ import ReusableFormField from '@/common/Form/ReusableFormField'
 import { Upload } from 'lucide-react'
 import React, { useRef } from 'react'
 
-export default function CafeInfo({ form, logoPreview, setLogoPreview }) {
+export default function CafeInfo({ form, logoPreview, setLogoPreview, isDisabled }) {
 
   const fileInputRef = useRef(null);
 
@@ -49,6 +49,7 @@ export default function CafeInfo({ form, logoPreview, setLogoPreview }) {
             type="file"
             ref={fileInputRef}
             onChange={handleLogoChange}
+            isDisabled={isDisabled}
             className="hidden"
             accept="image/png, image/jpeg, image/jpg, image/webp"
           />
@@ -61,9 +62,9 @@ export default function CafeInfo({ form, logoPreview, setLogoPreview }) {
 
         </div>
 
-        <ReusableFormField control={form.control} name='cafeName' required={true} label='Cafe Name' labelClassName='text-xs' placeholder="Cafe Delicious" />
+        <ReusableFormField control={form.control} name='cafeName' required={true} label='Cafe Name' labelClassName='text-xs' placeholder="Cafe Delicious" isDisabled={isDisabled} />
 
-        <ReusableFormField control={form.control} type={'textarea'} name='cafeDescription' required={true} label='Cafe Description' labelClassName='text-xs' inputClassName='bg-white' placeholder="Tell customers about your cafe, specialties, and atmosphere..." />
+        <ReusableFormField control={form.control} type={'textarea'} name='cafeDescription' required={true} label='Cafe Description' labelClassName='text-xs' inputClassName='bg-white' placeholder="Tell customers about your cafe, specialties, and atmosphere..." isDisabled={isDisabled} />
       </div>
     </div>
   )

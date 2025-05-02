@@ -53,28 +53,26 @@ CREATE TABLE `clients` (
     `password`      VARCHAR(255)   NOT NULL,
 
     `cafe_name`     VARCHAR(100)   NOT NULL,
-    `slug`          VARCHAR(50)    NOT NULL UNIQUE,
     `logo_url`      TEXT,
 
     `address_line1` VARCHAR(150),
-    `address_line2` VARCHAR(150),
     `postal_code`   VARCHAR(20),
 
     `country_id`    INT,
     `state_id`      INT,
     `city_id`       INT,
 
-    `latitude`      DECIMAL(9,6),
-    `longitude`     DECIMAL(9,6),
+    `latitude`      DECIMAL(9,6) DEFAULT NULL,
+    `longitude`     DECIMAL(9,6) DEFAULT NULL,
 
     `cafe_description` TEXT,
     `cafe_phone` VARCHAR(20),
-    `cafe_email` VARCHAR(255),
-    `cafe_website` VARCHAR(255),
+    `cafe_email` VARCHAR(255) DEFAULT NULL,
+    `cafe_website` VARCHAR(255) DEFAULT NULL,
 
-    `social_instagram` VARCHAR(255),
-    `social_facebook` VARCHAR(255),
-    `social_twitter` VARCHAR(255);
+    `social_instagram` VARCHAR(255) DEFAULT NULL,
+    `social_facebook` VARCHAR(255) DEFAULT NULL,
+    `social_twitter` VARCHAR(255) DEFAULT NULL;
 
     `currency_code` CHAR(3)        NOT NULL DEFAULT 'USD',
 

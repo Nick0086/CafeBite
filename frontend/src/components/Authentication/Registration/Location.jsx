@@ -6,7 +6,7 @@ import { queryKeyLoopUp } from '../utils';
 import { toast } from 'react-toastify';
 import { MapPin } from 'lucide-react';
 
-export default function Location({ form }) {
+export default function Location({ form , isDisabled}) {
 
   const country = form.watch('cafeCountry');
   const state = form.watch('cafeState');
@@ -89,21 +89,21 @@ export default function Location({ form }) {
           <MapPin size={16} className="mr-2" /> Cafe Location
         </h3>
         <div className='grid md:grid-cols-2 grid-cols-1 gap-y-3 gap-x-6' >
-          <ReusableFormField control={form.control} name='cafeAddress' type='textarea' required={true} label='Street Address' labelClassName='text-xs' placeholder="Street Address" className='md:col-span-2' inputClassName='bg-white' />
+          <ReusableFormField control={form.control} name='cafeAddress' type='textarea' required={true} label='Street Address' labelClassName='text-xs' placeholder="Street Address" className='md:col-span-2' inputClassName='bg-white' isDisabled={isDisabled} />
 
-          <ReusableFormField control={form.control} type={'combobox'} name='cafeCountry' required={true} label='Country' labelClassName='text-xs' isLoading={countryDataIsLoading} options={countryOptions} 
+          <ReusableFormField control={form.control} type={'combobox'} name='cafeCountry' required={true} label='Country' labelClassName='text-xs' isLoading={countryDataIsLoading} options={countryOptions} isDisabled={isDisabled}
           onValueChange={(value) => {
             form.setValue('cafeState', '')
             form.setValue('cafeCity', '')
           }} />
 
-          <ReusableFormField control={form.control} type={'combobox'} name='cafeState' required={true} label='State' labelClassName='text-xs' isLoading={stateDataIsLoading} options={stateOptions} onValueChange={(value) => { form.setValue('cafeCity', '') }} />
+          <ReusableFormField control={form.control} type={'combobox'} name='cafeState' required={true} label='State' labelClassName='text-xs' isLoading={stateDataIsLoading} options={stateOptions} onValueChange={(value) => { form.setValue('cafeCity', '') }} isDisabled={isDisabled} />
 
-          <ReusableFormField control={form.control} type={'combobox'} name='cafeCity' required={true} label='City' labelClassName='text-xs' isLoading={cityDataIsLoading} options={cityOptions} />
+          <ReusableFormField control={form.control} type={'combobox'} name='cafeCity' required={true} label='City' labelClassName='text-xs' isLoading={cityDataIsLoading} options={cityOptions} isDisabled={isDisabled} />
 
-          <ReusableFormField control={form.control} type={'combobox'} name='cafeCurrency' required={true} label='Currency' labelClassName='text-xs' isLoading={currencyDataIsLoading} options={currencyOptions} />
+          <ReusableFormField control={form.control} type={'combobox'} name='cafeCurrency' required={true} label='Currency' labelClassName='text-xs' isLoading={currencyDataIsLoading} options={currencyOptions} isDisabled={isDisabled} />
 
-          <ReusableFormField control={form.control} name='cafeZip' required={true} label='ZIP/Postal Code' labelClassName='text-xs' placeholder="Last Name" className='md:col-span-2' inputClassName='bg-white' />
+          <ReusableFormField control={form.control} name='cafeZip' required={true} label='ZIP/Postal Code' labelClassName='text-xs' placeholder="Last Name" className='md:col-span-2' inputClassName='bg-white' isDisabled={isDisabled} />
         </div>
       </div>
     </div>

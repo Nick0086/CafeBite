@@ -12,6 +12,10 @@ import OwnerInfo from './OwnerInfo'
 import CafeInfo from './CafeInfo'
 import Location from './Location'
 import Contact from './contact'
+import { useNavigate } from 'react-router'
+import { registerUser } from '@/service/user.service'
+import { toastError, toastSuccess } from '@/utils/toast-utils'
+import { useMutation } from '@tanstack/react-query'
 
 const formSchema = z.object({
   ...personalFormSchema.shape,
@@ -21,6 +25,7 @@ const formSchema = z.object({
 })
 
 export default function Registration() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1)
   const [logoPreview, setLogoPreview] = useState(null)
 
@@ -28,6 +33,9 @@ export default function Registration() {
     resolver: zodResolver(formSchema),
     defaultValues: registerFormDefaultValues,
   })
+
+  const firstName = form.watch('firstName')
+  const lastName = form.watch('lastName')
 
   const validateCurrentStep = async () => {
     let isValid = false
@@ -70,12 +78,26 @@ export default function Registration() {
     }
   }
 
+  const registerUserMutation = useMutation({
+    mutationFn: registerUser,
+    onSuccess: () => {
+      toastSuccess(`Registertion Of ${firstName} ${lastName} successfully`);
+      navigate('/login')
+      form.reset(registerFormDefaultValues);
+    },
+    onError: (error) => {
+      console.log(`Error in Registertion of ${firstName} ${lastName}`, error);
+      toastError(`Error in registertion of ${firstName} ${lastName}: ${error.err.message}`)
+    }
+  })
+
   const onSubmitForm = (data) => {
-    console.log('Registration -> onSubmitForm', data)
+    // console.log('Registration -> onSubmitForm', data)
     const formData = new FormData()
     for (const [key, value] of Object.entries(data)) {
       formData.append(key, value)
     }
+    registerUserMutation.mutate(formData)
   }
 
   return (
@@ -128,14 +150,14 @@ export default function Registration() {
           <form onSubmit={form.handleSubmit(onSubmitForm)}>
 
             <div className='px-4 pb-3'>
-              {step === 1 && <OwnerInfo form={form} />}
-              {step === 2 && <CafeInfo form={form} logoPreview={logoPreview} setLogoPreview={setLogoPreview} />}
-              {step === 3 && <Location form={form} />}
-              {step === 4 && <Contact form={form} />}
+              {step === 1 && <OwnerInfo form={form} isDisabled={registerUserMutation?.isPending} />}
+              {step === 2 && <CafeInfo form={form} logoPreview={logoPreview} setLogoPreview={setLogoPreview} isDisabled={registerUserMutation?.isPending} />}
+              {step === 3 && <Location form={form} isDisabled={registerUserMutation?.isPending} />}
+              {step === 4 && <Contact form={form} isDisabled={registerUserMutation?.isPending} />}
             </div>
 
             <CardFooter className="flex justify-between gap-4 px-6 py-3 border-t bg-gray-50">
-              <Button variant="outline" type="button" disabled={step === 1} className='shadow-none' onClick={handleBack}>
+              <Button  variant="outline" type="button" disabled={step === 1 || registerUserMutation?.isPending} className='shadow-none' onClick={handleBack}>
                 <ChevronLeft size={16} className="mr-2" /> Back
               </Button>
 
@@ -144,7 +166,7 @@ export default function Registration() {
                   Next <ChevronRight size={16} className="ml-2" />
                 </Button>
               ) : (
-                <Button type="button" variant="primary" className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleNext} >
+                <Button type="button" variant="primary" className="bg-indigo-600 hover:bg-indigo-700 text-white" disabled={registerUserMutation?.isPending} isLoading={registerUserMutation?.isPending} onClick={handleNext} >
                   Submit
                 </Button>
               )}

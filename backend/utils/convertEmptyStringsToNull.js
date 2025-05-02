@@ -24,7 +24,6 @@ export const convertEmptyStringsToNull = (obj) => {
 };
 
 
-
 export const stringifyModemData = (data) => {
     return data !== null && data !== 'null' && data !== undefined && data !== "undefined" && data !== "" ? JSON.stringify(data) : null;
 };
