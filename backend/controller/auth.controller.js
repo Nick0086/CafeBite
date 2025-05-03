@@ -5,54 +5,8 @@ import jwt from 'jsonwebtoken';
 import { handleError } from "../utils/utils.js";
 import { sendOtpEmail } from "../services/nodemailer/nodemailer.service.js";
 import { sendSMS } from "../services/twilio/twilio.service.js";
-
-/* CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    mobile VARCHAR(15) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,  -- For storing hashed password
-    gender ENUM('Male', 'Female', 'Other', 'Prefer not to say') NOT NULL,
-    date_of_birth DATE,
-    address VARCHAR(500),
-    profile_picture VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);*/
-
-/*  CREATE TABLE user_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    session_id CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
-    user_id CHAR(36) NOT NULL,  -- Reference to users.unique_id
-    user_agent TEXT NOT NULL,
-    ip_address VARCHAR(45) NOT NULL,
-    login_type VARCHAR(45) NOT NULL,
-    login_id VARCHAR(45) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP NOT NULL,
-    refresh_token TEXT NOT NULL,
-    is_revoke INT DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(unique_id)
-);*/
-
-/* CREATE TABLE otps (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    session_id CHAR(36) NOT NULL,  -- Reference to user_sessions.session_id
-    otp VARCHAR(6) NOT NULL,
-    login_type VARCHAR(45) NOT NULL,
-    login_id VARCHAR(45) NOT NULL,
-    expires_at TIMESTAMP NOT NULL
-); */
-
-/* CREATE TABLE password_reset_tokens (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id CHAR(36) NOT NULL,  -- Reference to users.unique_id
-    token CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
-    expires_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(unique_id)
-);*/
+import authService from "../services/auth.service.js";
+import authRepository from '../repositories/auth.repositories.js';
 
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -67,11 +21,9 @@ const COOKIE_OPTIONS = {
 export const checkUserExists = async (req, res) => {
     try {
         const { loginId } = req.body;
-        const sql = `SELECT unique_id, first_name, last_name, mobile, email FROM users WHERE email = ? OR mobile = ?`;
-        const params = [loginId, loginId];
-        const result = await query(sql, params);
+        const result = await authService.checkUserExists(loginId);
 
-        if (result.length === 0) {
+        if (result?.length === 0) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'User account not found. Please verify the provided email or mobile number.' });
         }
 
@@ -92,11 +44,9 @@ export const verifyUserPassword = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Login identifier, method, and password are required.' });
         }
 
-        const sql = `SELECT password, unique_id, first_name, last_name, mobile, email, profile_picture  FROM users WHERE email = ? OR mobile = ?`;
-        const params = [loginId, loginId];
-        const result = await query(sql, params);
+        const result = authService.getUserByLoginId(loginId);
 
-        if (result.length === 0) {
+        if (result?.length === 0) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'User account not found.' });
         }
 
@@ -107,7 +57,7 @@ export const verifyUserPassword = async (req, res) => {
             return res.status(401).json({ code: 'INVALID_CREDENTIALS', message: 'The password you entered is incorrect.' });
         }
 
-        const sessionId = await createUserSession(req, res, { ...result[0], loginId, loginType })
+        const sessionId = await createUserSession({ ...result[0], loginId, loginType })
 
         // Check if session creation failed
         if (!sessionId) {
@@ -131,11 +81,9 @@ export const sendOneTimePassword = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Both login identifier and login method are required.' });
         }
 
-        const sql = `SELECT unique_id FROM users WHERE email = ? OR mobile = ?`;
-        const params = [identifier, identifier];
-        const result = await query(sql, params);
+        const result = authService.getUserByLoginId(identifier);
 
-        if (result.length === 0) {
+        if (result?.length === 0) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'User account not found.' });
         }
 
@@ -144,9 +92,7 @@ export const sendOneTimePassword = async (req, res) => {
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
         // Store OTP in the database
-        const insertOtpSql = `INSERT INTO otps (session_id, otp, expires_at, login_type, login_id) VALUES (?, ?, ?, ?, ?)`;
-        const otpParams = [otpSessionId, otp, expiresAt, method, identifier];
-        const otpInsertResult = await query(insertOtpSql, otpParams);
+        const otpInsertResult = authService.storeOtp(otpSessionId, otp, expiresAt, method, identifier);
 
         if (otpInsertResult.affectedRows === 0) {
             return res.status(500).json({ code: 'OTP_STORE_FAILED', message: 'Failed to store the OTP. Please try again later.' });
@@ -186,20 +132,17 @@ export const verifyOneTimePassword = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'OTP and session identifier are required.' });
         }
 
-        const otpSql = `SELECT * FROM otps WHERE session_id = ? AND otp = ? AND expires_at > NOW()`;
-        const params = [otpSessionId, OTP];
-        const otpResults = await query(otpSql, params);
+        const otpResults = authService.verifyOtp(otpSessionId, OTP);
 
-        if (otpResults.length === 0) {
+        if (otpResults?.length === 0) {
             return res.status(401).json({ code: 'INVALID_OTP', message: 'The provided OTP is invalid or has expired.' });
         }
 
         // Fetch user details
-        const userSql = `SELECT unique_id, first_name, last_name, mobile, email, profile_picture FROM users WHERE email = ? OR mobile = ?`;
-        const userParams = [otpResults[0].login_id, otpResults[0].login_id];
-        const userResults = await query(userSql, userParams);
+        const userResults = authService.getUserByLoginId(otpResults[0].login_id);
 
-        if (userResults.length === 0) {
+
+        if (userResults?.length === 0) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'User account not found.' });
         }
 
@@ -245,15 +188,13 @@ const createUserSession = async (req, res, userData) => {
             { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
         );
 
+        const revokeResult = await authService.revokeSessions(unique_id, userAgent);
 
-        // Revoke all old sessions for the same user and user-agent
-        const revokeSql = `UPDATE user_sessions SET  is_revoke = ? WHERE  user_id = ? AND user_agent = ?`;
-        const revokeParams = [1, unique_id, userAgent];
-        await query(revokeSql, revokeParams);
+        if (revokeResult.affectedRows === 0) {
+            return null;
+        }
 
-        const sessionSql = `INSERT INTO user_sessions (session_id, user_id, user_agent, login_id, login_type, ip_address, expires_at, refresh_token) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-        const sessionParams = [sessionId, unique_id, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken];
-        const sessionResult = await query(sessionSql, sessionParams);
+        const sessionResult = authService.createSession(sessionId, unique_id, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken)
 
         if (sessionResult.affectedRows === 0) {
             return null;
@@ -285,35 +226,10 @@ export const requestPasswordReset = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Email is required for password reset.' });
         }
 
-        const sql = `SELECT unique_id, email FROM users WHERE email = ?`;
-        const params = [email];
-        const result = await query(sql, params);
-
-        if (result.length === 0) {
+        const success = authService.requestPasswordReset(email);
+        
+        if (!success) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'No user account found with the provided email address.' });
-        }
-
-        const user = result[0];
-        const resetToken = uuidv4();
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiration
-
-        // Store the reset token in the database
-        const tokenSql = `INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)`;
-        const tokenParams = [user.unique_id, resetToken, expiresAt];
-        const response = await query(tokenSql, tokenParams);
-
-        // Send the reset password email
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-
-        const emailResponse = await sendOtpEmail({
-            toEmail: user.email,
-            subject: 'Password Reset Request',
-            otp: resetLink,
-            type: "reset"
-        });
-
-        if (!emailResponse) {
-            return res.status(500).json({ code: 'EMAIL_SEND_FAILED', message: 'Unable to send the password reset email. Please try again later.' });
         }
 
         return res.status(200).json({ code: 'RESET_EMAIL_SENT', message: 'A password reset link has been sent to your email address.' });
@@ -331,22 +247,11 @@ export const performPasswordReset = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Both reset token and new password are required.' });
         }
 
-        const tokenSql = `SELECT * FROM password_reset_tokens WHERE token = ? AND expires_at > NOW()`;
-        const tokenParams = [token];
-        const tokenResult = await query(tokenSql, tokenParams);
+        const success = await authService.performPasswordReset(token,newPassword);
 
-        if (tokenResult.length === 0) {
+        if (!success) {
             return res.status(401).json({ code: 'INVALID_TOKEN', message: 'The password reset token is invalid or has expired.' });
         }
-
-        const tokenData = tokenResult[0];
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        const updateSql = `UPDATE users SET password = ? WHERE unique_id = ?`;
-        const updateParams = [hashedPassword, tokenData.user_id];
-        await query(updateSql, updateParams);
-
-        const deleteSql = `DELETE FROM password_reset_tokens WHERE token = ?`;
-        await query(deleteSql, [token]);
 
         return res.status(200).json({ code: 'PASSWORD_RESET_SUCCESS', message: 'Your password has been reset successfully.' });
 
@@ -364,11 +269,9 @@ export const validatePasswordResetToken = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'A reset token is required.' });
         }
 
-        const tokenSql = `SELECT * FROM password_reset_tokens WHERE token = ? AND expires_at > NOW()`;
-        const tokenParams = [token];
-        const tokenResult = await query(tokenSql, tokenParams);
+        const tokenResult = await authRepository.validatePasswordResetToken(token);
 
-        if (tokenResult.length === 0) {
+        if (tokenResult?.length === 0) {
             return res.status(401).json({ code: 'INVALID_TOKEN', message: 'The reset token is invalid or has expired.' });
         }
 
@@ -389,11 +292,9 @@ export const validateActiveUserSession = async (req, res) => {
             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing authentication tokens or user identifier.' });
         }
 
-        const revokeSql = `SELECT * FROM user_sessions WHERE is_revoke = 0 AND user_id = ? AND user_agent = ? AND refresh_token = ?`;
-        const revokeParams = [unique_id, userAgent, refreshToken];
-        const sessions = await query(revokeSql, revokeParams);
+        const sessions = await authService.validateSession(unique_id, userAgent, refreshToken);
 
-        if (sessions.length > 0) {
+        if (sessions?.length > 0) {
             return res.status(200).json({ code: 'AUTHORIZED', message: 'Active session confirmed.' });
         } else {
             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Session is not active or has expired.' });
@@ -411,12 +312,15 @@ export const logoutUser = async (req, res) => {
 
         const userAgent = req.headers['user-agent'] || 'Unknown';
         const unique_id = req.user?.unique_id
+        if (!unique_id) {
+            return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing user identifier.' });
+        }
 
-        const revokeSql = `UPDATE user_sessions SET  is_revoke = ? WHERE  user_id = ? AND user_agent = ?`;
-        const revokeParams = [1, unique_id, userAgent];
-        const result = await query(revokeSql, revokeParams);
+        const result = await authService.revokeSessions(unique_id, userAgent);
 
         if (result.affectedRows > 0) {
+            res.clearCookie('accessToken');
+            res.clearCookie('refreshToken');
             return res.status(200).json({ code: 'LOGOUT_SUCCESS', message: 'You have been logged out successfully.' });
         } else {
             return res.status(400).json({ code: 'LOGOUT_FAILED', message: 'Logout failed. Please try again.' });
