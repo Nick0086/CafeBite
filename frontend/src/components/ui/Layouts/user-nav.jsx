@@ -22,6 +22,7 @@ import { Link, useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import { logoutUser } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
+import { PermissionsContext } from '@/contexts/PermissionsContext';
 
 const getInitials = (name) => {
   return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
@@ -29,6 +30,7 @@ const getInitials = (name) => {
 
 export function UserNav() {
   const navigate = useNavigate();
+  const {permissions} = React.useContext(PermissionsContext);
 
 
   const logOutMutation = useMutation({
@@ -52,6 +54,8 @@ export function UserNav() {
     }
   }
 
+  console.log("permissions?.logo_signed_url",permissions?.logo_signed_url)
+
   return (
     <>
       <DropdownMenu>
@@ -65,17 +69,12 @@ export function UserNav() {
                   className="relative rounded-lg"
                 >
                   <User size={16} className='text-black' />
-                  {/* <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={userDetails?.userImageUrl} alt="Avatar" onLoadingStatusChange={(status) => {
-                      console.log("status", status)
-                      if (status === 'error') {
-                        getUserProfileImageUrl();
-                      }
-                    }} />
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src={permissions?.logo_signed_url} alt="Avatar"  />
                     <AvatarFallback className="bg-transparent">
-                      {getInitials(userDetails?.userName + ' ' + userDetails?.userLastname) || 'U'}
+                      {getInitials(permissions?.first_name + ' ' + permissions?.last_name) || 'U'}
                     </AvatarFallback>
-                  </Avatar> */}
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
             </TooltipTrigger>
@@ -86,10 +85,10 @@ export function UserNav() {
         <DropdownMenuContent className="w-56" align="end" forceMount style={{ fontFamily: 'Nunito, "Segoe UI", arial' }}>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              {/* <span className="text-sm font-medium leading-none">{userDetails?.first_name} {userDetails?.last_name}</span>
+              <span className="text-sm font-medium leading-none">{permissions?.first_name} {permissions?.last_name}</span>
               <p className="text-xs leading-none text-muted-foreground">
-                {userDetails?.email}
-              </p> */}
+                {permissions?.email}
+              </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

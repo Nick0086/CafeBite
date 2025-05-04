@@ -17,6 +17,7 @@ import './App.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-image-crop/dist/ReactCrop.css';
 import Registration from './components/Authentication/Registration/Registration';
+import { PermissionsProvider } from './contexts/PermissionsContext';
 
 
 function App() {
@@ -37,19 +38,21 @@ function App() {
 
       {
         (!isRestrictedRoute && !isPublicRoute) && (
-          <Routes>
-            <Route path="/" element={<PrivateRoutes />}>
-              <Route path='' element={<Sidebar isfullScreen={isfullScreen} />}>
-                <Route path='' element={<div>👋 Hyy</div>} />
-                {/* <Route path="/dashboard" element={<Dashboard />} />
+          <PermissionsProvider>
+            <Routes>
+              <Route path="/" element={<PrivateRoutes />}>
+                <Route path='' element={<Sidebar isfullScreen={isfullScreen} />}>
+                  <Route path='' element={<div>👋 Hyy</div>} />
+                  {/* <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/menu-management/*" element={<MenuRoutes />} />
                 <Route path="/qr-management" element={<QrCodeManagerIndex />} />
                 <Route path="/order-management/*" element={<OrderRoutes />} />
                 <Route path="/invoice-management/*" element={<InvoiceRoutes />} /> */}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
+            </Routes>
+          </PermissionsProvider>
         )
       }
 
@@ -76,7 +79,7 @@ function App() {
 
       {/* Notifications */}
       <ToastContainer limit={3} />
-      
+
       <Toaster
         position="top-center"
         expand={true}

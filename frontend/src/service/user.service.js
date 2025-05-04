@@ -1,4 +1,4 @@
-import { authApi, handleApiError } from "@/utils/api";
+import { api, authApi, handleApiError } from "@/utils/api";
 
 export const registerUser = async (userData) => {
     try {
@@ -7,6 +7,15 @@ export const registerUser = async (userData) => {
                 'Content-Type': 'multipart/form-data'
             }
         });
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error)
+    }
+}
+
+export const getClientData = async () => {
+    try {
+        const response = await api.get('/client');
         return response.data;
     } catch (error) {
         throw handleApiError(error)

@@ -127,9 +127,13 @@ export const getSignedUrlFromCloudinary = async (filePath, options = {}, expires
         const publicId = filePath;
         // Generate the signed URL with an expiration time
         const response = await cloudinary.url(publicId, {
+            ...options,
             sign_url: true,
-            expiration: Math.floor(Date.now() / 1000) + expiresIn, // Set expiration time
+            secure: true,
+            expiration: Math.floor(Date.now() / 1000) + expiresIn,
+            format: 'avif', // Request AVIF image format
         });
+
         return response;
     } catch (error) {
         console.error("Error generating signed URL from Cloudinary:", error);

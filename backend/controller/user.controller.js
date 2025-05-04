@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { createUniqueId, handleError } from "../utils/utils.js";
 import { convertEmptyStringsToNull } from "../utils/convertEmptyStringsToNull.js";
 import multer from "multer";
-import { uploadStreamToCloudinary } from "../services/cloudinary/cloudinary.service.js";
+import { getSignedUrlFromCloudinary, uploadStreamToCloudinary } from "../services/cloudinary/cloudinary.service.js";
 
 const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
@@ -40,7 +40,7 @@ export const registerClient = async (req, res) => {
         const clientId = createUniqueId('CLIENT');
         const { originalname, buffer, mimetype } = req.file;
         const fileName = `${clientId}_${Date.now()}_${originalname}`
-        const key = `profile/${fileName}`;
+        const key = `profile/${fileName?.split('.')[0]}/${fileName}`;
 
         const options = {
             folder: key,
@@ -55,7 +55,7 @@ export const registerClient = async (req, res) => {
             if (!fileUploadResult?.secure_url) {
                 throw new Error('Upload succeeded but no secure URL returned');
             }
-    
+
             console.log("File uploaded successfully:", key, fileUploadResult);
         } catch (error) {
             console.error("Error uploading image to Cloudinary:", error);
@@ -87,5 +87,36 @@ export const registerClient = async (req, res) => {
         } else {
             handleError('user.controller.js', 'registerUser', res, error, error.message)
         }
+    }
+}
+
+export const getClinetDataById = async (req, res) => {
+    try {
+        const unique_id = req.user?.unique_id
+
+        if (!unique_id) {
+            return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing user identifier.' });
+        }
+
+        const userData = await query(`SELECT * FROM clients WHERE unique_id = ?`, [unique_id]);
+
+        if (userData?.length > 0) {
+
+            const user = userData[0];
+
+            if (user.logo_url) {
+                // Get 24-hour signed image URL
+                const signedUrl = await getSignedUrlFromCloudinary(user.logo_url,{}, 86400);
+                user.logo_signed_url = signedUrl;
+
+            }
+
+            return res.status(200).json({ CODE: 'SUCCESS', status: 'success', data: user });
+        } else {
+            return res.status(404).json({ CODE: 'NOT_FOUND', status: 'error', message: 'User not found' });
+        }
+
+    } catch (error) {
+        handleError("auth.controller.js", 'validateActiveUserSession', res, error, 'An error occurred while validating the user session.');
     }
 }
