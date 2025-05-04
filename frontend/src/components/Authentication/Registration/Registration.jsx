@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import OwnerInfo from './OwnerInfo'
 import CafeInfo from './CafeInfo'
 import Location from './Location'
-import Contact from './contact'
+import Contact from './Contact'
 import { useNavigate } from 'react-router'
 import { registerUser } from '@/service/user.service'
 import { toastError, toastSuccess } from '@/utils/toast-utils'
