@@ -1,3 +1,4 @@
+import query from "../utils/query.utils.js";
 /* CREATE TABLE `clients` (
     `id`            INT            NOT NULL AUTO_INCREMENT,
     `unique_id`     CHAR(36)       NOT NULL UNIQUE,  
@@ -37,6 +38,7 @@
     PRIMARY KEY (`id`)
 ); */
 
+
 /*  CREATE TABLE client_sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     session_id CHAR(36) NOT NULL UNIQUE, 
@@ -54,12 +56,11 @@
 
 /* CREATE TABLE otps (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    session_id CHAR(36) NOT NULL,  -- Reference to client_sessions.session_id
+    session_id CHAR(36) NOT NULL, 
     otp VARCHAR(6) NOT NULL,
     login_type VARCHAR(45) NOT NULL,
     login_id VARCHAR(45) NOT NULL,
     expires_at TIMESTAMP NOT NULL
-    FOREIGN KEY (session_id) REFERENCES client_sessions(session_id)
 ); */
 
 /* CREATE TABLE password_reset_tokens (
@@ -85,7 +86,7 @@ const getUserByLoginId = async (loginId) => {
 }
 
 // Store OTP in the database
-const storeOtp = async (otpSessionId, otp, expiresAt, loginType, loginId) => {
+const storeOtp = async (otpSessionId = null, otp, expiresAt, loginType, loginId) => {
     const sql = `INSERT INTO otps (session_id, otp, expires_at, login_type, login_id) VALUES (?, ?, ?, ?, ?)`;
     const params = [otpSessionId, otp, expiresAt, loginType, loginId];
     return await query(sql, params);

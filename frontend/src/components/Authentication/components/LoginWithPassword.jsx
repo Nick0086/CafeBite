@@ -33,8 +33,9 @@ export default function LoginWithPassword({
 
     const loginWithPasswordMutation = useMutation({
         mutationFn: verifyUserPassword,
+
         onSuccess: (res) => {
-            window.localStorage.setItem('userData', JSON.stringify(res?.data?.userData));
+            // window.localStorage.setItem('userData', JSON.stringify(res?.data?.userData));
             toastSuccess('Login Successful');
             navigate(`/`);
         },
@@ -87,7 +88,23 @@ export default function LoginWithPassword({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmitForm)} className='flex flex-col gap-4'>
+            <form onSubmit={form.handleSubmit(onSubmitForm)} className='flex flex-col gap-2'>
+                <div>
+                    <ReusableFormField
+                        control={form.control}
+                        name='loginId'
+                        type='email'
+                        label='Email'
+                        labelClassName='text-xs'
+                        placeholder='Email Address'
+                        className='w-full'
+                        disabled={loginWithPasswordMutation?.isPending || onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}
+                        onValueChange={(e) => {
+                            form.clearErrors('loginId');
+                        }}
+                    />
+                </div>
+
                 <div>
                     <ReusableFormField
                         control={form.control}
@@ -119,7 +136,14 @@ export default function LoginWithPassword({
 
                 <div className='flex flex-row gap-2 items-center justify-between w-full'>
                     <Button
-                        onClick={() => onChangeLoginWithOption.mutate({ loginId, loginType })}
+                        onClick={() => {
+                            if (loginId && loginType !== '') {
+                                onChangeLoginWithOption.mutate({ loginId, loginType })
+                            } else {
+                                //trigger error
+                                form.trigger('loginId');
+                            }
+                        }}
                         type='button'
                         variant="none"
                         size="sm"
@@ -135,7 +159,14 @@ export default function LoginWithPassword({
                         type='button'
                         variant="none"
                         size="sm"
-                        onClick={() => forgotPasswordMutation.mutate(loginId)}
+                        onClick={() => {
+                            if (loginId && loginType !== '') {
+                                forgotPasswordMutation.mutate(loginId)
+                            } else {
+                                //trigger error
+                                form.trigger('loginId');
+                            }
+                        }}
                         loadingText=' '
                         isLoading={forgotPasswordMutation.isPending}
                         disabled={onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}

@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cafeBasicFormSchema, cafeContactFormSchema, cafeLocationFormSchema, personalFormSchema } from '../schema'
-import { getStepIcon, getStepLabel, registerFormDefaultValues } from '../utils'
+import { getStepIcon, getStepLabel, queryKeyLoopUp, registerFormDefaultValues } from '../utils'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,9 @@ import Contact from './contact'
 import { useNavigate } from 'react-router'
 import { registerUser } from '@/service/user.service'
 import { toastError, toastSuccess } from '@/utils/toast-utils'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { checkUserSession } from '@/service/auth.service'
+import PulsatingDots from '@/components/ui/loaders/PulsatingDots'
 
 const formSchema = z.object({
   ...personalFormSchema.shape,
@@ -28,6 +30,11 @@ export default function Registration() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1)
   const [logoPreview, setLogoPreview] = useState(null)
+
+  const { data: userData,isLoading: userViolation,isFetching  } = useQuery({
+    queryKey: [queryKeyLoopUp['LOGIN']],
+    queryFn: checkUserSession,
+  });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -100,6 +107,20 @@ export default function Registration() {
     registerUserMutation.mutate(formData)
   }
 
+  useEffect(() => {
+    if(userData){
+      navigate('/')
+    }
+  }, [userData])
+
+  if (userViolation || isFetching || userData) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-surface-background">
+        <PulsatingDots size={5} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex justify-center bg-gray-50 md:py-8 py-4 bg-surface-background">
       <Card className="w-full max-w-lg shadow border-0 overflow-hidden">
@@ -157,7 +178,7 @@ export default function Registration() {
             </div>
 
             <CardFooter className="flex justify-between gap-4 px-6 py-3 border-t bg-gray-50">
-              <Button  variant="outline" type="button" disabled={step === 1 || registerUserMutation?.isPending} className='shadow-none' onClick={handleBack}>
+              <Button variant="outline" type="button" disabled={step === 1 || registerUserMutation?.isPending} className='shadow-none' onClick={handleBack}>
                 <ChevronLeft size={16} className="mr-2" /> Back
               </Button>
 

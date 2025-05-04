@@ -1,4 +1,5 @@
 import { z } from "zod";
+import * as yup from 'yup';
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -103,3 +104,22 @@ export const cafeContactFormSchema = z.object({
     socialFacebook: z.string().trim().optional(),
     socialTwitter: z.string().trim().optional(),
 });
+
+
+
+export const VALIDATION_SCHEMAS = {
+    loginId: yup.object({
+        loginType: yup
+            .string()
+            .oneOf(['EMAIL', 'MOBILE'], 'Invalid login type')
+            .required('Login type is required'),
+        loginId: yup.string().required('Please enter your email address or mobile number'),
+    }),
+    password: yup.object({
+        loginId: yup.string().required('Please enter your email address'),
+        password: yup.string().required('Please enter your password'),
+    }),
+    otp: yup.object({
+        OTP: yup.string().required('Please enter your OTP').min(6, 'Please enter your OTP'),
+    })
+};

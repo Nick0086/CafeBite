@@ -103,3 +103,38 @@ CREATE TABLE `clients` (
 
     PRIMARY KEY (`id`)
 );
+
+
+use `cafebite`;
+CREATE TABLE client_sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id CHAR(36) NOT NULL UNIQUE, 
+    client_id CHAR(36) NOT NULL,
+    user_agent TEXT NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    login_type VARCHAR(45) NOT NULL,
+    login_id VARCHAR(45) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    refresh_token TEXT NOT NULL,
+    is_revoke INT DEFAULT 0,
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id)
+);
+
+ CREATE TABLE otps (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    session_id CHAR(36) NOT NULL,  -- Reference to client_sessions.session_id
+    otp VARCHAR(6) NOT NULL,
+    login_type VARCHAR(45) NOT NULL,
+    login_id VARCHAR(45) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (session_id) REFERENCES client_sessions(session_id)
+); 
+
+ CREATE TABLE password_reset_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id CHAR(36) NOT NULL, 
+    token CHAR(36) NOT NULL UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id)
+);

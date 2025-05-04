@@ -16,7 +16,7 @@ router.post('/password/reset', performPasswordReset);
 router.get('/password/check-reset-token/:token', validatePasswordResetToken);
 
 // Session Management Routes
-router.get('/session/active', authMiddleware, validateActiveUserSession);
+router.get('/session/active', validateActiveUserSession);
 router.get('/session/logout', authMiddleware, logoutUser);
 
 export default router;

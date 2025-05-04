@@ -28,6 +28,9 @@ export const queryKeyLoopUp = {
     STATE: 'state-by-country',
     CITY: 'city-by-state',
     CURRENCY: 'currency',
+    LOGIN:"login",
+    REGISTER:"register",
+    PASSWAORD_RESET:"password-reset"
 };
 
 export const getStepIcon = (stepNumber, currentStep) => {
@@ -80,3 +83,18 @@ export const getStepLabel = (stepNumber) => {
             return "Contact"
     }
 }
+
+export const DEFAULT_VALUES = {
+    loginId: {
+        loginId: '',
+        loginType: 'EMAIL',
+    },
+    password: {
+        loginId: '',
+        password: '',
+        loginType: 'EMAIL',
+    },
+    otp: {
+        OTP: '',
+    }
+};

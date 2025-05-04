@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 import authRepository from '../repositories/auth.repositories.js';
 import { sendOtpEmail } from './nodemailer/nodemailer.service.js';
 const checkUserExists = async (loginId) => {
@@ -39,7 +40,7 @@ const verifyOtp = async (otpSessionId, otp) => {
 
 const createSession = async (sessionId, userId, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken) => {
     try {
-        const result = await authRepository.createSession(sessionId, userId, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken);
+        const result = await authRepository.createSession({sessionId, userId, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken});
         return result;
     } catch (error) {
         throw new Error(`Failed to create session: ${error.message}`);
@@ -68,20 +69,20 @@ const requestPasswordReset = async (email) => {
     try {
 
         const user = await getUserByEmail(email);
-        if (!user) {
+        if (!user || user?.length === 0) {
             return false;
         }
 
         const resetToken = uuidv4();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-        const response = await authRepository.storePasswordResetToken(user.unique_id, resetToken, expiresAt);
+        const response = await authRepository.storePasswordResetToken(user[0].unique_id, resetToken, expiresAt);
         if (response.affectedRows === 0) {
             return false;
         }
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
         const emailResponse = await sendOtpEmail({
-            toEmail: user.email,
+            toEmail: user[0]?.email,
             subject: 'Password Reset Request',
             otp: resetLink,
             type: 'reset',

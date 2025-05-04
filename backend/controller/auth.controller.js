@@ -1,4 +1,3 @@
-import query from "../utils/query.utils.js";
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
@@ -44,7 +43,7 @@ export const verifyUserPassword = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Login identifier, method, and password are required.' });
         }
 
-        const result = authService.getUserByLoginId(loginId);
+        const result = await authService.getUserByLoginId(loginId);
 
         if (result?.length === 0) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'User account not found.' });
@@ -53,11 +52,12 @@ export const verifyUserPassword = async (req, res) => {
         const hashedPassword = result[0].password;
         const isPasswordValid = await bcrypt.compare(password, hashedPassword);
 
+
         if (!isPasswordValid) {
             return res.status(401).json({ code: 'INVALID_CREDENTIALS', message: 'The password you entered is incorrect.' });
         }
 
-        const sessionId = await createUserSession({ ...result[0], loginId, loginType })
+        const sessionId = await createUserSession(req, res,{ ...result[0], loginId, loginType })
 
         // Check if session creation failed
         if (!sessionId) {
@@ -81,7 +81,7 @@ export const sendOneTimePassword = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Both login identifier and login method are required.' });
         }
 
-        const result = authService.getUserByLoginId(identifier);
+        const result = await authService.getUserByLoginId(identifier);
 
         if (result?.length === 0) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'User account not found.' });
@@ -92,7 +92,7 @@ export const sendOneTimePassword = async (req, res) => {
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // OTP expires in 5 minutes
 
         // Store OTP in the database
-        const otpInsertResult = authService.storeOtp(otpSessionId, otp, expiresAt, method, identifier);
+        const otpInsertResult = await authService.storeOtp(otpSessionId, otp, expiresAt, method, identifier);
 
         if (otpInsertResult.affectedRows === 0) {
             return res.status(500).json({ code: 'OTP_STORE_FAILED', message: 'Failed to store the OTP. Please try again later.' });
@@ -132,14 +132,14 @@ export const verifyOneTimePassword = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'OTP and session identifier are required.' });
         }
 
-        const otpResults = authService.verifyOtp(otpSessionId, OTP);
+        const otpResults = await authService.verifyOtp(otpSessionId, OTP);
 
         if (otpResults?.length === 0) {
             return res.status(401).json({ code: 'INVALID_OTP', message: 'The provided OTP is invalid or has expired.' });
         }
 
         // Fetch user details
-        const userResults = authService.getUserByLoginId(otpResults[0].login_id);
+        const userResults = await authService.getUserByLoginId(otpResults[0].login_id);
 
 
         if (userResults?.length === 0) {
@@ -171,8 +171,8 @@ export const verifyOneTimePassword = async (req, res) => {
 const createUserSession = async (req, res, userData) => {
     try {
         const sessionId = uuidv4();
-        const userAgent = req.headers['user-agent'] || 'Unknown';
-        const ipAddress = req.ip || 'Unknown';
+        const userAgent = req?.headers?.['user-agent'] || 'Unknown';
+        const ipAddress = req?.ip || 'Unknown';
         const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
         const { unique_id, loginId, loginType } = userData;
 
@@ -189,12 +189,7 @@ const createUserSession = async (req, res, userData) => {
         );
 
         const revokeResult = await authService.revokeSessions(unique_id, userAgent);
-
-        if (revokeResult.affectedRows === 0) {
-            return null;
-        }
-
-        const sessionResult = authService.createSession(sessionId, unique_id, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken)
+        const sessionResult = await authService.createSession(sessionId, unique_id, userAgent, loginId, loginType, ipAddress, expiresAt, refreshToken)
 
         if (sessionResult.affectedRows === 0) {
             return null;
@@ -202,7 +197,8 @@ const createUserSession = async (req, res, userData) => {
 
         res.cookie('accessToken', accessToken, {
             ...COOKIE_OPTIONS,
-            maxAge: 1000 * 60 * 60 * 24, // 1 day
+            // maxAge: 1000 * 60 * 60 * 24, // 1 day
+            maxAge: 1000 * 60, // 1 day
         });
 
         res.cookie('refreshToken', refreshToken, {
@@ -226,8 +222,8 @@ export const requestPasswordReset = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Email is required for password reset.' });
         }
 
-        const success = authService.requestPasswordReset(email);
-        
+        const success = await authService.requestPasswordReset(email);
+
         if (!success) {
             return res.status(404).json({ code: 'USER_NOT_FOUND', message: 'No user account found with the provided email address.' });
         }
@@ -247,7 +243,7 @@ export const performPasswordReset = async (req, res) => {
             return res.status(400).json({ code: 'INVALID_REQUEST', message: 'Both reset token and new password are required.' });
         }
 
-        const success = await authService.performPasswordReset(token,newPassword);
+        const success = await authService.performPasswordReset(token, newPassword);
 
         if (!success) {
             return res.status(401).json({ code: 'INVALID_TOKEN', message: 'The password reset token is invalid or has expired.' });
@@ -284,9 +280,10 @@ export const validatePasswordResetToken = async (req, res) => {
 // Validates whether the current user session is active
 export const validateActiveUserSession = async (req, res) => {
     try {
-        const { unique_id } = req.user;
         const userAgent = req.headers['user-agent'] || 'Unknown';
         const refreshToken = req.cookies?.refreshToken;
+        const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
+        const unique_id = decodedRefresh?.userDetails?.unique_id
 
         if (!refreshToken || !unique_id) {
             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing authentication tokens or user identifier.' });
@@ -303,7 +300,6 @@ export const validateActiveUserSession = async (req, res) => {
     } catch (error) {
         handleError("auth.controller.js", 'validateActiveUserSession', res, error, 'An error occurred while validating the user session.');
     }
-
 }
 
 // Logs out the user by revoking the current session

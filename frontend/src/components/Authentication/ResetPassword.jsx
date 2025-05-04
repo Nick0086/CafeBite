@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { useNavigate, useSearchParams } from 'react-router';
 import PulsatingDots from '../ui/loaders/PulsatingDots';
-import { validateResetToken , performPasswordReset } from '@/service/auth.service';
+import { validateResetToken, performPasswordReset, checkUserSession } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryKeyLoopUp } from './utils';
 
 const defaultValues = {
     password: '',
@@ -47,7 +48,6 @@ export default function ResetPassword() {
     const userDetails = JSON.parse(window?.localStorage.getItem("userData") || "{}");
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const [isLoading, setIsLoding] = useState(true);
     const [isShowLoading, setIsShowLoading] = useState(true);
     const [errors, setErrors] = useState(INITIAL_ERROR_STATE);
     const token = searchParams.get('token');
@@ -57,14 +57,16 @@ export default function ResetPassword() {
         resolver: yupResolver(schema),
     })
 
+    const { data: userData, isLoading: userVerification, isFetching } = useQuery({
+        queryKey: [queryKeyLoopUp['PASSWAORD_RESET']],
+        queryFn: checkUserSession,
+    });
+
     const { data: verifyData, isLoading: isVerifyLoading, error: verifyError } = useQuery({
         queryKey: ['validateResetToken ', token],
-        queryFn: async () => {
-            const res = await validateResetToken (token);
-            return res.data;
-        },
+        queryFn: () => validateResetToken(token),
         retry: false,
-        enabled: !!token,
+        enabled: !!token || !!(!userData),
     });
 
     const resetPasswordMutation = useMutation({
@@ -100,19 +102,13 @@ export default function ResetPassword() {
     };
 
     useEffect(() => {
-        if (token) {
-            setIsLoding(false)
-        } else {
-            if (Object.keys(userDetails)?.length) {
-                navigate('/')
-            } else {
-                navigate('/login')
-            }
+        if (!token) {
+            navigate('/login')
         }
-    }, [])
+    }, [token])
 
     useEffect(() => {
-        if (Object.keys(userDetails)?.length) {
+        if (userData) {
             navigate('/')
         } else {
             if (verifyError) {
@@ -126,7 +122,7 @@ export default function ResetPassword() {
     }, [verifyError, navigate, userDetails])
 
 
-    if (isLoading || isVerifyLoading || isShowLoading) {
+    if (userVerification || isFetching || userData ||  isVerifyLoading || isShowLoading || !verifyData) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-surface-background lg:py-6">
                 <PulsatingDots size={6} />

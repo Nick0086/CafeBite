@@ -28,7 +28,6 @@ const getInitials = (name) => {
 };
 
 export function UserNav() {
-  const [userDetails, setUserDetails] = React.useState(() => JSON.parse(window?.localStorage.getItem("userData") || "{}"));
   const navigate = useNavigate();
 
 
@@ -87,10 +86,10 @@ export function UserNav() {
         <DropdownMenuContent className="w-56" align="end" forceMount style={{ fontFamily: 'Nunito, "Segoe UI", arial' }}>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <span className="text-sm font-medium leading-none">{userDetails?.first_name} {userDetails?.last_name}</span>
+              {/* <span className="text-sm font-medium leading-none">{userDetails?.first_name} {userDetails?.last_name}</span>
               <p className="text-xs leading-none text-muted-foreground">
                 {userDetails?.email}
-              </p>
+              </p> */}
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

@@ -18,13 +18,14 @@ export const authMiddleware = async (req, res, next) => {
             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'No tokens provided' });
         }
 
-        if (accessToken) {
+        if (accessToken || refreshToken) {
             try {
                 const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
                 req.user = decoded.userDetails;
                 return next();
             } catch (accessTokenError) {
-                if (accessTokenError.name === 'TokenExpiredError') {
+                console.log({accessTokenError},accessTokenError?.name)
+                if (accessTokenError.name === 'TokenExpiredError' || accessTokenError.name === 'JsonWebTokenError') {
 
                     if (!refreshToken) {
                         clearAuthCookies(res)
@@ -33,7 +34,7 @@ export const authMiddleware = async (req, res, next) => {
 
                     try {
                         const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
-                        const sessionSql = `SELECT * FROM user_sessions WHERE refresh_token = ? AND is_revoke = 0 AND expires_at > NOW()`;
+                        const sessionSql = `SELECT * FROM client_sessions WHERE refresh_token = ? AND is_revoke = 0 AND expires_at > NOW()`;
                         const sessionParams = [refreshToken];
                         const sessionResult = await query(sessionSql, sessionParams);
 

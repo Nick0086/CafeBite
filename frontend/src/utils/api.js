@@ -44,9 +44,7 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.log("401 detected, signing out...");
             toast.error("Session expired, please sign in again");
-            window.localStorage.clear();
-            window.localStorage.removeItem('userData')
-            window.location.href = "/login";
+            // window.location.href = "/login";
         }
         return Promise.reject(error);
     }
@@ -64,7 +62,7 @@ const waitForToken = () => {
                 } else {
                     reject(new Error("No token found after max retries"));
                     window.localStorage.clear();
-                    window.location.href = "/login";
+                    // window.location.href = "/login";
                 }
             }
             retries++;
