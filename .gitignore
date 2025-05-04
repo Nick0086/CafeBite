@@ -2,3 +2,11 @@
 /backend/.env
 /frontend/node_modules
 /frontend/.env
+frontend/dist/assets/index-B3Rywbgs.css
+frontend/dist/assets/index-BQdIy9mv.css
+frontend/dist/assets/index-Bvl__goY.js
+frontend/dist/assets/index-I-CyBnCr.js
+.gitignore
+frontend/dist/index.html
+frontend/dist/assets/index-B3Rywbgs.css
+frontend/dist/assets/index-I-CyBnCr.js
