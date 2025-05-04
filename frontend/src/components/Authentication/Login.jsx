@@ -9,7 +9,7 @@ import LoginWithOTP from './components/LoginWithOTP';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { checkUserSession, sendOneTimePassword } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import PulsatingDots from '../ui/loaders/PulsatingDots';
 import { DEFAULT_VALUES, queryKeyLoopUp } from './utils';
 import { VALIDATION_SCHEMAS } from './schema';
@@ -127,6 +127,13 @@ export default function Login() {
                 sendOTPMutation={sendOTPMutation}
               />
             )}
+
+            <p className="text-center text-sm text-secondary mt-4">
+              Don't have an account yet?{' '}
+              <Link to='/register-user' className="text-brand-primary hover:text-brand-primary-foreground">
+                Create Account
+              </Link>
+            </p>
           </div>
         </CardContent>
       </Card>
