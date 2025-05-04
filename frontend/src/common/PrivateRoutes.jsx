@@ -1,13 +1,16 @@
 import PulsatingDots from "@/components/ui/loaders/PulsatingDots";
+import { PermissionsContext } from "@/contexts/PermissionsContext";
 import { checkUserSession  } from "@/service/auth.service";
+import { getClientData } from "@/service/user.service";
 import { useMutation } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 
 export function PrivateRoutes() {
     const location = useLocation();
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const {updatePermissions} = useContext(PermissionsContext);
 
     const userCheckMutation = useMutation({
         mutationFn: checkUserSession ,
@@ -23,11 +26,22 @@ export function PrivateRoutes() {
         },
     });
 
+    const clientDataGetMutation = useMutation({
+        mutationFn: getClientData ,
+        onSuccess: (res) => {
+            updatePermissions(res?.data);
+        },
+        onError: (error) => {
+            console.error("Error while getting user data", error);
+        },
+    });
+
     useEffect(() => {
         userCheckMutation.mutate();
+        clientDataGetMutation.mutate();
     }, []);
 
-    if (isLoading) {
+    if (isLoading || clientDataGetMutation?.isPending) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <PulsatingDots size={5} />

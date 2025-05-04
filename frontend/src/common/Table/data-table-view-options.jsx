@@ -21,7 +21,7 @@ export function DataTableViewOptions({
                 <Button
                     variant="outline"
                     size="sm"
-                    className="ml-auto h-8 lg:flex"
+                    className="ml-auto h-8 lg:flex shadow-none"
                 >
                     <Settings2 className="mr-2 h-4 w-4" />
                     View

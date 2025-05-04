@@ -7,6 +7,7 @@ import { rateLimit } from 'express-rate-limit'
 import userRoutes from './routes/user.routes.js'
 import authRoutes from './routes/auth.routes.js'
 import commonRoutes from './routes/common.routes.js'
+import categoriesRoutes from './routes/categories.routes.js'
 
 const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -42,6 +43,9 @@ app.use('/v1/auth', authRoutes);
 
 //common api
 app.use('/v1/common', commonRoutes)
+
+//category api
+app.use('/v1/category', categoriesRoutes)
 
 
 const PORT = process.env.PORT || 3002;

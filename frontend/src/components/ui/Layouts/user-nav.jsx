@@ -54,8 +54,6 @@ export function UserNav() {
     }
   }
 
-  console.log("permissions?.logo_signed_url",permissions?.logo_signed_url)
-
   return (
     <>
       <DropdownMenu>

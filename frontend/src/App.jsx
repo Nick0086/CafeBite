@@ -7,7 +7,7 @@ import Login from './components/Authentication/Login';
 import ResetPassword from './components/Authentication/ResetPassword';
 import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './components/Dashboard/Dashboard';
-// import MenuRoutes from './routes/MenuRoutes';
+import MenuRoutes from './routes/MenuRoutes';
 // import QrCodeManagerIndex from './components/Table-QrCode/table-qrcodeIndex';
 // import CustomerMenuIndex from './components/CustomerMenu/CustomerMenuIndex';
 // import OrderRoutes from './routes/order-routes';
@@ -44,8 +44,8 @@ function App() {
                 <Route path='' element={<Sidebar isfullScreen={isfullScreen} />}>
                   <Route path='' element={<div>👋 Hyy</div>} />
                   <Route path="/dashboard" element={<Dashboard />} />
-                {/* <Route path="/menu-management/*" element={<MenuRoutes />} />
-                <Route path="/qr-management" element={<QrCodeManagerIndex />} />
+                  <Route path="/menu-management/*" element={<MenuRoutes />} />
+                  {/* <Route path="/qr-management" element={<QrCodeManagerIndex />} />
                 <Route path="/order-management/*" element={<OrderRoutes />} />
                 <Route path="/invoice-management/*" element={<InvoiceRoutes />} /> */}
                   <Route path="*" element={<Navigate to="/" replace />} />
