@@ -89,7 +89,7 @@ export default function Registration() {
     mutationFn: registerUser,
     onSuccess: () => {
       toastSuccess(`Registertion Of ${firstName} ${lastName} successfully`);
-      navigate('/login')
+      navigate('/login');
       form.reset(registerFormDefaultValues);
     },
     onError: (error) => {
