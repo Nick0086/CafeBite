@@ -117,6 +117,6 @@ export const getClinetDataById = async (req, res) => {
         }
 
     } catch (error) {
-        handleError("auth.controller.js", 'validateActiveUserSession', res, error, 'An error occurred while validating the user session.');
+        handleError("user.controller.js", 'getClinetDataById', res, error, 'An error occurred while validating the user session.');
     }
 }

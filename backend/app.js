@@ -8,6 +8,7 @@ import userRoutes from './routes/user.routes.js'
 import authRoutes from './routes/auth.routes.js'
 import commonRoutes from './routes/common.routes.js'
 import categoriesRoutes from './routes/categories.routes.js'
+import menuRoutes from './routes/menuItems.routes.js'
 
 const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -46,6 +47,9 @@ app.use('/v1/common', commonRoutes)
 
 //category api
 app.use('/v1/category', categoriesRoutes)
+
+//menu api
+app.use('/v1/menu', menuRoutes)
 
 
 const PORT = process.env.PORT || 3002;
