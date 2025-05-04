@@ -197,8 +197,8 @@ const createUserSession = async (req, res, userData) => {
 
         res.cookie('accessToken', accessToken, {
             ...COOKIE_OPTIONS,
-            // maxAge: 1000 * 60 * 60 * 24, // 1 day
-            maxAge: 1000 * 60, // 1 day
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+            // maxAge: 1000 * 60, // 1 day
         });
 
         res.cookie('refreshToken', refreshToken, {

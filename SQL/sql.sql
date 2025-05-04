@@ -104,8 +104,6 @@ CREATE TABLE `clients` (
     PRIMARY KEY (`id`)
 );
 
-
-use `cafebite`;
 CREATE TABLE client_sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     session_id CHAR(36) NOT NULL UNIQUE, 
@@ -121,7 +119,7 @@ CREATE TABLE client_sessions (
     FOREIGN KEY (client_id) REFERENCES clients(unique_id)
 );
 
- CREATE TABLE otps (
+CREATE TABLE otps (
     id INT AUTO_INCREMENT PRIMARY KEY,
     session_id CHAR(36) NOT NULL,  -- Reference to client_sessions.session_id
     otp VARCHAR(6) NOT NULL,
@@ -131,10 +129,51 @@ CREATE TABLE client_sessions (
     FOREIGN KEY (session_id) REFERENCES client_sessions(session_id)
 ); 
 
- CREATE TABLE password_reset_tokens (
+CREATE TABLE password_reset_tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id CHAR(36) NOT NULL, 
     token CHAR(36) NOT NULL UNIQUE,
     expires_at TIMESTAMP NOT NULL,
     FOREIGN KEY (client_id) REFERENCES clients(unique_id)
+);
+
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
+    client_id CHAR(36) NOT NULL,  -- Should match the type of users.unique_id
+    name VARCHAR(255) NOT NULL,
+    status INT DEFAULT 1,
+    position INT DEFAULT 0,  -- Drag-and-drop sorting
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE menu_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
+    client_id CHAR(36) NOT NULL,  -- Each item belongs to a user (café)
+    category_id CHAR(36) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    image_details JSON,
+    veg_status ENUM('veg', 'non_veg') NOT NULL DEFAULT 'veg',
+    availability ENUM('in_stock', 'out_of_stock') DEFAULT 'in_stock',
+    status INT DEFAULT 1,
+    position INT DEFAULT 0,  -- Drag-and-drop sorting
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE templates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID for the template
+    client_id CHAR(36) NOT NULL,           -- Owner of the template (café admin)
+    name VARCHAR(255) NOT NULL,          -- Template name (e.g., "Modern Coffee Shop")
+    config JSON NOT NULL,                -- Template settings (colors, fonts, layout)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
 );

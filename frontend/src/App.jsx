@@ -43,8 +43,8 @@ function App() {
               <Route path="/" element={<PrivateRoutes />}>
                 <Route path='' element={<Sidebar isfullScreen={isfullScreen} />}>
                   <Route path='' element={<div>👋 Hyy</div>} />
-                  {/* <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/menu-management/*" element={<MenuRoutes />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/menu-management/*" element={<MenuRoutes />} />
                 <Route path="/qr-management" element={<QrCodeManagerIndex />} />
                 <Route path="/order-management/*" element={<OrderRoutes />} />
                 <Route path="/invoice-management/*" element={<InvoiceRoutes />} /> */}

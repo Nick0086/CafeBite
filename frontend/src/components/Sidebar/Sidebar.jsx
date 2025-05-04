@@ -19,28 +19,28 @@ const sideBarData = [
     },
     {
         title: 'Menu ',
-        icon: <Menu />,
+        icon: <Menu className='size-10' />,
         link: '/menu-management',
         isCollapsible: false,
     },
-    {
-        title: 'Qr Code',
-        icon:<ScanQrCode />,
-        link: '/qr-management',
-        isCollapsible: false,
-    },
-    {
-        title: 'Orders',
-        icon:<ClipboardList />,
-        link: '/order-management',
-        isCollapsible: false,
-    },
-    {
-        title: 'Invoice',
-        icon:<ReceiptText />,
-        link: '/invoice-management',
-        isCollapsible: false,
-    },
+    // {
+    //     title: 'Qr Code',
+    //     icon:<ScanQrCode />,
+    //     link: '/qr-management',
+    //     isCollapsible: false,
+    // },
+    // {
+    //     title: 'Orders',
+    //     icon:<ClipboardList />,
+    //     link: '/order-management',
+    //     isCollapsible: false,
+    // },
+    // {
+    //     title: 'Invoice',
+    //     icon:<ReceiptText />,
+    //     link: '/invoice-management',
+    //     isCollapsible: false,
+    // },
 ]
 
 
