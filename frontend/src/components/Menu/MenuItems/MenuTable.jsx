@@ -217,8 +217,13 @@ export default function MenuTable({
           searchPlaceholder="Filter by Menu..."
         />
       </div>
-      <div className=' py-2'>
-        <CommonTable table={tableInstance} />
+      <div className=''>
+        <CommonTable
+          table={tableInstance}
+          tableStyle='2xl:h-[69dvh] h-[60dvh]'
+          tableHeadRowStyle='bg-indigo-50/20 hover:bg-indigo-50/50'
+          tableBodyRowStyle='bg-transparent hover:bg-indigo-50/50'
+        />
       </div>
       <div className="mt-2 pt-2 border-t">
         <DataTablePagination table={tableInstance} count={data?.menuItems?.length || 0} />

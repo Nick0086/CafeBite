@@ -57,7 +57,7 @@ export default function Dashboard() {
         ))}
       </motion.div>
 
-      <div className='grid grid-cols-12 gap-4' >
+      {/* <div className='grid grid-cols-12 gap-4' >
         <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg lg:col-span-4 md:col-span-6 col-span-12 min-h-20">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-3">
             <CardTitle className="text-sm font-medium text-primary">Weekly Revenue Trends</CardTitle>
@@ -129,7 +129,7 @@ export default function Dashboard() {
 
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   )
 }

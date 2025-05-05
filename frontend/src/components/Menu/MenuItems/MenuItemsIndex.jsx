@@ -15,7 +15,7 @@ import { getAllMenuItems } from '@/service/menuItems.service'
 
 // Memoize the header component to prevent unnecessary re-renders
 const Header = memo(({ onAddClick }) => (
-  <div className="px-2 my-2 pb-2 flex justify-between items-center border-b">
+  <div className="px-2 pb-2 flex justify-between items-center border-b">
     <h2 className="text-2xl font-medium">Menu Items</h2>
     <div className="flex items-center gap-2">
       <Button
@@ -112,7 +112,7 @@ export default function MenuItemsIndex() {
 
         {/* Render content conditionally based on active tab */}
         {activeTab === "table-view" && (
-          <TabsContent value="table-view" forceMount>
+          <TabsContent value="table-view" className='mt-0' forceMount>
             <MemoizedMenuTable data={data || []} isLoading={isLoading} categoryOptions={categoryOptions} setIsModalOpen={setIsModalOpen} categoryIsLoading={categoryIsLoading}/>
           </TabsContent>
         )}
