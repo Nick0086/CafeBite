@@ -83,7 +83,7 @@ const QrCodeGrid = ({
                         <div className='border border-primary rounded-lg p-4 w-full flex justify-center'>
                             <QRCodeCanvas
                                 data-qrid={qr.unique_id}
-                                value={`http://192.168.1.10:5173/menu/${qr.client_id}/${qr.unique_id}`}
+                                value={import.meta.env.PROD === false ? `${import.meta.env.VITE_BASE_LOACL_URL}/menu/${qr.client_id}/${qr.unique_id}` : `${import.meta.env.VITE_BSSE_FRONTEND_URL}/menu/${qr.client_id}/${qr.unique_id}`}
                                 size={160}
                             />
                         </div>

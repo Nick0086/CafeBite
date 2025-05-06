@@ -19,6 +19,7 @@ import 'react-image-crop/dist/ReactCrop.css';
 import Registration from './components/Authentication/Registration/Registration';
 import { PermissionsProvider } from './contexts/PermissionsContext';
 import QrCodeManagerIndex from './components/Table-QrCode/table-qrcodeIndex';
+import CustomerMenuIndex from './components/CustomerMenu/CustomerMenuIndex';
 
 
 function App() {
@@ -58,12 +59,12 @@ function App() {
       }
 
       {/* Public Customer Routes */}
-      {/* {isPublicRoute && (
+      {isPublicRoute && (
         <Routes>
           <Route path="/menu/:restaurantId/:tableId" element={<CustomerMenuIndex />} />
           <Route path="/menu/*" element={<p>No Accesss</p>} />
         </Routes>
-      )} */}
+      )}
 
       {
         isRestrictedRoute && (
