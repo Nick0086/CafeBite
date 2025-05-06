@@ -97,7 +97,7 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
   };
 
   const categoryOptions = useMemo(
-    () => categoryData?.data?.categories?.filter(category => category?.status).map(category => ({
+    () => categoryData?.categories?.filter(category => category?.status).map(category => ({
       value: category.unique_id,
       label: category.name
     })) || [],

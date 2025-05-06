@@ -10,6 +10,7 @@ import commonRoutes from './routes/common.routes.js'
 import categoriesRoutes from './routes/categories.routes.js'
 import menuRoutes from './routes/menuItems.routes.js'
 import templateRoutes from './routes/templates.routes.js'
+import tablesQrcodeRoutes from './routes/tables-qrcode.routes.js'
 
 const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -54,6 +55,8 @@ app.use('/v1/menu', menuRoutes)
 //template api
 app.use('/v1/template', templateRoutes)
 
+//table api
+app.use('/v1/tables', tablesQrcodeRoutes)
 
 const PORT = process.env.PORT || 3002;
 

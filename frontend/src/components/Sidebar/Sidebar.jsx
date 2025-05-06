@@ -23,12 +23,12 @@ const sideBarData = [
         link: '/menu-management',
         isCollapsible: false,
     },
-    // {
-    //     title: 'Qr Code',
-    //     icon:<ScanQrCode />,
-    //     link: '/qr-management',
-    //     isCollapsible: false,
-    // },
+    {
+        title: 'Qr Code',
+        icon:<ScanQrCode />,
+        link: '/qr-management',
+        isCollapsible: false,
+    },
     // {
     //     title: 'Orders',
     //     icon:<ClipboardList />,

@@ -18,6 +18,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-image-crop/dist/ReactCrop.css';
 import Registration from './components/Authentication/Registration/Registration';
 import { PermissionsProvider } from './contexts/PermissionsContext';
+import QrCodeManagerIndex from './components/Table-QrCode/table-qrcodeIndex';
 
 
 function App() {
@@ -45,9 +46,9 @@ function App() {
                   <Route path='' element={<div>👋 Hyy</div>} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/menu-management/*" element={<MenuRoutes />} />
-                  {/* <Route path="/qr-management" element={<QrCodeManagerIndex />} />
-                <Route path="/order-management/*" element={<OrderRoutes />} />
-                <Route path="/invoice-management/*" element={<InvoiceRoutes />} /> */}
+                  <Route path="/qr-management" element={<QrCodeManagerIndex />} />
+                  {/* <Route path="/order-management/*" element={<OrderRoutes />} /> */}
+                  {/* <Route path="/invoice-management/*" element={<InvoiceRoutes />} /> */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>
               </Route>
