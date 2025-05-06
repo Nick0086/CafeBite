@@ -7,6 +7,7 @@ import { UserNav } from '../ui/Layouts/user-nav'
 
 import CafeIcon from '../../assets/SVG/coffee-cup-coffee.svg?react';
 import Dashboard from '../../assets/SVG/Dashboard.svg?react';
+import SvgviewerOutput from '../../assets/SVG/svgviewer-output.svg?react';
 import Menu from '../../assets/SVG/menu.svg?react';
 import { cn } from '@/lib/utils'
 
@@ -25,7 +26,7 @@ const sideBarData = [
     },
     {
         title: 'Qr Code',
-        icon:<ScanQrCode />,
+        icon:<SvgviewerOutput className='size-6' />,
         link: '/qr-management',
         isCollapsible: false,
     },
