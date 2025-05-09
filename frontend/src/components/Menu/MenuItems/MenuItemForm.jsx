@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Form } from '@/components/ui/form';
 import ReusableFormField from '@/common/Form/ReusableFormField';
 import { Button } from '@/components/ui/button';
-import { foodOptions, menuQueryKeyLoopUp, statusOptions, stockOptions } from './utils';
+import { getFoodOptions, menuQueryKeyLoopUp, getStatusOptions, getStockOptions } from './utils';
 import { queryKeyLoopUp } from '../Categories/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
@@ -14,14 +14,17 @@ import ImageAvatar from '@/components/ui/ImageAvatar';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { createMenuItem, updateMenuItem } from '@/service/menuItems.service';
 import { getAllCategory } from '@/service/categories.service';
+import { useTranslation } from 'react-i18next';
 
 // Validation Schema
-const formSchema = yup.object().shape({
-    name: yup.string().required('Item name is required'),
-    description: yup.string().required('Please provide a description for this item'),
-    category_id: yup.string().required('Please select a category'),
-    price: yup.number().typeError('Price must be a valid number').required('Price is required'),
-});
+const formSchema = (t) => {
+    return yup.object().shape({
+        name: yup.string().required(t('menu_item_name_required')),
+        description: yup.string().required(t('menu_item_description_required')),
+        category_id: yup.string().required(t('menu_item_category_required')),
+        price: yup.number().typeError(t('menu_item_price_number')).required(t('menu_item_price_required')),
+    })
+};
 
 // Default Values
 const defaultValues = {
@@ -37,11 +40,12 @@ const defaultValues = {
 
 const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => {
 
+    const {t} = useTranslation()
     const queryClient = useQueryClient();
     const [imageWarning, setImageWarning] = useState(true);
 
     const form = useForm({
-        resolver: yupResolver(formSchema),
+        resolver: yupResolver(formSchema(t)),
         defaultValues,
     });
 
@@ -90,7 +94,7 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
     // Handle category fetch errors
     useEffect(() => {
         if (categoryError) {
-            toast.error(`Error fetching categories: ${JSON.stringify(categoryError)}`);
+            toast.error(`${t("error_fetching_category")}: ${JSON.stringify(categoryError)}`);
         }
     }, [categoryError]);
 
@@ -116,22 +120,22 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
         mutationFn: createMenuItem,
         onSuccess: (res) => {
             queryClient.invalidateQueries(menuQueryKeyLoopUp['item']);
-            toastSuccess(res?.message || `Menu ${menuItemName} added successfully`);
+            toastSuccess(res?.message || `${t("menu_items")} : ${menuItemName} ${t("created_success")}`);
             handleModalClose();
         },
         onError: (error) => {
-            toastError(`Error adding Menu Item: ${error?.err?.error}`);
+            toastError(`${t("error_creating")} ${t("menu_items")}: ${error?.err?.error}`);
         }
     });
     const updateMenuItemMutation = useMutation({
         mutationFn: updateMenuItem,
         onSuccess: (res) => {
             queryClient.invalidateQueries(menuQueryKeyLoopUp['item']);
-            toastSuccess(res?.message || `Menu Item :- ${categoryName} updated successfully`);
+            toastSuccess(res?.message || `${t("menu_items")} : ${categoryName} ${t("updated_success")}`);
             handleModalClose();
         },
         onError: (error) => {
-            toastError(`Error updating Category: ${error?.err?.error}`);
+            toastError(`${t("error_updating")} ${t("menu_items")}: ${error?.err?.error}`);
         }
     });
 
@@ -153,7 +157,7 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                 {open && (
                     <>
                         <DialogHeader>
-                            <DialogTitle>{isEdit ? 'Edit Menu Item' : 'Create New Menu Item'}</DialogTitle>
+                            <DialogTitle>{isEdit ? `${t("edit")} ${t("menu_items")}` : `${t("create_new")} ${t("menu_items")}`}</DialogTitle>
                         </DialogHeader>
                         <div className='max-h-[80dvh] overflow-auto p-0' >
                             <Form {...form}>
@@ -164,8 +168,8 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             control={form.control}
                                             name="name"
                                             required={true}
-                                            label="Item Name"
-                                            placeholder="Enter the name of the menu item"
+                                            label={t("item_name")}
+                                            placeholder={t("menu_item_name_placeholder")}
                                             className="col-span-12 "
                                             disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}
                                         />
@@ -177,8 +181,8 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             name="description"
                                             textAreaClassName="h-28"
                                             required={true}
-                                            label="Description"
-                                            placeholder="Describe the menu item in detail"
+                                            label={t("description")}
+                                            placeholder={t("menu_item_description_placeholder")}
                                             className="col-span-12"
                                             disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}
                                         />
@@ -190,10 +194,10 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             type="select"
                                             required={true}
                                             name="category_id"
-                                            label="Category"
+                                            label={t("category")}
                                             isLoading={categoryIsLoading}
                                             options={categoryOptions}
-                                            placeholder="Select a category"
+                                            placeholder={t("menu_item_category_placeholder")}
                                             className="md:col-span-6 col-span-12"
                                             disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending || isDireact}
                                         />
@@ -203,8 +207,8 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             control={form.control}
                                             name="price"
                                             required={true}
-                                            label="Price"
-                                            placeholder="Enter the price (e.g., 9.99)"
+                                            label={t("price")}
+                                            placeholder={t("menu_item_price_placeholder")}
                                             className="md:col-span-6 col-span-12"
                                             disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}
                                         />
@@ -214,9 +218,9 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             type="select"
                                             required={true}
                                             name="veg_status"
-                                            label="Food Type"
-                                            options={foodOptions}
-                                            placeholder="Select Food Type"
+                                            label={t("food_type")}
+                                            options={getFoodOptions(t)}
+                                            placeholder={t("menu_item_food_type_placeholder")}
                                             className="md:col-span-6 col-span-12"
                                             disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}
                                         />
@@ -227,9 +231,9 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             type="select"
                                             required={true}
                                             name="availability"
-                                            label="Availability"
-                                            options={stockOptions}
-                                            placeholder="Select availability status"
+                                            label={t("availability")}
+                                            options={getStockOptions(t)}
+                                            placeholder={t("menu_item_availability_placeholder")}
                                             className="md:col-span-6 col-span-12"
                                             disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}
                                         />
@@ -240,16 +244,16 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                                 control={form.control}
                                                 type="select"
                                                 name="status"
-                                                label="Status"
-                                                options={statusOptions}
-                                                placeholder="Select status"
+                                                label={t("status")}
+                                                options={getStatusOptions(t)}
+                                                placeholder={t("menu_item_status_placeholder")}
                                                 className="col-span-12 md:col-span-6"
                                                 disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}
                                             />
                                         )}
 
                                         <div className="col-span-12  ">
-                                            <label className="block text-sm font-medium mb-2">Cover Image</label>
+                                            <label className="block text-sm font-medium mb-2">{t("cover_image")}</label>
                                             <ImageAvatar
                                                 s3ImageUrl={selectedRow?.image_details?.url || ''} // Original S3 URL
                                                 onImageUpload={handleImageUpload} // Handle image upload
@@ -258,7 +262,7 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                             {
                                                 imageWarning && (
                                                     <p className="text-orange-500 text-sm mt-2">
-                                                        Warning: Uploading a cover image is optional but recommended for better visibility.
+                                                        {t("cover_image_warning")}
                                                     </p>
                                                 )
                                             }
@@ -269,10 +273,10 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
                                     {/* Action Buttons */}
                                     <div className="flex items-center justify-start gap-2 sticky bottom-0 border-t bg-white py-2 px-4">
                                         <Button type="submit" variant="gradient" disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending} isLoading={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending}>
-                                            Save Changes
+                                            {t("submit")}
                                         </Button>
                                         <Button type="button" variant="outline" color="ghost" disabled={createMenuItemMutation?.isPending || updateMenuItemMutation?.isPending} onClick={handleModalClose}>
-                                            Cancel
+                                            {t("cancel")}
                                         </Button>
                                     </div>
                                 </form>

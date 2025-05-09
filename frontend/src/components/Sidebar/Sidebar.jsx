@@ -1,6 +1,5 @@
 import React from 'react'
 import { Sidebar as SidebarComponent, SidebarContent, SidebarGroup, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '../ui/sidebar'
-import { ClipboardList, ListTodo, ReceiptText, ScanQrCode } from 'lucide-react'
 import { Separator } from '../ui/separator'
 import { Link, Outlet, useLocation } from 'react-router'
 import { UserNav } from '../ui/Layouts/user-nav'
@@ -10,6 +9,7 @@ import Dashboard from '../../assets/SVG/Dashboard.svg?react';
 import SvgviewerOutput from '../../assets/SVG/svgviewer-output.svg?react';
 import Menu from '../../assets/SVG/menu.svg?react';
 import { cn } from '@/lib/utils'
+import LanguageSwitcher from '../ui/Layouts/LanguageSwitcher'
 
 const sideBarData = [
     {
@@ -111,6 +111,7 @@ export default function Sidebar({
                         <Separator orientation="vertical" className="mr-2 h-4" />
                     </div>
                     <div className="flex gap-2 flex-1 items-center justify-end">
+                    <LanguageSwitcher />
                         <Separator orientation="vertical" className="h-6" />
                         <UserNav />
                     </div>

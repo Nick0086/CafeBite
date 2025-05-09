@@ -10,18 +10,20 @@ import { DataTablePagination } from '@/components/ui/table-pagination';
 import CommonTableToolbar from './components/CommonTableToolbar';
 import CommonTable from '@/common/Table/CommonTable';
 import SquareLoader from '@/components/ui/CustomLoaders/SquarLoader';
+import { useTranslation } from 'react-i18next';
 
-const columnsMapping = {
-  id: "Sr No",
-  name: "Item Name",
-  price: "Price",
-  veg_status: "Food Type",
-  category_name: "Category",
-  availability: "Availability",
-  status: "Status",
-  actions: "Actions",
+const columnsMapping = (t) => {
+  return {
+    id: t('sr_no'),
+    name: t('item_name'),
+    price: t('price'),
+    veg_status: t("food_type"),
+    category_name: t("category"),
+    availability: t("availability"),
+    status: t("status"),
+    actions: t("actions"),
+  }
 };
-
 
 export default function MenuTable({
   setIsModalOpen,
@@ -31,6 +33,7 @@ export default function MenuTable({
   categoryIsLoading
 }) {
 
+  const { t } = useTranslation();
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([{ id: "status", value: [1] }])
   const [columnVisibility, setColumnVisibility] = useState({})
@@ -50,17 +53,17 @@ export default function MenuTable({
 
   const columns = useMemo(() => [
     {
-      header: "Sr No",
+      header:  t('sr_no'),
       accessorKey: "id",
       colClassName: "w-1/12",
     },
     {
-      header: "Item Name",
+      header: t('item_name'),
       accessorKey: "name",
       colClassName: "w-3/12",
     },
     {
-      header: "Price",
+      header: t('price'),
       accessorKey: "price",
       colClassName: "w-1/12",
       filterFn: (row, id, filterValue) => {
@@ -89,7 +92,7 @@ export default function MenuTable({
       }
     },
     {
-      header: "Category",
+      header: t("category"),
       accessorKey: "category_name",
       colClassName: "w-2/12",
       filterFn: (row, id, value) => {
@@ -97,7 +100,7 @@ export default function MenuTable({
       },
     },
     {
-      header: "Food Type",
+      header: t("food_type"),
       accessorKey: "veg_status",
       HeaderClassName: "text-center",
       colClassName: "w-1/12 text-center",
@@ -113,7 +116,7 @@ export default function MenuTable({
       },
     },
     {
-      header: "Availability",
+      header: t("availability"),
       accessorKey: "availability",
       HeaderClassName: "text-center",
       colClassName: "w-1/12 text-center",
@@ -129,7 +132,7 @@ export default function MenuTable({
       },
     },
     {
-      header: "Status",
+      header: t("status"),
       accessorKey: "status",
       HeaderClassName: "text-center",
       colClassName: "w-1/12 text-center",
@@ -146,7 +149,7 @@ export default function MenuTable({
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t("actions"),
       HeaderClassName: "text-center",
       colClassName: "w-1/12 text-center",
       cell: ({ _, row }) => (
@@ -160,7 +163,7 @@ export default function MenuTable({
         </div>
       ),
     },
-  ], [handleRowClick, handleEdit]);
+  ], [handleRowClick, handleEdit,t]);
 
   // Always provide a fallback empty array if data?.menuItems is undefined or null
   const tableData = useMemo(() => {
@@ -210,11 +213,11 @@ export default function MenuTable({
       <div className='border-y border-gray-200 p-2'>
         <CommonTableToolbar
           table={tableInstance}
-          columnsMapping={columnsMapping}
+          columnsMapping={columnsMapping(t)}
           categoryOptions={categoryOptions}
           categoryIsLoading={categoryIsLoading}
           searchColumnId="name"
-          searchPlaceholder="Filter by Menu..."
+          searchPlaceholder={`${t("filter_by")} ${t("menu")}...`}
         />
       </div>
       <div className=''>

@@ -9,12 +9,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTranslation } from "react-i18next";
 
 
 export function DataTableViewOptions({
     table,
     headers,
 }) {
+    const {t} = useTranslation();
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -24,7 +26,7 @@ export function DataTableViewOptions({
                     className="ml-auto h-8 lg:flex shadow-none"
                 >
                     <Settings2 className="mr-2 h-4 w-4" />
-                    View
+                    {t('view')}
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[150px]">

@@ -2,11 +2,12 @@ import { DataTableFacetedFilter } from '@/common/Table/data-table-faceted-filter
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
-import { foodOptions, statusOptions, stockOptions } from '../utils';
+import {  getFoodOptions, getStatusOptions, getStockOptions } from '../utils';
 import { DataTableViewOptions } from '@/common/Table/data-table-view-options';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useTranslation } from 'react-i18next';
 
 export default function CommonTableToolbar({
     table,
@@ -17,6 +18,7 @@ export default function CommonTableToolbar({
     categoryOptions
 }) {
 
+    const {t} = useTranslation();
     const isFiltered = table.getState().columnFilters.length > 0;
     const [priceValue, setPriceValue] = useState("");
     const [priceOperator, setPriceOperator] = useState("equals");
@@ -55,7 +57,7 @@ export default function CommonTableToolbar({
             <div className="flex flex-1 items-start space-x-2 justify-between">
                 <div className='flex flex-wrap items-center gap-2' >
                     <Input
-                        placeholder={searchPlaceholder || `Filter...`}
+                        placeholder={searchPlaceholder || t('filter_generic')}
                         value={table.getColumn(searchColumnId)?.getFilterValue() ?? ""}
                         onChange={(event) =>
                             table.getColumn(searchColumnId)?.setFilterValue(event.target.value)
@@ -66,25 +68,25 @@ export default function CommonTableToolbar({
                     {/* Price Filter */}
                     {table.getColumn("price") && (
                         <div className="flex items-center space-x-2 bg-white border rounded-md p-1 px-2 border-input">
-                            <span className="text-sm font-medium">Price:</span>
+                            <span className="text-sm font-medium">{t('price')}:</span>
                             <Select
                                 className='focus:border-none focus:ring-0'
                                 value={priceOperator}
                                 onValueChange={setPriceOperator}
                             >
                                 <SelectTrigger className="h-6  border-none px-0 focus:ring-0">
-                                    <SelectValue placeholder="Operator" />
+                                    <SelectValue placeholder={t('operator')} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="equals">Equals</SelectItem>
-                                    <SelectItem value="greaterThan">Greater</SelectItem>
-                                    <SelectItem value="lessThan">Less</SelectItem>
+                                    <SelectItem value="equals">{t('equals')}</SelectItem>
+                                    <SelectItem value="greaterThan">{t('greater_than')}</SelectItem>
+                                    <SelectItem value="lessThan">{t('less_than')}</SelectItem>
                                 </SelectContent>
                             </Select>
                             <Separator orientation='vertical' className='h-6' />
                             <Input
                                 type="number"
-                                placeholder="price..."
+                                placeholder={`${t('price')}...`}
                                 value={priceValue}
                                 onChange={(e) => {
                                     setPriceValue(e.target.value)
@@ -108,23 +110,23 @@ export default function CommonTableToolbar({
                     {table.getColumn("status") && (
                         <DataTableFacetedFilter
                             column={table.getColumn("status")}
-                            title="Status"
-                            options={statusOptions}
+                            title={t('status')}
+                            options={getStatusOptions(t)}
                         />
                     )}
 
                     {table.getColumn("veg_status") && (
                         <DataTableFacetedFilter
                             column={table.getColumn("veg_status")}
-                            title="Food Type"
-                            options={foodOptions}
+                            title={t('food_type')}
+                            options={getFoodOptions(t)}
                         />
                     )}
 
                     {(table.getColumn("category_name") && !categoryIsLoading) && (
                         <DataTableFacetedFilter
                             column={table.getColumn("category_name")}
-                            title="Category"
+                            title={t('category')}
                             options={categoryOptions}
                         />
                     )}
@@ -132,8 +134,8 @@ export default function CommonTableToolbar({
                     {table.getColumn("availability") && (
                         <DataTableFacetedFilter
                             column={table.getColumn("availability")}
-                            title="Availability"
-                            options={stockOptions}
+                            title={t('availability')}
+                            options={getStockOptions(t)}
                         />
                     )}
 
@@ -146,15 +148,13 @@ export default function CommonTableToolbar({
                             }}
                             className="text-red-500 h-8 px-1 lg:px-2 hover:bg-red-100 hover:text-red-700"
                         >
-                            Reset
+                            {t('reset')}
                             <X className="ml-2 h-4 w-4" />
                         </Button>
                     )}
                 </div>
 
-
                 <DataTableViewOptions table={table} headers={columnsMapping} />
-
             </div>
 
         </div>

@@ -11,8 +11,10 @@ import QrCodeGrid from './QrCodeGrid';
 import { useQrCodeSelection } from './hooks/useQrCodeSelection';
 import { usePrintQrCodes } from './hooks/usePrintQrCodes';
 import { getAllTemplates } from '@/service/templates.service';
+import { useTranslation } from 'react-i18next';
 
 export default function QrCodeManagerIndex() {
+    const { t } = useTranslation();
 
     const [modalState, setModalState] = useState({ isOpen: false, isEdit: false, selectedData: null });
     const [searchQuery, setSearchQuery] = useState("");
@@ -43,10 +45,10 @@ export default function QrCodeManagerIndex() {
 
     useEffect(() => {
         if (error) {
-            toastError(`Error fetching QR Codes: ${JSON.stringify(error)}`);
+            toastError(`${t('error_fetching_qr_codes')}: ${JSON.stringify(error)}`);
         }
         if (templateError) {
-            toastError(`Error fetching templates: ${JSON.stringify(templateError)}`);
+            toastError(`${t('error_fetching_templates')}: ${JSON.stringify(templateError)}`);
         }
     }, [error, templateError]);
 
@@ -106,12 +108,12 @@ export default function QrCodeManagerIndex() {
             <iframe
                 ref={printFrameRef}
                 style={{ position: 'absolute', height: '0', width: '0', border: '0' }}
-                title="Print Frame"
+                title={t('print_frame')}
                 srcDoc={`
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Print QR Codes</title>
+                        <title>${t('print_qr_codes')}</title>
                         <style>
                             body {
                                 font-family: Arial, sans-serif;
@@ -174,7 +176,7 @@ export default function QrCodeManagerIndex() {
                 </CardHeader>
                 <CardContent className="mt-4 px-2">
                     {error ? (
-                        <p className="mt-2 flex items-center justify-center h-[50dvh] text-2xl font-bold text-primary">Failed to load QR Codes.</p>
+                        <p className="mt-2 flex items-center justify-center h-[50dvh] text-2xl font-bold text-primary">{t('failed_to_load_qr_codes')}</p>
                     ) : data?.qrCodes?.length && filteredItems?.length ? (
                         <QrCodeGrid
                             qrCodes={filteredItems}
@@ -184,7 +186,7 @@ export default function QrCodeManagerIndex() {
                             printQRCode={printQRCode}
                         />
                     ) : (
-                        <p className="mt-2 flex items-center justify-center h-52 text-2xl font-bold text-primary">No QR Codes available.</p>
+                        <p className="mt-2 flex items-center justify-center h-52 text-2xl font-bold text-primary">{t('no_qr_codes_available')}</p>
                     )}
                 </CardContent>
             </Card>

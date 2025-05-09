@@ -12,11 +12,12 @@ import MenuTable from './MenuTable'
 import MenuItemForm from './MenuItemForm'
 import { getAllCategory } from '@/service/categories.service'
 import { getAllMenuItems } from '@/service/menuItems.service'
+import { useTranslation } from 'react-i18next'
 
 // Memoize the header component to prevent unnecessary re-renders
-const Header = memo(({ onAddClick }) => (
+const Header = memo(({ onAddClick, t }) => (
   <div className="px-2 pb-2 flex justify-between items-center border-b">
-    <h2 className="text-2xl font-medium">Menu Items</h2>
+    <h2 className="text-2xl font-medium">{t('menu_items')}</h2>
     <div className="flex items-center gap-2">
       <Button
         onClick={onAddClick}
@@ -25,7 +26,7 @@ const Header = memo(({ onAddClick }) => (
       >
         <div className="flex items-center gap-1">
           <Plus size={18} />
-          <span className="text-sm">Add Menu Item</span>
+          <span className="text-sm">`{t('add')} {t('menu_items')}`</span>
         </div>
       </Button>
       <Separator orientation="vertical" className="h-8 bg-gray-300" />
@@ -47,6 +48,7 @@ const MemoizedMenuTable = memo(MenuTable);
 const MemoizedMenuCard = memo(MenuCard);
 
 export default function MenuItemsIndex() {
+  const {t} = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState({ isOpen: false, isEdit: false, data: null, isDirect : false });
   const [activeTab, setActiveTab] = useState("table-view");
 
@@ -75,17 +77,17 @@ export default function MenuItemsIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`Error fetching Menu Item: ${JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_menu_item')}: ${JSON.stringify(error)}`);
     }
     if (categoryError) {
-      toastError(`Error fetching categories: ${JSON.stringify(categoryError)}`);
+      toastError(`${t('error_fetching_category')}: ${JSON.stringify(categoryError)}`);
     }
   }, [error, categoryError]);
 
     const categoryOptions = useMemo(() => {
       if (categoryData) {
         const categories = categoryData?.categories || [];
-        return categories.map((category) => ({
+        return categories?.map((category) => ({
           value: category?.name,
           label: category?.name,
         }));
@@ -108,7 +110,7 @@ export default function MenuItemsIndex() {
         onValueChange={handleTabChange}
         defaultValue="table-view"
       >
-        <Header onAddClick={handleAddMenuItem} />
+        <Header onAddClick={handleAddMenuItem} t={t} />
 
         {/* Render content conditionally based on active tab */}
         {activeTab === "table-view" && (

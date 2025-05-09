@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { Coffee, Download, Edit, EllipsisVertical, Printer } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import QrCodeCheckbox from './QrCodeCheckbox';
+import { useTranslation } from 'react-i18next';
 
 const QrCodeGrid = ({
     qrCodes,
@@ -14,6 +15,7 @@ const QrCodeGrid = ({
     handleModalToggle,
     printQRCode
 }) => {
+    const { t } = useTranslation();
     // Function to download QR code as JPG
     const downloadQRCode = (qrId, tableName) => {
         const canvas = document.querySelector(`canvas[data-qrid="${qrId}"]`);
@@ -29,9 +31,6 @@ const QrCodeGrid = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
             {qrCodes.map((qr) => (
                 <Card key={qr.unique_id} className="shadow-none  p-0 flex flex-col hover:shadow-md relative">
-                    {/* Selection checkbox */}
-
-
                     <CardHeader className="p-2 pb-0 flex-row items-center justify-between space-y-0">
                         <div className='flex gap-2 items-center justify-start flex-grow-1' >
                             <QrCodeCheckbox
@@ -59,21 +58,21 @@ const QrCodeGrid = ({
                                     onClick={() => handleModalToggle({ isOpen: true, isEdit: true, selectedData: qr })}
                                 >
                                     <Edit size={14} />
-                                    <span>Edit Table</span>
+                                    <span>{t('edit_table')}</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     className="cursor-pointer text-sm"
                                     onClick={() => printQRCode(qr.unique_id, qr.table_number)}
                                 >
                                     <Printer size={14} />
-                                    <span>Print QR Code</span>
+                                    <span>{t('print_qr_code')}</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     className="cursor-pointer text-sm"
                                     onClick={() => downloadQRCode(qr.unique_id, qr.table_number)}
                                 >
                                     <Download size={14} />
-                                    <span>Download as JPG</span>
+                                    <span>{t('download_as_jpg')}</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -95,7 +94,7 @@ const QrCodeGrid = ({
                             style={{ width: '100%', textDecoration: 'none' }}
                         >
                             <Button size='sm' className='text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500 mt-2 w-full'>
-                                <Coffee size={16} /> Open Menu
+                                <Coffee size={16} /> {t('open_menu')}
                             </Button>
                         </Link>
                     </CardContent>

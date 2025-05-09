@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { toastError } from '@/utils/toast-utils';
 import { Info, Pencil, Plus } from 'lucide-react';
-import { catgeoryColumnsMapping, queryKeyLoopUp } from './utils';
+import { getCatgeoryColumnsMapping, queryKeyLoopUp } from './utils';
 import { useQuery } from '@tanstack/react-query';
 import { getAllCategory } from '@/service/categories.service';
 
@@ -15,9 +15,12 @@ import { Card } from '@/components/ui/card';
 import { getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { Chip } from '@/components/ui/chip';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 export default function CategoriesIndex() {
 
+  const { t } = useTranslation()
+  const colMapping = getCatgeoryColumnsMapping(t);
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([{ id: "status", value: [1] }])
   const [columnVisibility, setColumnVisibility] = useState({})
@@ -31,7 +34,7 @@ export default function CategoriesIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`Error fetching Category: ${JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_category')} ${JSON.stringify(error)}`);
     }
   }, [error]);
 
@@ -53,31 +56,31 @@ export default function CategoriesIndex() {
 
   const columns = useMemo(() => [
     {
-      header: "Unique No",
+      header: t('unique_no'),
       accessorKey: "id",
       colClassName: "w-2/12 text-start",
     },
     {
-      header: "Category",
+      header:  t('category'),
       accessorKey: "name",
       colClassName: "w-4/12 text-start",
     },
     {
-      header: "Count",
+      header:  t('count'),
       accessorKey: "menu_item_count",
       HeaderClassName: "text-center",
       colClassName: "w-2/12",
     },
     {
-      header: "Status",
+      header: t('status'),
       accessorKey: "status",
       HeaderClassName: "text-center",
       colClassName: "w-2/12",
       cell: ({ cell }) => (
         cell?.getValue() === 1 ? (
-          <Chip className='gap-1' variant='light' color='green' radius='md' size='sm' border='none'><span>Active</span></Chip>
+          <Chip className='gap-1' variant='light' color='green' radius='md' size='sm' border='none'><span>{t('active')}</span></Chip>
         ) : (
-          <Chip className='gap-1' variant='light' color='red' radius='md' size='sm' border='none'><span>Inactive</span></Chip>
+          <Chip className='gap-1' variant='light' color='red' radius='md' size='sm' border='none'><span>{t('inactive')}</span></Chip>
         )
       ),
       filterFn: (row, id, value) => {
@@ -86,7 +89,7 @@ export default function CategoriesIndex() {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t('actions'),
       HeaderClassName: "text-center",
       colClassName: "w-2/12 text-center",
       cell: ({ _, row }) => (
@@ -100,7 +103,7 @@ export default function CategoriesIndex() {
         </div>
       ),
     },
-  ], [handleEdit]);
+  ], [handleEdit,t]);
 
   const tableInstance = useReactTable({
     columns,
@@ -140,7 +143,7 @@ export default function CategoriesIndex() {
         isOpen={selectedRow !== null}
         onClose={handleClose}
         data={selectedRow || {}}
-        title="Category Details"
+        title={t('category_details')}
       />
 
       <CategoriesForm
@@ -152,12 +155,12 @@ export default function CategoriesIndex() {
 
       <div className="w-full" >
         <div className=" px-2 my-2 flex md:flex-row flex-col justify-between md:items-center gap-2">
-          <h2 className='text-2xl font-medium' >Menu Categories</h2>
+          <h2 className='text-2xl font-medium' >{t('menu_categories')}</h2>
           <div className="flex items-center gap-2">
             <Button onClick={() => handleOpenModal({ isOpen: true, isEdit: false, data: null })} size='sm' className='text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500'>
               <div className='flex items-center gap-1 '>
                 <Plus size={18} />
-                <span className='text-sm'>Add Category</span>
+                <span className='text-sm'>{t('add_category')}</span>
               </div>
             </Button>
           </div>
@@ -165,9 +168,9 @@ export default function CategoriesIndex() {
         <div className='border-y border-gray-200 p-2'>
           <CommonTableToolbar
             table={tableInstance}
-            columnsMapping={catgeoryColumnsMapping}
+            columnsMapping={colMapping}
             searchColumnId="name"
-            searchPlaceholder="Filter by Category..."
+            searchPlaceholder={t('filter_by_category')}
           />
         </div>
         <div className='border-y border-gray-200 '>
