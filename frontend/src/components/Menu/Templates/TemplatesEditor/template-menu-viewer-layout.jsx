@@ -171,9 +171,9 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle }) => {
                             <span style={titleStyle}  className="text-base font-bold">
                                 ${item?.price}
                             </span>
-                            <Button disabled={!(item.availability === 'in_stock')} style={buttonBackgroundStyle} variant='primary'  size='sm' > 
+                            {/* <Button disabled={!(item.availability === 'in_stock')} style={buttonBackgroundStyle} variant='primary'  size='sm' > 
                                 <p style={buttonLabelStyle} > {item.availability === 'in_stock' ? "Order" : "Out of Stock"}</p>
-                            </Button>
+                            </Button> */}
                             {/* {item.availability === 'in_stock' ? (
                                 <Chip variant="light" color="green" radius="md" size="xs">
                                     In Stock

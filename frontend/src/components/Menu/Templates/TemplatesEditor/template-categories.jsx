@@ -94,7 +94,8 @@ export default function TemplateCategories({
   isCategoryLoading,
   templateConfig,
   setTemplateConfig,
-  handleTabChang
+  handleTabChang,
+  t
 }) {
   const {setCurrentSection} = useTemplate()
   // Extract categories from template config with fallback to empty array
@@ -183,12 +184,12 @@ export default function TemplateCategories({
 
   // Empty state
   if (!categories.length) {
-    return <div className="p-4">No categories available.</div>;
+    return <div className="p-4">{t('no_categories_available')}</div>;
   }
 
   return (
     <div className="space-y-1.5 p-4 pt-1">
-      <h5 className="text-lg font-medium">Category Management</h5>
+      <h5 className="text-lg font-medium">{t('category_management')}</h5>
       
       {/* DndContext provides the drag-and-drop functionality */}
       <DndContext

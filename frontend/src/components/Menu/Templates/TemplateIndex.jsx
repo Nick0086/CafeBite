@@ -12,9 +12,11 @@ import CommonTable from '@/common/Table/CommonTable';
 import CommonTableToolbar from './components/CommonTableToolbar';
 import { useNavigate } from 'react-router';
 import { getAllTemplates } from '@/service/templates.service';
+import { useTranslation } from 'react-i18next';
 
 export default function TemplateIndex() {
 
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([])
@@ -28,7 +30,7 @@ export default function TemplateIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`Error fetching Templates List: ${JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_templates_list')}: ${JSON.stringify(error)}`);
     }
   }, [error]);
 
@@ -46,18 +48,18 @@ export default function TemplateIndex() {
 
   const columns = useMemo(() => [
     {
-      header: "Sr No",
+      header: t('sr_no'),
       accessorKey: "id",
       colClassName: "w-1/12"
     },
     {
-      header: "Template Name",
+      header: `${t('templates')} ${t('name')}`,
       accessorKey: "name",
       colClassName: "w-4/12",
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t('actions'),
       HeaderClassName: "text-center",
       colClassName: "w-2/12 text-center",
       cell: ({ _, row }) => (
@@ -71,7 +73,7 @@ export default function TemplateIndex() {
         </div>
       ),
     },
-  ], [handleRowClick, handleEdit]);
+  ], [handleRowClick, handleEdit, t]);
 
   const tableData = useMemo(() => {
     return data?.templates || [];
@@ -115,17 +117,17 @@ export default function TemplateIndex() {
         isOpen={selectedRow !== null}
         onClose={handleClose}
         data={selectedRow || {}}
-        title="Template Details"
+        title={`${t('templates')} ${t('details')}`}
       />
 
       <div className="w-full" >
         <div className=" px-2 my-2 flex justify-between items-center">
-          <h2 className='text-2xl font-medium' >Templates</h2>
+          <h2 className='text-2xl font-medium' >{t('templates')}</h2>
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate('../tamplate-editor/new')} size='sm' className='text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500'>
               <div className='flex items-center gap-1 '>
                 <Plus size={18} />
-                <span className='text-sm'>Add Template</span>
+                <span className='text-sm'>{t('add')} {t('templates')}</span>
               </div>
             </Button>
           </div>
@@ -134,7 +136,7 @@ export default function TemplateIndex() {
           <CommonTableToolbar
             table={tableInstance}
             searchColumnId="name"
-            searchPlaceholder="Filter by Template..."
+            searchPlaceholder={`${t('filter_by')} ${t('templates')}...`}
           />
         </div>
         <div className='border-y border-gray-200'>

@@ -10,7 +10,7 @@ import { useTemplate } from '@/contexts/TemplateContext';
 import { templateDefaultValue, DEFAULT_SECTION_THEME } from '../utils';
 import { Separator } from '@/components/ui/separator';
 
-const ColorPicker = ({ label, currentColor, onColorChange, colorKey }) => {
+const ColorPicker = ({ label, currentColor, onColorChange, colorKey, t }) => {
   const defaultColors = templateDefaultValue.global;
 
   const handleChange = (value) => onColorChange(colorKey, value);
@@ -35,7 +35,7 @@ const ColorPicker = ({ label, currentColor, onColorChange, colorKey }) => {
           </div>
         </div>
         <Input value={currentColor} onChange={handleInputChange} className="font-mono text-sm" />
-        <ResetButton onClick={handleReset} tooltipText="Reset" />
+        <ResetButton onClick={handleReset} tooltipText={t('reset')} />
       </div>
     </div>
   );
@@ -60,7 +60,7 @@ const ResetButton = ({ onClick, tooltipText }) => (
   </TooltipProvider>
 );
 
-const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateConfig }) => {
+const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateConfig, t }) => {
 
   const { currentSection, setCurrentSection } = useTemplate();
   const [currentCategory, setCurrentCategory] = useState(null);
@@ -104,16 +104,16 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
     [categoryData]);
 
   const colorSettings = [
-    { label: 'Section Background', key: 'section_background_color' },
-    { label: 'Card Background', key: 'card_background_color' },
-    { label: 'Title Color', key: 'title_color' },
-    { label: 'Card Title Color', key: 'card_title_color' },
-    { label: 'Description Color', key: 'description_color' },
+    { label: t('section_background_color'), key: 'section_background_color' },
+    { label: t('card_background_color'), key: 'card_background_color' },
+    { label: t('title_color'), key: 'title_color' },
+    { label: t('card_title_color'), key: 'card_title_color' },
+    { label: t('description_color'), key: 'description_color' },
   ];
 
   const buttonColors = [
-    { label: 'Button Label', key: 'button_label_color' },
-    { label: 'Button Background', key: 'button_background_color' },
+    { label: t('label_color'), key: 'button_label_color' },
+    { label: t('background_color'), key: 'button_background_color' },
   ];
 
   if (isLoading) {
@@ -125,19 +125,19 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
   }
 
   if (!templateConfig?.categories?.length) {
-    return <div className="p-4">No Items available.</div>;
+    return <div className="p-4">{t('no_items_available')}</div>;
   }
 
   return (
     <div className="space-y-1.5 pt-1">
-      <h5 className="text-lg font-medium px-4 pb-2">Section Style</h5>
+      <h5 className="text-lg font-medium px-4 pb-2">{t("section_style")}</h5>
 
       {/* Category Selection */}
       <div className="flex flex-col gap-1 border-b border-gray-200 px-4 my-4 pb-4">
-        <Label className="text-xs">Select Category</Label>
+        <Label className="text-xs">{t('select_category')}</Label>
         <Select value={currentSection} onValueChange={setCurrentSection}>
           <SelectTrigger>
-            <SelectValue placeholder="Select category" />
+            <SelectValue placeholder={t('select_category')} />
           </SelectTrigger>
           <SelectContent>
             {categoryOptions.map(category => (
@@ -153,8 +153,8 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
       <div className="py-4 px-0 pt-2 space-y-2">
         <div className='' >
           <div className="flex items-center justify-between">
-            <h5 className="text-lg font-medium px-4 pb-2">Background & Colors</h5>
-            <ResetButton onClick={resetAllStyles} tooltipText="Reset All" />
+            <h5 className="text-lg font-medium px-4 pb-2">{t('background_&_colors')}</h5>
+            <ResetButton onClick={resetAllStyles} tooltipText={t('reset_all')} />
           </div>
 
           <div className="space-y-4 px-4 pb-2">
@@ -165,6 +165,7 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
                 currentColor={currentCategory?.style?.[key] || DEFAULT_SECTION_THEME?.[key]}
                 onColorChange={updateStyleConfig}
                 colorKey={key}
+                t={t}
               />
             ))}
           </div>
@@ -174,7 +175,7 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
 
         <div>
           <div className="flex items-center justify-between">
-            <h5 className="text-lg font-medium px-4 pb-2">Button Colors</h5>
+            <h5 className="text-lg font-medium px-4 pb-2">{t('button_colors')}</h5>
           </div>
 
           <div className="space-y-4 px-4 pb-2">
@@ -185,6 +186,7 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
                 currentColor={currentCategory?.style?.[key] || DEFAULT_SECTION_THEME?.[key]}
                 onColorChange={updateStyleConfig}
                 colorKey={key}
+                t={t}
               />
             ))}
           </div>

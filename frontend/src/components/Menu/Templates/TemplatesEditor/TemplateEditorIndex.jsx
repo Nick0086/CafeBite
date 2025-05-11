@@ -18,11 +18,13 @@ import { Card } from '@/components/ui/card';
 import { getAllCategory } from '@/service/categories.service';
 import { getAllMenuItems } from '@/service/menuItems.service';
 import { createTemplate, getTemplateById, updateTemplate } from '@/service/templates.service';
+import { useTranslation } from 'react-i18next';
 
 
 export default function TemplateEditorIndex() {
 
   const queryClient = useQueryClient();
+  const {t} = useTranslation();
   const { templateId } = useParams();
   const {currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor } = useTemplate();
 
@@ -77,15 +79,15 @@ export default function TemplateEditorIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`Error fetching Template Data: ${error?.message || JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_template_data')}: ${error?.message || JSON.stringify(error)}`);
     }
 
     if (categoryError) {
-      toastError(`Error fetching categories: ${categoryError?.message || JSON.stringify(categoryError)}`);
+      toastError(`${t('error_fetching_category')}: ${categoryError?.message || JSON.stringify(categoryError)}`);
     }
 
     if (menuItemError) {
-      toastError(`Error fetching menu items: ${menuItemError?.message || JSON.stringify(menuItemError)}`);
+      toastError(`${t('error_fetching_menu_item')}: ${menuItemError?.message || JSON.stringify(menuItemError)}`);
     }
   }, [categoryError, menuItemError]);
 
@@ -183,7 +185,7 @@ export default function TemplateEditorIndex() {
   const handleFormSubmit = () => {
 
     if (!!(!templateName)) {
-      setNameError('Please select a template name')
+      setNameError(t('please_select_template_name'))
       return;
     }
 
@@ -206,7 +208,7 @@ export default function TemplateEditorIndex() {
   if (isError) {
     return (
       <Card className="flex justify-center items-center h-screen">
-        <p>Somthing Went Wrong</p>
+        <p>{t('somthing_went_wrong')}</p>
       </Card>
     );
   }
@@ -223,7 +225,7 @@ export default function TemplateEditorIndex() {
 
       <SidebarComponent className='overflow-auto' side='right' >
 
-        <SideBarHeader templateName={templateName} setTemplateName={setTemplateName} handleFormSubmit={handleFormSubmit} isSubmitting={createTemplateMutation?.isPending || updateTemplateMutation?.isPending} />
+        <SideBarHeader t={t} templateName={templateName} setTemplateName={setTemplateName} handleFormSubmit={handleFormSubmit} isSubmitting={createTemplateMutation?.isPending || updateTemplateMutation?.isPending} />
 
         <TemplateSideBarTabs
           categoryData={categoryData}

@@ -11,7 +11,8 @@ export default function SideBarHeader({
     templateName,
     setTemplateName,
     handleFormSubmit,
-    isSubmitting
+    isSubmitting,
+    t
 }) {
 
     const navigate = useNavigate();
@@ -21,15 +22,15 @@ export default function SideBarHeader({
         <SidebarHeader className="border-b">
             <div className="flex items-center justify-end gap-x-2">
                 <Button size="sm" variant="outline" onClick={() => navigate('menu-management/tamplate')} isLoading={isSubmitting}>
-                    Back
+                    {t('back')}
                 </Button>
                 <Button size="sm" variant="primary" onClick={handleFormSubmit} isLoading={isSubmitting}>
-                    Save Template
+                    {t('save_template')}
                 </Button>
             </div>
             <div className="py-1">
                 <Label htmlFor="template-name" className="block mb-1">
-                    Template Name
+                    {`${t('templates')} ${t('name')}`}
                 </Label>
                 <Input id="template-name" className='bg-white' value={templateName} onChange={(e) => {
                     setNameError(null)
