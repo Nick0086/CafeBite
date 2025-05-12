@@ -17,7 +17,7 @@ export const authMiddleware = async (req, res, next) => {
         console.log("authMiddleware",{accessToken,refreshToken});
 
         if (!accessToken && !refreshToken) {
-            // clearAuthCookies(res)
+            clearAuthCookies(res)
             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'No tokens provided' });
         }
 
@@ -31,7 +31,7 @@ export const authMiddleware = async (req, res, next) => {
                 if (accessTokenError.name === 'TokenExpiredError' || accessTokenError.name === 'JsonWebTokenError') {
 
                     if (!refreshToken) {
-                        // clearAuthCookies(res)
+                        clearAuthCookies(res)
                         return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Access token expired, no refresh token provided' });
                     }
 
@@ -42,7 +42,7 @@ export const authMiddleware = async (req, res, next) => {
                         const sessionResult = await query(sessionSql, sessionParams);
 
                         if (sessionResult.length === 0) {
-                            // clearAuthCookies(res)
+                            clearAuthCookies(res)
                             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid or expired refresh token' });
                         }
 
@@ -63,11 +63,11 @@ export const authMiddleware = async (req, res, next) => {
                         req.user = decodedRefresh.userDetails;
                         return next(); // Proceed to the next middleware/route
                     } catch (refreshTokenError) {
-                        // clearAuthCookies(res)
+                        clearAuthCookies(res)
                         return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid or expired refresh token' });
                     }
                 } else {
-                    // clearAuthCookies(res)
+                    clearAuthCookies(res)
                     return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid access token' });
                 }
             }
