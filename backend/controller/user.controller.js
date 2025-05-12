@@ -40,7 +40,8 @@ export const registerClient = async (req, res) => {
         const clientId = createUniqueId('CLIENT');
         const { originalname, buffer, mimetype } = req.file;
         const fileName = `${clientId}_${Date.now()}_${originalname}`
-        const key = `profile/${fileName?.split('.')[0]}/${fileName}`;
+        const key = `profile/${fileName?.split('.')[0]}`;
+        const fullPath = `profile/${key}/${fileName}`;
 
         const options = {
             folder: key,
@@ -73,7 +74,7 @@ export const registerClient = async (req, res) => {
         }
 
         const sql = `INSERT INTO clients (unique_id, first_name, last_name, mobile, email, password, cafe_name, cafe_description, logo_url, address_line1, city_id, state_id, country_id, postal_code, currency_code, cafe_phone, cafe_email, cafe_website, social_instagram, social_facebook, social_twitter ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        const result = await query(sql, [clientId, firstName, lastName, phoneNumber, email, hashedPassword, cafeName, cafeDescription, key, cafeAddress, cafeCity, cafeState, cafeCountry, cafeZip, cafeCurrency, cafePhone, cafeEmail, cafeWebsite, socialInstagram, socialFacebook, socialTwitter]);
+        const result = await query(sql, [clientId, firstName, lastName, phoneNumber, email, hashedPassword, cafeName, cafeDescription, fullPath, cafeAddress, cafeCity, cafeState, cafeCountry, cafeZip, cafeCurrency, cafePhone, cafeEmail, cafeWebsite, socialInstagram, socialFacebook, socialTwitter]);
 
         if (result?.affectedRows > 0) {
             return res.status(201).json({ message: 'User created successfully' });
