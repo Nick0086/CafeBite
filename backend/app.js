@@ -18,6 +18,7 @@ const limiter = rateLimit({
     max: 300 // limit each IP to 300 requests per windowMs
 })
 
+console.log("process.env.FRONTEND_DOMAIN",process.env.FRONTEND_DOMAIN) 
 const app = express();
 app.use(cors({
     origin: [process.env.FRONTEND_DOMAIN],
