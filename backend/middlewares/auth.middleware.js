@@ -3,7 +3,7 @@ import query from '../utils/query.utils.js'; // Adjust the path as needed
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/'
 };
@@ -12,6 +12,8 @@ export const authMiddleware = async (req, res, next) => {
     try {
         const accessToken = req.cookies?.accessToken;
         const refreshToken = req.cookies?.refreshToken;
+
+        console.log("authMiddleware",{accessToken,refreshToken});
 
         if (!accessToken && !refreshToken) {
             clearAuthCookies(res)
