@@ -11,7 +11,7 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    // secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/'
 };

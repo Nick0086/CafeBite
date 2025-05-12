@@ -3,7 +3,7 @@ import query from '../utils/query.utils.js'; // Adjust the path as needed
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    // secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/'
 };
@@ -17,7 +17,7 @@ export const authMiddleware = async (req, res, next) => {
 
         if (!accessToken && !refreshToken) {
             clearAuthCookies(res)
-            return res.status(401).json({ code: 'UNAUTHORIZED', message: 'No tokens provided' });
+            // return res.status(401).json({ code: 'UNAUTHORIZED', message: 'No tokens provided' });
         }
 
         if (accessToken || refreshToken) {
@@ -30,7 +30,7 @@ export const authMiddleware = async (req, res, next) => {
                 if (accessTokenError.name === 'TokenExpiredError' || accessTokenError.name === 'JsonWebTokenError') {
 
                     if (!refreshToken) {
-                        clearAuthCookies(res)
+                        // clearAuthCookies(res)
                         return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Access token expired, no refresh token provided' });
                     }
 
@@ -41,7 +41,7 @@ export const authMiddleware = async (req, res, next) => {
                         const sessionResult = await query(sessionSql, sessionParams);
 
                         if (sessionResult.length === 0) {
-                            clearAuthCookies(res)
+                            // clearAuthCookies(res)
                             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid or expired refresh token' });
                         }
 
@@ -62,11 +62,11 @@ export const authMiddleware = async (req, res, next) => {
                         req.user = decodedRefresh.userDetails;
                         return next(); // Proceed to the next middleware/route
                     } catch (refreshTokenError) {
-                        clearAuthCookies(res)
+                        // clearAuthCookies(res)
                         return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid or expired refresh token' });
                     }
                 } else {
-                    clearAuthCookies(res)
+                    // clearAuthCookies(res)
                     return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Invalid access token' });
                 }
             }
