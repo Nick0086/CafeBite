@@ -217,7 +217,7 @@ export default function TemplateEditorIndex() {
     <SidebarProvider CUSTOM_SIDEBAR_WIDTH='20rem' className='w-full !min-h-[100dvh] bg-gray-50/50' >
 
       <SidebarInset className={cn('h-full w-full min-w-0')} >
-        <header className="flex h-12 items-center gap-4 border-b bg-background px-6 z-10">
+        <header className="flex min-h-12 sticky top-0 items-center gap-4 border-b bg-background px-6 z-10">
           <h1 className="text-xl font-semibold">{templateName}</h1>
         </header>
         <TemplateMenuViewerLayout templateConfig={templateConfig} />

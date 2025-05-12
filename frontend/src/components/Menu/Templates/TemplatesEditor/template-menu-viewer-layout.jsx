@@ -336,7 +336,7 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
     );
 
     return (
-        <div className="p-4 bg-gray-100/90 min-h-[90dvh] max-h-[90dvh] overflow-auto" style={containerStyle}>
+        <div className="p-4 max-h-[calc(100dvh-48px)] min-h-[calc(100dvh-48px)] min overflow-auto" style={containerStyle}>
             <Accordion
                 type="multiple"
                 defaultValue={firstCategoryId ? [firstCategoryId] : []}
