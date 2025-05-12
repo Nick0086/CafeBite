@@ -11,10 +11,11 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/'
+    secure: true,               // Required for cross-site cookies
+    sameSite: 'none',           // Required for cross-site cookies
+    path: '/',                  
 };
+
 
 // Checks if a user exists based on email or mobile number
 export const checkUserExists = async (req, res) => {

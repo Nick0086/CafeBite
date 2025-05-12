@@ -3,10 +3,11 @@ import query from '../utils/query.utils.js'; // Adjust the path as needed
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/'
+    secure: true,               // Required for cross-site cookies
+    sameSite: 'none',           // Required for cross-site cookies
+    path: '/',                  
 };
+
 
 export const authMiddleware = async (req, res, next) => {
     try {
