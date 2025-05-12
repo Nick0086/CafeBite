@@ -16,8 +16,8 @@ export const authMiddleware = async (req, res, next) => {
         console.log("authMiddleware",{accessToken,refreshToken});
 
         if (!accessToken && !refreshToken) {
-            clearAuthCookies(res)
-            // return res.status(401).json({ code: 'UNAUTHORIZED', message: 'No tokens provided' });
+            // clearAuthCookies(res)
+            return res.status(401).json({ code: 'UNAUTHORIZED', message: 'No tokens provided' });
         }
 
         if (accessToken || refreshToken) {
