@@ -35,7 +35,6 @@ function App() {
   const isfullScreen = fullScreen?.some(route => path.includes(route));
   const isPublicRoute = publicRoutes.some(route => path.includes(route));
 
-
   return (
     <>
 
