@@ -107,10 +107,11 @@ export default function CustomerMenuIndex() {
             return acc;
         }, {});
 
-        const existingCategories = templateData?.template?.config?.categories?.map(category => ({ ...existingCategoriesVisible[category.unique_id], visible: category?.visible })) || [];
+        const existingCategories = templateData?.menuTemplate?.config?.categories?.map(category => ({ ...existingCategoriesVisible[category.unique_id], visible: category?.visible, style: category?.style })) || [];
         const existingCategoryIds = new Set(existingCategories.map(category => category.unique_id));
         const newCategories = allCategories.filter(category => !existingCategoryIds.has(category.unique_id));
         const combinedCategories = [...existingCategories, ...newCategories];
+
 
         return combinedCategories.map((category) => ({
             unique_id: category.unique_id,

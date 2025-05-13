@@ -119,7 +119,7 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
         </div>
       </div>
 
-      <Separator />
+      {/* <Separator />
 
       <div>
         <h5 className="text-lg font-medium px-4 pb-2">{t("button_colors")}</h5>
@@ -128,7 +128,7 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
             <ColorPicker key={colorKey} label={label} currentColor={currentColor} onColorChange={onColorChange} colorKey={colorKey} updateTemplateConfig={setTemplateConfig} t={t} />
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

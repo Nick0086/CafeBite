@@ -135,7 +135,6 @@ export default function TemplateItems({
                 }
                 // Ensure category.items exists and is an array
                 const items = Array.isArray(category.items) ? category.items : [];
-
                 const oldIndex = items.findIndex(item => item.unique_id === active.id);
                 const newIndex = items.findIndex(item => item.unique_id === over.id);
 

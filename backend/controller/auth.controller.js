@@ -11,8 +11,8 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: true,               // Required for cross-site cookies
-    sameSite: 'none',           // Required for cross-site cookies
+    secure: process.env.NODE_ENV === 'DEV' ?  false : true,               // Required for cross-site cookies
+    sameSite: process.env.NODE_ENV === 'DEV' ?  true : false,           // Required for cross-site cookies
     path: '/',                  
 };
 

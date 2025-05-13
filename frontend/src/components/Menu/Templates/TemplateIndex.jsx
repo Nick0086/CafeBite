@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query';
 import { templateQueryKeyLoopUp } from './utils';
-import SquareLoader from '@/components/ui/CustomLoaders/SquarLoader';
 import { Card } from '@/components/ui/card';
 import { toastError } from '@/utils/toast-utils';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,7 @@ import CommonTableToolbar from './components/CommonTableToolbar';
 import { useNavigate } from 'react-router';
 import { getAllTemplates } from '@/service/templates.service';
 import { useTranslation } from 'react-i18next';
+import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
 
 export default function TemplateIndex() {
 
@@ -106,7 +106,7 @@ export default function TemplateIndex() {
   if (isLoading) {
     return (
       <Card className='h-screen w-full transition ease-in-out duration-300'>
-        <SquareLoader bodyClassName={'h-[70%]'} />
+        <GoogleStyleLoader className={'h-[70%]'} />
       </Card>
     )
   }

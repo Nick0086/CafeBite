@@ -10,9 +10,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { checkUserSession, sendOneTimePassword } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { Link, useNavigate } from 'react-router';
-import PulsatingDots from '../ui/loaders/PulsatingDots';
 import { DEFAULT_VALUES, queryKeyLoopUp } from './utils';
 import { VALIDATION_SCHEMAS } from './schema';
+import PilsatingDotesLoader from '../ui/loaders/PilsatingDotesLoader';
 
 
 export default function Login() {
@@ -69,7 +69,7 @@ export default function Login() {
   if (userViolation || isFetching || userData) {
     return (
       <div className="flex justify-center items-center h-screen bg-surface-background">
-        <PulsatingDots size={5} />
+        <PilsatingDotesLoader />
       </div>
     );
   }

@@ -9,8 +9,8 @@ import { DataTablePagination } from '@/components/ui/table-pagination';
 
 import CommonTableToolbar from './components/CommonTableToolbar';
 import CommonTable from '@/common/Table/CommonTable';
-import SquareLoader from '@/components/ui/CustomLoaders/SquarLoader';
 import { useTranslation } from 'react-i18next';
+import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
 
 const columnsMapping = (t) => {
   return {
@@ -53,7 +53,7 @@ export default function MenuTable({
 
   const columns = useMemo(() => [
     {
-      header:  t('sr_no'),
+      header: t('sr_no'),
       accessorKey: "id",
       colClassName: "w-1/12",
     },
@@ -163,7 +163,7 @@ export default function MenuTable({
         </div>
       ),
     },
-  ], [handleRowClick, handleEdit,t]);
+  ], [handleRowClick, handleEdit, t]);
 
   // Always provide a fallback empty array if data?.menuItems is undefined or null
   const tableData = useMemo(() => {
@@ -197,7 +197,7 @@ export default function MenuTable({
   if (isLoading) {
     return (
       <Card className='h-screen w-full transition ease-in-out duration-300'>
-        <SquareLoader bodyClassName={'h-[70%]'} />
+        <GoogleStyleLoader className={'h-[70%]'} />
       </Card>
     )
   }

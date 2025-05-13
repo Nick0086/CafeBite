@@ -171,9 +171,9 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
           </div>
         </div>
 
-        <Separator />
+        {/* <Separator /> */}
 
-        <div>
+        {/* <div>
           <div className="flex items-center justify-between">
             <h5 className="text-lg font-medium px-4 pb-2">{t('button_colors')}</h5>
           </div>
@@ -190,7 +190,7 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
               />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

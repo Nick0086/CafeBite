@@ -1,4 +1,4 @@
-import PulsatingDots from "@/components/ui/loaders/PulsatingDots";
+import PilsatingDotesLoader from "@/components/ui/loaders/PilsatingDotesLoader";
 import { PermissionsContext } from "@/contexts/PermissionsContext";
 import { checkUserSession  } from "@/service/auth.service";
 import { getClientData } from "@/service/user.service";
@@ -44,7 +44,7 @@ export function PrivateRoutes() {
     if (isLoading || clientDataGetMutation?.isPending) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <PulsatingDots size={5} />
+                <PilsatingDotesLoader />
             </div>
         );
     }

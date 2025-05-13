@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllCategory } from '@/service/categories.service';
 
 import CommonTable from '@/common/Table/CommonTable';
-import SquareLoader from '@/components/ui/CustomLoaders/SquarLoader';
 import CommonTableToolbar from './components/CommonTableToolbar';
 import CategoriesForm from './CategoriesForm';
 import RowDetailsModal from '@/common/Modal/RowDetailsModal';
@@ -16,6 +15,7 @@ import { getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFiltere
 import { Chip } from '@/components/ui/chip';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
 
 export default function CategoriesIndex() {
 
@@ -132,7 +132,7 @@ export default function CategoriesIndex() {
   if (isLoading) {
     return (
       <Card className='h-screen w-full transition ease-in-out duration-300'>
-        <SquareLoader bodyClassName={'h-[70%]'} />
+        <GoogleStyleLoader className={'h-[70%]'} />
       </Card>
     )
   }

@@ -3,8 +3,8 @@ import query from '../utils/query.utils.js'; // Adjust the path as needed
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: true,               // Required for cross-site cookies
-    sameSite: 'none',           // Required for cross-site cookies
+    secure: process.env.NODE_ENV === 'DEV' ?  false : true,               // Required for cross-site cookies
+    sameSite: process.env.NODE_ENV === 'DEV' ?  true : false,           // Required for cross-site cookies
     path: '/',                  
 };
 
@@ -14,7 +14,7 @@ export const authMiddleware = async (req, res, next) => {
         const accessToken = req.cookies?.accessToken;
         const refreshToken = req.cookies?.refreshToken;
 
-        console.log("authMiddleware",{accessToken,refreshToken});
+        // console.log("authMiddleware",{accessToken,refreshToken});
 
         if (!accessToken && !refreshToken) {
             clearAuthCookies(res)
@@ -27,7 +27,7 @@ export const authMiddleware = async (req, res, next) => {
                 req.user = decoded.userDetails;
                 return next();
             } catch (accessTokenError) {
-                console.log({accessTokenError},accessTokenError?.name)
+                // console.log({accessTokenError},accessTokenError?.name)
                 if (accessTokenError.name === 'TokenExpiredError' || accessTokenError.name === 'JsonWebTokenError') {
 
                     if (!refreshToken) {

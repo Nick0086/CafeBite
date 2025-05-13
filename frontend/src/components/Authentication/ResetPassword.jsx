@@ -7,11 +7,11 @@ import { Form } from '../ui/form';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { useNavigate, useSearchParams } from 'react-router';
-import PulsatingDots from '../ui/loaders/PulsatingDots';
 import { validateResetToken, performPasswordReset, checkUserSession } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryKeyLoopUp } from './utils';
+import PilsatingDotesLoader from '../ui/loaders/PilsatingDotesLoader';
 
 const defaultValues = {
     password: '',
@@ -125,7 +125,7 @@ export default function ResetPassword() {
     if (userVerification || isFetching || userData ||  isVerifyLoading || isShowLoading || !verifyData) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-surface-background lg:py-6">
-                <PulsatingDots size={6} />
+                <PilsatingDotesLoader />
             </div>
         )
     }

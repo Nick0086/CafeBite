@@ -6,12 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllQrCode } from '@/service/table-qrcode.service';
 import { qrCodeQueryKeyLookup } from './utils';
 import { toastError } from '@/utils/toast-utils';
-import SquareLoader from '../ui/CustomLoaders/SquarLoader';
 import QrCodeGrid from './QrCodeGrid';
 import { useQrCodeSelection } from './hooks/useQrCodeSelection';
 import { usePrintQrCodes } from './hooks/usePrintQrCodes';
 import { getAllTemplates } from '@/service/templates.service';
 import { useTranslation } from 'react-i18next';
+import GoogleStyleLoader from '../ui/loaders/GoogleStyleLoader';
 
 export default function QrCodeManagerIndex() {
     const { t } = useTranslation();
@@ -88,7 +88,7 @@ export default function QrCodeManagerIndex() {
     if (isLoading || isLoadingTemplates) {
         return (
             <Card className="h-screen w-full transition ease-in-out duration-300">
-                <SquareLoader bodyClassName="h-[70%]" />
+                <GoogleStyleLoader className={'h-[70%]'} />
             </Card>
         );
     }

@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { PlusCircle, AlertCircle, Plus, Minus } from 'lucide-react';
 import { useOrder } from '@/contexts/order-management-context';
 import { useMenuStyles } from './utils';
+import { useTranslation } from 'react-i18next';
 
 
 const StatusBadge = memo(({ type }) => {
@@ -49,6 +50,7 @@ const OptimizedImage = memo(({ src, alt }) => {
 
 const MenuItem = memo(({ item, styles }) => {
 
+    const { t } = useTranslation();
     const { ref, inView } = useInView({
         threshold: 0.1,
         triggerOnce: true,
@@ -142,33 +144,47 @@ const MenuItem = memo(({ item, styles }) => {
                                     </div>)
 
                                     : (
+                                        <>
+                                            {isInStock ? (
+                                                <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
+                                            ) : (
+                                                <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
+                                            )}
 
-                                        <Button
-                                            disabled={!isInStock}
-                                            style={styles?.buttonBackgroundStyle}
-                                            variant='primary'
-                                            size='sm'
-                                            onClick={handleAddToOrder}
-                                            className="flex items-center gap-1"
-                                        >
-                                            <p style={styles?.buttonLabelStyle} className='flex items-center gap-1' >
-                                                {isInStock ? (
-                                                    <><PlusCircle className="h-4 w-4" />Add</>
-                                                ) : (
-                                                    <><AlertCircle className="h-4 w-4" />Out of Stock</>
-                                                )}
-                                            </p>
-                                        </Button>
-                                    )
+                                        {/* // <Button
+                                        //     disabled={!isInStock}
+                                        //     style={styles?.buttonBackgroundStyle}
+                                        //     variant='primary'
+                                        //     size='sm'
+                                        //     onClick={handleAddToOrder}
+                                        //     className="flex items-center gap-1"
+                                        // >
+                                        //     <p style={styles?.buttonLabelStyle} className='flex items-center gap-1' >
+                                        //         {isInStock ? (
+                                        //             <><PlusCircle className="h-4 w-4" />Add</>
+                                        //         ) : (
+                                        //             <><AlertCircle className="h-4 w-4" />Out of Stock</>
+                                        //         )}
+                                        //         {isInStock ? (
+                                        //             <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
+                                        //         ) : (
+                                        //             <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
+                                        //         )}
+                                        //     </p>
+                                        // </Button></div> */}
+                                        </>
+
+
+                    )
                             }
 
-                        </div>
+                </div>
                     </CardContent>
-                </Card>
+                </Card >
             ) : (
-                <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse" />
-            )}
-        </div>
+    <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse" />
+)}
+        </div >
     );
 
 });

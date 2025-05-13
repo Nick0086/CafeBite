@@ -10,7 +10,7 @@ import { Form } from '../ui/form';
 import ReusableFormField from '@/common/Form/ReusableFormField';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
-import PulsatingDots from '../ui/loaders/PulsatingDots';
+import PilsatingDotesLoader from '../ui/loaders/PilsatingDotesLoader';
 
 const defaultValues = {
     firstName: '',
@@ -82,7 +82,7 @@ export default function SignIn() {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen bg-surface-background">
-                <PulsatingDots size={5} />
+                <PilsatingDotesLoader />
             </div>
         );
     }

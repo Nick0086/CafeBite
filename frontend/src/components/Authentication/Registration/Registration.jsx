@@ -17,7 +17,7 @@ import { registerUser } from '@/service/user.service'
 import { toastError, toastSuccess } from '@/utils/toast-utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { checkUserSession } from '@/service/auth.service'
-import PulsatingDots from '@/components/ui/loaders/PulsatingDots'
+import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader'
 
 const formSchema = z.object({
   ...personalFormSchema.shape,
@@ -116,7 +116,7 @@ export default function Registration() {
   if (userViolation || isFetching || userData) {
     return (
       <div className="flex justify-center items-center h-screen bg-surface-background">
-        <PulsatingDots size={5} />
+        <PilsatingDotesLoader />
       </div>
     );
   }

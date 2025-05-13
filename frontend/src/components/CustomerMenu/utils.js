@@ -22,28 +22,28 @@ export const useMenuStyles = (globalConfig, categoryStyle) => {
 
         return {
             sectionStyle: {
-                backgroundColor: cs.section_background_color || gc.section_background_color || ds.section_background_color,
+                backgroundColor: (cs.section_background_color !==  ds.section_background_color ? cs.section_background_color : null) || gc.section_background_color || ds.section_background_color,
             },
             titleBarStyle: {
-                color: cs.title_color || gc.title_color || ds.title_color,
+                color: (cs.title_color !== ds.title_color ? cs.title_color : null) || gc.title_color || ds.title_color,
             },
             titleTextStyle: {
-                color: cs.title_color || gc.title_color || ds.title_color,
+                color: (cs.title_color !== ds.title_color ? cs.title_color : null) || gc.title_color || ds.title_color,
             },
             cardStyle: {
-                backgroundColor: cs.card_background_color || gc.card_background_color || ds.card_background_color,
+                backgroundColor: (cs.card_background_color !== ds.card_background_color ? cs.card_background_color : null) || gc.card_background_color || ds.card_background_color,
             },
             titleStyle: {
-                color: cs.card_title_color || gc.card_title_color || ds.card_title_color,
+                color: (cs.card_title_color !== ds.card_title_color ? cs.card_title_color : null) || gc.card_title_color || ds.card_title_color,
             },
             descriptionStyle: {
-                color: cs.description_color || gc.description_color || ds.description_color,
+                color: (cs.description_color !== ds.description_color ? cs.description_color : null) || gc.description_color || ds.description_color,
             },
             buttonBackgroundStyle: {
-                backgroundColor: cs.button_background_color || gc.button_background_color || ds.button_background_color,
+                backgroundColor: (cs.button_background_color !== ds.button_background_color ? cs.button_background_color : null) || gc.button_background_color || ds.button_background_color,
             },
             buttonLabelStyle: {
-                color: cs.button_label_color || gc.button_label_color || ds.button_label_color,
+                color: (cs.button_label_color !== ds.button_label_color ? cs.button_label_color : null) || gc.button_label_color || ds.button_label_color,
             },
         };
     }, [globalConfig, categoryStyle]);

@@ -8,7 +8,6 @@ import {
 import { cn } from '@/lib/utils';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { DEFAULT_SECTION_THEME, templateDefaultValue, templateQueryKeyLoopUp } from '../utils';
-import PulsatingDots from '@/components/ui/loaders/PulsatingDots';
 import SideBarHeader from './components/sidebar-header';
 import TemplateSideBarTabs from './TemplateSideBarTabs';
 import TemplateMenuViewerLayout from './template-menu-viewer-layout';
@@ -19,6 +18,7 @@ import { getAllCategory } from '@/service/categories.service';
 import { getAllMenuItems } from '@/service/menuItems.service';
 import { createTemplate, getTemplateById, updateTemplate } from '@/service/templates.service';
 import { useTranslation } from 'react-i18next';
+import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 
 
 export default function TemplateEditorIndex() {
@@ -132,7 +132,7 @@ export default function TemplateEditorIndex() {
       return acc;
     }, {});
     
-    const existingCategories = templateData?.template?.config?.categories?.map(category => ({...existingCategoriesVisible[category.unique_id], visible: category?.visible})) || [];
+    const existingCategories = templateData?.template?.config?.categories?.map(category => ({...existingCategoriesVisible[category.unique_id], visible: category?.visible, style: category?.style || {}})) || [];
     const existingCategoryIds = new Set(existingCategories.map(category => category.unique_id));
 
     const newCategories = allCategories.filter(category => !existingCategoryIds.has(category.unique_id));
@@ -200,7 +200,7 @@ export default function TemplateEditorIndex() {
   if (isCategoryLoading || isMenuItemLoading || isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <PulsatingDots size={5} />
+        <PilsatingDotesLoader />
       </div>
     );
   }
