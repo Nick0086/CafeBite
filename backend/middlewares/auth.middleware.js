@@ -4,7 +4,7 @@ import query from '../utils/query.utils.js'; // Adjust the path as needed
 const COOKIE_OPTIONS = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'DEV' ?  false : true,               // Required for cross-site cookies
-    sameSite: process.env.NODE_ENV === 'DEV' ?  true : false,           // Required for cross-site cookies
+    sameSite: process.env.NODE_ENV === 'DEV' ?  true : 'None',           // Required for cross-site cookies
     path: '/',                  
 };
 
