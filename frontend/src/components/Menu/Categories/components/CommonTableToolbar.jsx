@@ -26,7 +26,7 @@ const CommonTableToolbar = ({
                     onChange={(event) =>
                         table.getColumn(searchColumnId)?.setFilterValue(event.target.value)
                     }
-                    className="h-8 w-[250px] lg:w-[250px]"
+                    className="h-8 w-full sm:w-[250px] lg:w-[250px]"
                 />
                 <div>
                     {table.getColumn("status") && (
@@ -54,7 +54,7 @@ const CommonTableToolbar = ({
                     </div>
                 )}
             </div>
-            <DataTableViewOptions table={table} headers={columnsMapping} />
+            {/* <DataTableViewOptions table={table} headers={columnsMapping} /> */}
         </div>
     )
 }

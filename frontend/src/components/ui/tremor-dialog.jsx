@@ -58,7 +58,7 @@ const DialogContent = React.forwardRef(({ className, overlayClassName, showClose
                     ref={forwardedRef}
                     onInteractOutside={(e) => stopOutsideClick && handleInteractOutside(e)}
                     className={cn(
-                        "z-[999] relative grid w-full max-w-md sm:max-w-lg gap-1 bg-background  shadow-lg ",
+                        "z-[999] relative grid w-[95%] rounded max-w-md sm:max-w-lg gap-1 bg-background  shadow-lg ",
                         // "data-[state=open]:animate-in data-[state=closed]:animate-out",
                         "!duration-300 data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out",
                         /* "transition-all !duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-10 data-[state=open]:slide-in-from-top-10", */

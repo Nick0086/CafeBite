@@ -24,12 +24,12 @@ export default function MenuFilters({
 
     return (
         <div className="pb-2">
-            <div className="flex gap-2 justify-start border-b pb-2 px-2">
+            <div className="flex flex-wrap gap-2 justify-start border-b pb-2 px-2">
                 <Input
                     placeholder={`${t('filter_by')} ${t('menu')}...`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-8 w-[150px] lg:w-[320px]"
+                    className="h-8 w-full sm:w-[150px] lg:w-[320px]"
                 />
                 <FacetedFilter title={t('status')} options={getStatusOptions(t)} onFilterChange={setSelectedStatuses} value={selectedStatuses} />
 

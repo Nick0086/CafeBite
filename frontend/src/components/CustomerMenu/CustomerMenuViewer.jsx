@@ -7,7 +7,7 @@ import { ImagePlaceholder } from '../ui/Iimage-placeholder';
 import { AppTooltip } from '@/common/AppTooltip';
 import { Chip } from '../ui/chip';
 import { cn } from '@/lib/utils';
-import { PlusCircle, AlertCircle, Plus, Minus } from 'lucide-react';
+import {  Plus, Minus } from 'lucide-react';
 import { useOrder } from '@/contexts/order-management-context';
 import { useMenuStyles } from './utils';
 import { useTranslation } from 'react-i18next';

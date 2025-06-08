@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Sidebar as SidebarComponent,
   SidebarInset,
-  SidebarProvider
+  SidebarProvider,
+  SidebarTrigger
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
@@ -12,7 +13,7 @@ import SideBarHeader from './components/sidebar-header';
 import TemplateSideBarTabs from './TemplateSideBarTabs';
 import TemplateMenuViewerLayout from './template-menu-viewer-layout';
 import { useTemplate } from '@/contexts/TemplateContext';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 import { Card } from '@/components/ui/card';
 import { getAllCategory } from '@/service/categories.service';
 import { getAllMenuItems } from '@/service/menuItems.service';
@@ -26,6 +27,7 @@ export default function TemplateEditorIndex() {
   const queryClient = useQueryClient();
   const {t} = useTranslation();
   const { templateId } = useParams();
+  const navigation = useNavigate();
   const {currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor } = useTemplate();
 
   const [templateConfig, setTemplateConfig] = useState(templateDefaultValue);
@@ -165,6 +167,7 @@ export default function TemplateEditorIndex() {
     onSuccess: (res) => {
       queryClient.invalidateQueries(templateQueryKeyLoopUp['TEMPLATE_LIST']);
       toastSuccess(res?.message || `Template ${templateName} added successfully`);
+      navigation(-1)
     },
     onError: (error) => {
       toastError(`Error adding Template: ${error?.err?.error}`);
@@ -214,11 +217,12 @@ export default function TemplateEditorIndex() {
   }
 
   return (
-    <SidebarProvider CUSTOM_SIDEBAR_WIDTH='20rem' className='w-full !min-h-[100dvh] bg-gray-50/50' >
+    <SidebarProvider CUSTOM_SIDEBAR_WIDTH='20rem' className='w-fullbg-gray-50/50' >
 
       <SidebarInset className={cn('h-full w-full min-w-0')} >
-        <header className="flex min-h-12 sticky top-0 items-center gap-4 border-b bg-background px-6 z-10">
+        <header className="flex justify-between flex-wrap min-h-11  sticky top-0 items-center gap-4 border-b bg-background px-6 z-10">
           <h1 className="text-xl font-semibold">{templateName}</h1>
+          <SidebarTrigger className="-ml-1" />
         </header>
         <TemplateMenuViewerLayout templateConfig={templateConfig} />
       </SidebarInset>

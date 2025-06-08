@@ -26,7 +26,7 @@ export default function QrCodeToolbar({
 
     return (
         <div className='space-y-4' >
-            <div className='flex justify-between items-center' >
+            <div className='flex flex-wrap gap-2 justify-between items-center' >
                 <div>
                     <CardTitle className='text-primary text-2xl font-bold' >{t('qr_code_management')}</CardTitle>
                     <p className='text-secondary text-sm' >{t('manage_qr_codes')}</p>
@@ -40,12 +40,12 @@ export default function QrCodeToolbar({
                 </Button>
             </div>
 
-            <div className="flex gap-2 justify-start pb-2">
+            <div className="flex flex-wrap gap-2 justify-start pb-2">
                 <Input
                     placeholder={t('filter_by_table')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-8 w-[150px] lg:w-[320px]"
+                    className="h-8 w-full sm:w-[150px] lg:w-[320px]"
                 />
 
                 <FacetedFilter title={t('template')} options={templateOptions} onFilterChange={setSelectedTemplate} value={selectedTemplate} />
@@ -58,7 +58,7 @@ export default function QrCodeToolbar({
                 ) : null}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <Button
                     variant="outline"
                     size="sm"

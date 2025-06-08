@@ -82,7 +82,7 @@ export default function CategoriesForm({ open, onHide, isEdit, selectedRow }) {
 
     return (
         <Dialog className='p-0' open={open} onOpenChange={handleModalClose} >
-            <DialogContent  style={{ fontFamily: 'Nunito, "Segoe UI", arial' }}>
+            <DialogContent className='w-[95%]'  style={{ fontFamily: 'Nunito, "Segoe UI", arial' }}>
                 {
                     open && (
                         <>

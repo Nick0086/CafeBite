@@ -62,7 +62,7 @@ export default function CommonTableToolbar({
                         onChange={(event) =>
                             table.getColumn(searchColumnId)?.setFilterValue(event.target.value)
                         }
-                        className="h-8 w-[150px] lg:w-[320px]"
+                        className="h-8 w-full sm:w-[150px] lg:w-[320px]"
                     />
 
                     {/* Price Filter */}
@@ -154,7 +154,7 @@ export default function CommonTableToolbar({
                     )}
                 </div>
 
-                <DataTableViewOptions table={table} headers={columnsMapping} />
+                {/* <DataTableViewOptions table={table} headers={columnsMapping} /> */}
             </div>
 
         </div>

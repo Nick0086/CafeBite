@@ -12,12 +12,12 @@ import { cn } from '@/lib/utils'
 import LanguageSwitcher from '../ui/Layouts/LanguageSwitcher'
 
 const sideBarData = [
-    {
-        title: 'Dashboard',
-        icon: <Dashboard className='size-6' />,
-        link: '/dashboard',
-        isCollapsible: false,
-    },
+    // {
+    //     title: 'Dashboard',
+    //     icon: <Dashboard className='size-6' />,
+    //     link: '/dashboard',
+    //     isCollapsible: false,
+    // },
     {
         title: 'Menu ',
         icon: <Menu className='size-10' />,
@@ -111,7 +111,7 @@ export default function Sidebar({
                         <Separator orientation="vertical" className="mr-2 h-4" />
                     </div>
                     <div className="flex gap-2 flex-1 items-center justify-end">
-                    <LanguageSwitcher />
+                    {/* <LanguageSwitcher /> */}
                         <Separator orientation="vertical" className="h-6" />
                         <UserNav />
                     </div>

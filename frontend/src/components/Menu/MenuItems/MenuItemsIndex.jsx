@@ -16,9 +16,9 @@ import { useTranslation } from 'react-i18next'
 
 // Memoize the header component to prevent unnecessary re-renders
 const Header = memo(({ onAddClick, t }) => (
-  <div className="px-2 pb-2 flex justify-between items-center border-b">
+  <div className="px-2 pb-2 flex flex-wrap justify-between items-center border-b">
     <h2 className="text-2xl font-medium">{t('menu_items')}</h2>
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Button
         onClick={onAddClick}
         size="sm"
@@ -26,7 +26,7 @@ const Header = memo(({ onAddClick, t }) => (
       >
         <div className="flex items-center gap-1">
           <Plus size={18} />
-          <span className="text-sm">`{t('add')} {t('menu_items')}`</span>
+          <span className="text-sm whitespace-nowrap">{t('add')} {t('menu_items')}</span>
         </div>
       </Button>
       <Separator orientation="vertical" className="h-8 bg-gray-300" />
