@@ -94,11 +94,11 @@ export function UserNav() {
             <DropdownMenuItem className="hover:cursor-pointer" asChild>
               <Link to="/dashboard" className="flex items-center text-gray-700 no-underline">
                 <LayoutGrid className="size-5 mr-3 text-muted-foreground" />
-                Dashboard
+                Dashboard*
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="hover:cursor-pointer" asChild>
-              <Link to="/my-profile" className="flex items-center text-gray-700 no-underline">
+              <Link to="/profile-management" className="flex items-center text-gray-700 no-underline">
                 <CircleUser className="size-5 mr-3 text-muted-foreground" />
                 My Profile
               </Link>

@@ -8,6 +8,7 @@ import CafeIcon from '../../assets/SVG/coffee-cup-coffee.svg?react';
 import Dashboard from '../../assets/SVG/Dashboard.svg?react';
 import SvgviewerOutput from '../../assets/SVG/svgviewer-output.svg?react';
 import Menu from '../../assets/SVG/menu.svg?react';
+import User from '../../assets/SVG/users.svg?react';
 import { cn } from '@/lib/utils'
 import LanguageSwitcher from '../ui/Layouts/LanguageSwitcher'
 
@@ -32,6 +33,7 @@ const sideBarData = [
     },
     {
         title: 'Profile',
+        icon: <User className='size-6' />,
         link: '/profile-management',
         isCollapsible: false,
     },
