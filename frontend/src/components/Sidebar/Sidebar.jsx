@@ -67,7 +67,7 @@ export default function Sidebar({
 
     return (
         <SidebarProvider>
-            <SidebarComponent className={cn('')} collapsible="icon" style={{ fontFamily: 'Nunito, "Segoe UI", arial' }} >
+            <SidebarComponent className={cn('!bg-white')} collapsible="icon" style={{ fontFamily: 'Nunito, "Segoe UI", arial' }} >
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>

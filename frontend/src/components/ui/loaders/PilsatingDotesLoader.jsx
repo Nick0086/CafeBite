@@ -33,13 +33,6 @@ const PilsatingDotesLoader = ({
     color = "blue",
     count = 5
 }) => {
-    console.log({
-        className,
-        dotClassName,
-        size,
-        color,
-        count
-    });
     const dots = Array.from({ length: count }, (_, i) => i);
 
     return (
