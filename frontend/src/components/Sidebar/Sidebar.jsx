@@ -30,6 +30,11 @@ const sideBarData = [
         link: '/qr-management',
         isCollapsible: false,
     },
+    {
+        title: 'Profile',
+        link: '/profile-management',
+        isCollapsible: false,
+    },
     // {
     //     title: 'Orders',
     //     icon:<ClipboardList />,
