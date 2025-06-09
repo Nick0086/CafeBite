@@ -33,23 +33,57 @@ const handleImageUpload = async (file, clientId, menuItemId) => {
     const { originalname, buffer, mimetype } = file;
     const fileName = `${menuItemId}_${Date.now()}_${originalname}`;
     const key = `menuItem/${clientId}`;
-    let processedBuffer = buffer;
+    // let processedBuffer = buffer;
 
-    if (buffer.length > 500 * 1024) {
-        try {
-            processedBuffer = await sharp(buffer)
-                .jpeg({ quality: 20, mozjpeg: true })
-                .toBuffer();
-            if (processedBuffer.length > 250 * 1024) {
-                processedBuffer = await sharp(processedBuffer)
-                    .jpeg({ quality: 10, mozjpeg: true })
-                    .toBuffer();
-            }
-        } catch (err) {
-            console.error("Error compressing image:", err);
-            processedBuffer = buffer;
+    // if (buffer.length > 500 * 1024) {
+    //     try {
+    //         processedBuffer = await sharp(buffer)
+    //             .jpeg({ quality: 20, mozjpeg: true })
+    //             .toBuffer();
+    //         if (processedBuffer.length > 250 * 1024) {
+    //             processedBuffer = await sharp(processedBuffer)
+    //                 .jpeg({ quality: 10, mozjpeg: true })
+    //                 .toBuffer();
+    //         }
+    //     } catch (err) {
+    //         console.error("Error compressing image:", err);
+    //         processedBuffer = buffer;
+    //     }
+    // }
+
+    const originalBuffer = buffer; // keep original file buffer
+    const metadata = await sharp(originalBuffer).metadata();
+
+    let quality = 80;
+    let processedBuffer;
+    let restarted = false;
+
+
+    do {
+        const imageInstance = sharp(originalBuffer);
+        processedBuffer = await imageInstance
+            .resize({
+                width: metadata.width > 1200 ? 1200 : undefined,
+            })
+            .jpeg({ quality: Math.max(1, quality), mozjpeg: true })
+            .toBuffer();
+
+        if (processedBuffer.length <= 95 * 1024) break;
+
+        if (quality <= 30 && !restarted) {
+            restarted = true;
+            quality = 25;
+            continue; // restart compression loop
         }
-    }
+
+        quality -= 10;
+    } while (quality > 0);
+
+    console.log(`Compressed to ${Math.round(processedBuffer.length / 1024)}KB at quality ${quality}`);
+
+    const finalBuffer = await sharp(processedBuffer)
+        .webp({ quality: Math.max(quality, 20) })
+        .toBuffer();
 
     const options = {
         folder: key,
@@ -59,7 +93,7 @@ const handleImageUpload = async (file, clientId, menuItemId) => {
         format: 'webp'
     };
 
-    const fileUploadResult = await uploadStreamToCloudinary(processedBuffer, options);
+    const fileUploadResult = await uploadStreamToCloudinary(finalBuffer, options);
     if (!fileUploadResult?.secure_url) {
         throw new Error('Upload succeeded but no secure URL returned');
     }
