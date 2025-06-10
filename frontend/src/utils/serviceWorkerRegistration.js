@@ -6,16 +6,24 @@ const isLocalhost = Boolean(
     )
 );
 
-export function register() {
+export function register(config) {
     if ('serviceWorker' in navigator) {
+        const publicUrl = new URL('https://cafe-bite.vercel.app' || '', window.location.href);
+        if (publicUrl.origin !== window.location.origin) {
+            return;
+        }
+
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then((registration) => {
-                    console.log('SW registered: ', registration);
-                })
-                .catch((registrationError) => {
-                    console.log('SW registration failed: ', registrationError);
+            const swUrl = `${'https://cafe-bite.vercel.app' || ''}/sw.js`;
+
+            if (isLocalhost) {
+                checkValidServiceWorker(swUrl, config);
+                navigator.serviceWorker.ready.then(() => {
+                    console.log('Service worker is ready for localhost');
                 });
+            } else {
+                registerValidSW(swUrl, config);
+            }
         });
     }
 }
@@ -24,15 +32,18 @@ function registerValidSW(swUrl, config) {
     navigator.serviceWorker
         .register(swUrl)
         .then((registration) => {
+            console.log('SW registered successfully:', registration);
+            
             registration.onupdatefound = () => {
                 const installingWorker = registration.installing;
                 if (installingWorker == null) {
                     return;
                 }
+                
                 installingWorker.onstatechange = () => {
                     if (installingWorker.state === 'installed') {
                         if (navigator.serviceWorker.controller) {
-                            console.log('New content is available; please refresh.');
+                            console.log('New content available; please refresh.');
                             if (config && config.onUpdate) {
                                 config.onUpdate(registration);
                             }
@@ -47,7 +58,7 @@ function registerValidSW(swUrl, config) {
             };
         })
         .catch((error) => {
-            console.error('Error during service worker registration:', error);
+            console.log('SW registration failed:', error);
         });
 }
 
@@ -85,4 +96,23 @@ export function unregister() {
                 console.error(error.message);
             });
     }
+}
+
+// Get cache statistics
+export function getCacheStats() {
+    return new Promise((resolve) => {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            const messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = (event) => {
+                resolve(event.data);
+            };
+            
+            navigator.serviceWorker.controller.postMessage(
+                { type: 'GET_CACHE_STATS' },
+                [messageChannel.port2]
+            );
+        } else {
+            resolve({ error: 'Service Worker not available' });
+        }
+    });
 }

@@ -1,0 +1,11 @@
+{
+    "routes": [
+        {
+            "src": "/sw.js",
+            "headers": {
+                "Content-Type": "application/javascript",
+                "Service-Worker-Allowed": "/"
+            }
+        }
+    ]
+}
