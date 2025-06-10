@@ -1,3 +1,4 @@
+import { getSignedUrlFromCloudinary } from "../services/cloudinary/cloudinary.service.js";
 import query from "../utils/query.utils.js";
 import { handleError } from "../utils/utils.js";
 
@@ -9,6 +10,16 @@ export const getMenuForCustomerByTableId = async (req, res) => {
 
         if (!table.length) {
             return res.status(404).json({ status: "error", code: "TABLE_NOT_FOUND", message: "Table not found." });
+        }
+
+        const cilentINfo = await query('SELECT * FROM clients WHERE unique_id = ?', [userId]);
+        if(!cilentINfo.length) {
+            return res.status(404).json({ status: "error", code: "CLIENT_NOT_FOUND", message: "Client not found." });
+        }
+        var user = cilentINfo[0];
+        if (user.logo_url) {
+            const signedUrl = await getSignedUrlFromCloudinary(user.logo_url, {}, 86400);
+            user.logo_signed_url = signedUrl;
         }
 
         const menuTemplate = await query(`SELECT * FROM templates WHERE unique_id = ? AND client_id = ?`,
@@ -25,7 +36,8 @@ export const getMenuForCustomerByTableId = async (req, res) => {
         return res.status(200).json({
             status: "success",
             message: "Menu retrieved successfully.",
-            menuTemplate: menuTemplate[0]
+            menuTemplate: menuTemplate[0],
+            clinetInfo: user
         });
     } catch (error) {
         handleError('customer-menu.controller.js', 'getMenuForCustomerByTableId', res, error, 'An unexpected error occurred while retrieving the menu.');

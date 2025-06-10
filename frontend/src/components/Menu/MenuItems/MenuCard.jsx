@@ -120,8 +120,6 @@ export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOpti
 
   const {t} = useTranslation();
   const [menuItems, setMenuItems] = useState([]);
-  const [displayCount, setDisplayCount] = useState(12);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [menuAvailability, setMenuAvailability] = useState([]);
@@ -155,17 +153,6 @@ export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOpti
     acc[category].push(item);
     return acc;
   }, {});
-
-
-  useEffect(() => {
-    if (inView && !loadingMore && filteredItems.length > displayCount) {
-      setLoadingMore(true);
-      setTimeout(() => {
-        setDisplayCount((prevCount) => Math.min(prevCount + 6, filteredItems.length));
-        setLoadingMore(false);
-      }, 300);
-    }
-  }, [inView, loadingMore, filteredItems.length, displayCount]);
 
   const resetFilters = () => {
     setSearchQuery("");
@@ -244,18 +231,12 @@ export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOpti
           </div>
 
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
-            {items.slice(0, displayCount).map((item) => (
+            {items?.map((item) => (
               <MenuItem key={item.unique_id || item.id} item={item} setIsModalOpen={setIsModalOpen}  t={t} />
             ))}
           </div>
         </div>
       ))}
-
-      {displayCount < filteredItems.length && (
-        <div ref={ref} className="w-full h-20 flex items-center justify-center px-2">
-          <div className="w-8 h-8 border-t-2 border-b-2 border-gray-500 rounded-full animate-spin"></div>
-        </div>
-      )}
     </>
   );
 }

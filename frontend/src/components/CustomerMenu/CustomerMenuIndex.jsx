@@ -14,6 +14,7 @@ import { DEFAULT_SECTION_THEME } from '../Menu/Templates/utils';
 import CustomerMenuViewer from './CustomerMenuViewer';
 import { OrderHistoryProvider, OrderProvider } from '@/contexts/order-management-context';
 import { OrderDrawer } from './OrderDrawer';
+import MenuPage from '@/pages/MenuPage';
 
 export default function CustomerMenuIndex() {
     const { restaurantId, tableId } = useParams();
@@ -49,6 +50,7 @@ export default function CustomerMenuIndex() {
     }, [templateError, categoryError, menuItemsError]);
 
     const menuTemplate = templateData?.menuTemplate;
+    const clinetInfo = templateData?.clinetInfo || {};
 
     // Build a mapping of menu items grouped by category.
     const menuItemsByCategory = useMemo(() => {
@@ -73,9 +75,6 @@ export default function CustomerMenuIndex() {
 
         // Merge items from the template config with new items, avoiding duplicates.
         return Object.entries(allItemsByCategory).reduce((result, [categoryId, items]) => {
-            // const existingItems = existingItemsByCategory[categoryId] || [];
-            // const existingItemIds = new Set(existingItems.map((item) => item.unique_id));
-            // const newItems = items.filter((item) => !existingItemIds.has(item.unique_id));
             const allMenuItems = items?.reduce((acc, element) => {
                 acc[element.unique_id] = element;
                 return acc;
@@ -91,15 +90,6 @@ export default function CustomerMenuIndex() {
     // Process and combine categories from fetched data and template configuration.
     const processedCategories = useMemo(() => {
         if (!categoryData?.categories) return [];
-
-        // Only include active categories.
-        // const activeCategories = categoryData.categories.filter((category) => category.status);
-        // const configCategories = menuTemplate?.config?.categories || [];
-        // const configCategoryIds = new Set(configCategories.map((cat) => cat.unique_id));
-
-        // Identify new categories not already in the config.
-        // const newCategories = activeCategories.filter((category) => !configCategoryIds.has(category.unique_id));
-        // const combinedCategories = [...configCategories, ...newCategories];
 
         const allCategories = categoryData?.categories.filter(category => category.status);
         const existingCategoriesVisible = allCategories?.reduce((acc, element) => {
@@ -159,7 +149,7 @@ export default function CustomerMenuIndex() {
     return (
         <OrderProvider>
             <div className="relative">
-                <CustomerMenuViewer menuConfig={derivedTemplateConfig} />
+                <MenuPage menuConfig={derivedTemplateConfig} />
                 {/* <OrderHistoryProvider restaurantId={restaurantId} tableId={tableId} >
                     <OrderDrawer />
                 </OrderHistoryProvider> */}

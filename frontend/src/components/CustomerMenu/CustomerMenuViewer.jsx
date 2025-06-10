@@ -1,16 +1,18 @@
+
+
 import React, { memo, useEffect, useMemo, useState } from 'react'
 import { useInView } from 'react-intersection-observer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import { ImagePlaceholder } from '../ui/Iimage-placeholder';
+import { CachedImage } from '../ui/CachedImage';
 import { AppTooltip } from '@/common/AppTooltip';
 import { Chip } from '../ui/chip';
 import { cn } from '@/lib/utils';
-import {  Plus, Minus } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { useOrder } from '@/contexts/order-management-context';
 import { useMenuStyles } from './utils';
 import { useTranslation } from 'react-i18next';
+import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 
 
 const StatusBadge = memo(({ type }) => {
@@ -24,32 +26,21 @@ const StatusBadge = memo(({ type }) => {
 })
 
 const OptimizedImage = memo(({ src, alt }) => {
-    const { ref, inView } = useInView({
-        threshold: 0.1,
-        rootMargin: '150px',
-    });
-
     return (
-        <div ref={ref} className="w-full h-56 rounded-lg overflow-hidden">
-            {(inView && src) ? (
-                <LazyLoadImage
-                    src={src}
-                    alt={alt || 'Menu item'}
-                    effect="blur"
-                    className="w-full h-full object-cover"
-                    wrapperClassName="w-full h-full"
-                    placeholderSrc="/placeholder.jpg"
-                    loading="lazy"
-                />
-            ) : (
-                <ImagePlaceholder />
-            )}
-        </div>
+        <CachedImage
+            src={src}
+            alt={alt || 'Menu item'}
+            className="w-full h-56 rounded-lg"
+            width={400}
+            height={224}
+            quality={0.8}
+            lazy={true}
+            placeholder={true}
+        />
     );
 });
 
 const MenuItem = memo(({ item, styles }) => {
-
     const { t } = useTranslation();
     const { ref, inView } = useInView({
         threshold: 0.1,
@@ -59,22 +50,35 @@ const MenuItem = memo(({ item, styles }) => {
 
     const { addItem, removeItem, orderItems } = useOrder();
 
-    const isInStock = item.availability === 'in_stock';
-    const itemInOrder = orderItems.find(orderItem => orderItem.id === item.id || orderItem.unique_id === item.unique_id);
+    // Memoize computed values for better performance
+    const computedValues = useMemo(() => {
+        const isInStock = item.availability === 'in_stock';
+        const itemInOrder = orderItems.find(orderItem =>
+            orderItem.id === item.id || orderItem.unique_id === item.unique_id
+        );
+        const price = parseFloat(item.price);
 
+        return { isInStock, itemInOrder, price };
+    }, [item.availability, item.id, item.unique_id, item.price, orderItems]);
 
-    const handleAddToOrder = () => {
-        if (isInStock) {
-            addItem({
-                id: item.id,
-                unique_id: item.unique_id,
-                name: item.name,
-                price: parseFloat(item.price),
-                veg_status: item.veg_status,
-                image: item.image_details?.url
-            });
-        }
-    };
+    const { isInStock, itemInOrder, price } = computedValues;
+
+    // Memoize handlers
+    const handlers = useMemo(() => ({
+        handleAddToOrder: () => {
+            if (isInStock) {
+                addItem({
+                    id: item.id,
+                    unique_id: item.unique_id,
+                    name: item.name,
+                    price: price,
+                    veg_status: item.veg_status,
+                    image: item.image_details?.url
+                });
+            }
+        },
+        handleRemoveFromOrder: () => removeItem(item)
+    }), [isInStock, addItem, removeItem, item, price]);
 
     return (
         <div ref={ref} className="h-full">
@@ -83,14 +87,6 @@ const MenuItem = memo(({ item, styles }) => {
                     <div className='absolute top-2 right-2 z-[1]' >
                         <StatusBadge type={item?.veg_status} />
                     </div>
-
-                    {/* {itemInOrder && (
-                        <div className="absolute top-2 left-2 z-[1]">
-                            <Badge variant="primary" className="bg-primary text-primary-foreground">
-                                {itemInOrder.quantity} in order
-                            </Badge>
-                        </div>
-                    )} */}
 
                     <OptimizedImage src={item?.image_details?.url} alt={item?.name} />
 
@@ -105,18 +101,17 @@ const MenuItem = memo(({ item, styles }) => {
                         </div>
                         <div className="flex items-center justify-between mt-2">
                             <span style={styles?.titleStyle} className="text-base font-bold">
-                                ${item?.price}
+                                ${price.toFixed(2)}
                             </span>
                             {
-                                !!itemInOrder ?
-
-                                    (<div className='flex items-center gap-x-1' >
+                                !!itemInOrder ? (
+                                    <div className='flex items-center gap-x-1' >
                                         <Button
                                             disabled={!isInStock}
                                             style={styles?.buttonBackgroundStyle}
                                             variant='primary'
                                             size='icon'
-                                            onClick={() => removeItem(item)}
+                                            onClick={handlers.handleRemoveFromOrder}
                                             className="flex items-center gap-1"
                                         >
                                             <p style={styles?.buttonLabelStyle} >
@@ -127,70 +122,41 @@ const MenuItem = memo(({ item, styles }) => {
                                         <Chip className='gap-1 w-8 h-8  bg-white p-0 flex items-center justify-center' variant='outline' radius='md' size='sm' color={'gray'}>
                                             {itemInOrder.quantity}
                                         </Chip>
+
                                         <Button
                                             disabled={!isInStock}
                                             style={styles?.buttonBackgroundStyle}
                                             variant='primary'
                                             size='icon'
-                                            onClick={handleAddToOrder}
+                                            onClick={handlers.handleAddToOrder}
                                             className="flex items-center gap-1"
                                         >
                                             <p style={styles?.buttonLabelStyle}  >
                                                 <Plus size={14} />
                                             </p>
                                         </Button>
-
-
-                                    </div>)
-
-                                    : (
-                                        <>
-                                            {isInStock ? (
-                                                <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
-                                            ) : (
-                                                <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
-                                            )}
-
-                                        {/* // <Button
-                                        //     disabled={!isInStock}
-                                        //     style={styles?.buttonBackgroundStyle}
-                                        //     variant='primary'
-                                        //     size='sm'
-                                        //     onClick={handleAddToOrder}
-                                        //     className="flex items-center gap-1"
-                                        // >
-                                        //     <p style={styles?.buttonLabelStyle} className='flex items-center gap-1' >
-                                        //         {isInStock ? (
-                                        //             <><PlusCircle className="h-4 w-4" />Add</>
-                                        //         ) : (
-                                        //             <><AlertCircle className="h-4 w-4" />Out of Stock</>
-                                        //         )}
-                                        //         {isInStock ? (
-                                        //             <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
-                                        //         ) : (
-                                        //             <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
-                                        //         )}
-                                        //     </p>
-                                        // </Button></div> */}
-                                        </>
-
-
-                    )
+                                    </div>
+                                ) : (
+                                    <>
+                                        {isInStock ? (
+                                            <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
+                                        ) : (
+                                            <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
+                                        )}
+                                    </>
+                                )
                             }
-
-                </div>
+                        </div>
                     </CardContent>
-                </Card >
+                </Card>
             ) : (
-    <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse" />
-)}
-        </div >
+                <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse" />
+            )}
+        </div>
     );
-
 });
 
 const CategoryAccordion = memo(({ category, globalConfig }) => {
-
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
 
@@ -201,6 +167,7 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
+    const [renderBatch, setRenderBatch] = useState(6); // Progressive loading
 
     useEffect(() => {
         if (inView && !isLoaded) {
@@ -209,6 +176,35 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
     }, [inView, isLoaded]);
 
     const styles = useMenuStyles(globalConfig, categoryStyle);
+
+    // Memoize visible items
+    const visibleItems = useMemo(() =>
+        category?.items?.filter(item => item?.visible) || [],
+        [category?.items]
+    );
+
+    // Progressive loading for better performance
+    const displayedItems = useMemo(() => {
+        if (visibleItems.length <= 12) {
+            return visibleItems;
+        }
+        return visibleItems.slice(0, renderBatch);
+    }, [visibleItems, renderBatch]);
+
+    // Load more items progressively
+    const loadMoreItems = () => {
+        if (renderBatch < visibleItems.length) {
+            setRenderBatch(prev => Math.min(prev + 6, visibleItems.length));
+        }
+    };
+
+    // Auto-load more when in view
+    useEffect(() => {
+        if (inView && renderBatch < visibleItems.length) {
+            const timer = setTimeout(loadMoreItems, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [inView, renderBatch, visibleItems.length]);
 
     return (
         <Card
@@ -229,9 +225,9 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
             </CardHeader>
             <CardContent className="p-2">
                 {(inView || isLoaded) ? (
-                    <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
-                        {
-                            category?.items?.filter(item => item?.visible)?.length > 0 ? category?.items?.filter(item => item?.visible).map(item => (
+                    <>
+                        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
+                            {displayedItems.length > 0 ? displayedItems.map(item => (
                                 <MenuItem
                                     key={item.unique_id || item.id}
                                     item={item}
@@ -243,9 +239,24 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
                                         buttonLabelStyle: styles.buttonLabelStyle,
                                     }}
                                 />
-                            )) : <p className='flex items-center justify-center h-20 font-semibold text-lg w-full lg:col-span-3 md:col-span-2 col-span-1' >No Item Available</p>
-                        }
-                    </div>
+                            )) : (
+                                <p className='flex items-center justify-center h-20 font-semibold text-lg w-full lg:col-span-3 md:col-span-2 col-span-1'>
+                                    No Item Available
+                                </p>
+                            )}
+                        </div>
+
+                        {renderBatch < visibleItems.length && (
+                            <div className="flex justify-center mt-4">
+                                <button
+                                    onClick={loadMoreItems}
+                                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                                >
+                                    Load More ({visibleItems.length - renderBatch} remaining)
+                                </button>
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="h-20 bg-gray-100 animate-pulse rounded-md" />
                 )}
@@ -254,10 +265,26 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
     );
 });
 
-export default function CustomerMenuViewer({ menuConfig }) {
+export default function CustomerMenuViewer({ menuConfig, options = {} }) {
+    const {
+        enableImagePreloading = true,
+        preloadOptions = {}
+    } = options;
+
+
 
     const categories = menuConfig?.categories || [];
     const globalFromConfig = menuConfig?.global || {};
+
+
+    // Add image preloading
+    useMenuPreloader(menuConfig, {
+        preloadImages: enableImagePreloading,
+        batchSize: 5,
+        priority: 'visible',
+        ...preloadOptions
+    });
+
 
     const globalConfig = useMemo(() => ({
         background_color: globalFromConfig.background_color,
@@ -268,22 +295,49 @@ export default function CustomerMenuViewer({ menuConfig }) {
         description_color: globalFromConfig.description_color,
         button_label_color: globalFromConfig.button_label_color,
         button_background_color: globalFromConfig.button_background_color,
-    }), [globalFromConfig.background_color, globalFromConfig.section_background_color, globalFromConfig.title_color, globalFromConfig.card_title_color, globalFromConfig.card_background_color, globalFromConfig.description_color, globalFromConfig.button_label_color, globalFromConfig.button_background_color]
+    }), [
+        globalFromConfig.background_color,
+        globalFromConfig.section_background_color,
+        globalFromConfig.title_color,
+        globalFromConfig.card_title_color,
+        globalFromConfig.card_background_color,
+        globalFromConfig.description_color,
+        globalFromConfig.button_label_color,
+        globalFromConfig.button_background_color
+    ]);
+
+
+    const visibleCategories = useMemo(() =>
+        categories.filter(category =>
+            category?.visible &&
+            category?.items?.filter(item => item?.visible)?.length > 0
+        ),
+        [categories]
     );
 
-    const visibleCategories = useMemo(() => categories.filter(category => category?.visible && category?.items?.filter(item => item?.visible)?.length > 0), [categories]);
 
-    const containerStyle = useMemo(() => (globalConfig?.background_color ? { backgroundColor: globalConfig.background_color } : {}), [globalConfig?.background_color]);
+    const containerStyle = useMemo(() =>
+        globalConfig?.background_color ?
+            { backgroundColor: globalConfig.background_color } : {},
+        [globalConfig?.background_color]
+    );
 
     return (
         <div className="md:p-4 p-2 bg-gray-100/90 min-h-[100dvh] max-h-[100dvh] overflow-auto space-y-4" style={containerStyle}>
             {visibleCategories.map(category => (
+
                 <CategoryAccordion
                     key={category.id || category.unique_id || category.name}
                     globalConfig={globalConfig}
                     category={category}
                 />
             ))}
+
+            {visibleCategories.length === 0 && (
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-lg text-gray-500">No menu items available</p>
+                </div>
+            )}
         </div>
     )
 }

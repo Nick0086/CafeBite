@@ -5,6 +5,7 @@ import './i18n';
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import * as serviceWorkerRegistration from './utils/serviceWorkerRegistration';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,3 +25,12 @@ createRoot(document.getElementById('root')).render(
     </StrictMode>
   </BrowserRouter>
 )
+
+serviceWorkerRegistration.register({
+    onSuccess: () => {
+        console.log('Service Worker registered successfully');
+    },
+    onUpdate: () => {
+        console.log('Service Worker updated');
+    }
+});
