@@ -283,7 +283,6 @@ export const validateActiveUserSession = async (req, res) => {
     try {
         const userAgent = req.headers['user-agent'] || 'Unknown';
         const refreshToken = req.headers['user-data'];
-        console.log("validateActiveUserSession -> ",{refreshToken})
         const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
         const unique_id = decodedRefresh?.userDetails?.unique_id
 

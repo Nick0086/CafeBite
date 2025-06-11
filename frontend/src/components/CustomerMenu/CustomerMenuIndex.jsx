@@ -14,9 +14,20 @@ import { DEFAULT_SECTION_THEME } from '../Menu/Templates/utils';
 import CustomerMenuViewer from './CustomerMenuViewer';
 import { OrderHistoryProvider, OrderProvider } from '@/contexts/order-management-context';
 import { OrderDrawer } from './OrderDrawer';
+import { CacheDebugger } from '@/utils/cacheDebugger';
 
 export default function CustomerMenuIndex() {
     const { restaurantId, tableId } = useParams();
+
+    // Debug cache stats in development
+    // useEffect(() => {
+    //     if (process.env.NODE_ENV === 'development') {
+    //         const timer = setTimeout(() => {
+    //             CacheDebugger.logCacheStats();
+    //         }, 2000);
+    //         return () => clearTimeout(timer);
+    //     }
+    // }, []);
 
     // Fetch the menu template for the current table and restaurant.
     const { data: templateData, isLoading: isLoadingTemplate, error: templateError } = useQuery({
