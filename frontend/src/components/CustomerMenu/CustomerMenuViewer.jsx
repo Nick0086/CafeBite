@@ -27,15 +27,7 @@ const StatusBadge = memo(({ type }) => {
 
 const OptimizedImage = memo(({ src, alt }) => {
     return (
-        <CachedImage
-            src={src}
-            alt={alt || 'Menu item'}
-            className="w-full h-56 rounded-lg"
-            width={400}
-            height={224}
-            quality={0.8}
-            lazy={true}
-            placeholder={true}
+        <CachedImage src={src} alt={alt || 'Menu item'} className="w-full h-56 rounded-lg" width={400} height={224} quality={0.8} lazy={true} placeholder={true}
         />
     );
 });
@@ -67,14 +59,7 @@ const MenuItem = memo(({ item, styles }) => {
     const handlers = useMemo(() => ({
         handleAddToOrder: () => {
             if (isInStock) {
-                addItem({
-                    id: item.id,
-                    unique_id: item.unique_id,
-                    name: item.name,
-                    price: price,
-                    veg_status: item.veg_status,
-                    image: item.image_details?.url
-                });
+                addItem({ id: item.id,unique_id: item.unique_id,name: item.name,price: price,veg_status: item.veg_status,image: item.image_details?.url});
             }
         },
         handleRemoveFromOrder: () => removeItem(item)
@@ -106,34 +91,16 @@ const MenuItem = memo(({ item, styles }) => {
                             {
                                 !!itemInOrder ? (
                                     <div className='flex items-center gap-x-1' >
-                                        <Button
-                                            disabled={!isInStock}
-                                            style={styles?.buttonBackgroundStyle}
-                                            variant='primary'
-                                            size='icon'
-                                            onClick={handlers.handleRemoveFromOrder}
-                                            className="flex items-center gap-1"
-                                        >
-                                            <p style={styles?.buttonLabelStyle} >
-                                                <Minus size={14} />
-                                            </p>
+                                        <Button disabled={!isInStock} style={styles?.buttonBackgroundStyle} variant='primary' size='icon' onClick={handlers.handleRemoveFromOrder} className="flex items-center gap-1">
+                                            <p style={styles?.buttonLabelStyle} ><Minus size={14} /></p>
                                         </Button>
 
                                         <Chip className='gap-1 w-8 h-8  bg-white p-0 flex items-center justify-center' variant='outline' radius='md' size='sm' color={'gray'}>
                                             {itemInOrder.quantity}
                                         </Chip>
 
-                                        <Button
-                                            disabled={!isInStock}
-                                            style={styles?.buttonBackgroundStyle}
-                                            variant='primary'
-                                            size='icon'
-                                            onClick={handlers.handleAddToOrder}
-                                            className="flex items-center gap-1"
-                                        >
-                                            <p style={styles?.buttonLabelStyle}  >
-                                                <Plus size={14} />
-                                            </p>
+                                        <Button disabled={!isInStock} style={styles?.buttonBackgroundStyle} variant='primary' size='icon' onClick={handlers.handleAddToOrder} className="flex items-center gap-1">
+                                            <p style={styles?.buttonLabelStyle}  ><Plus size={14} /></p>
                                         </Button>
                                     </div>
                                 ) : (
@@ -207,14 +174,7 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
     }, [inView, renderBatch, visibleItems.length]);
 
     return (
-        <Card
-            key={categoryId}
-            value={categoryId}
-            className={cn('bg-card md:rounded-md rounded overflow-hidden border-none md:px-3 px-1')}
-            style={styles?.sectionStyle}
-            id={categoryId}
-            ref={ref}
-        >
+        <Card key={categoryId} value={categoryId} style={styles?.sectionStyle} id={categoryId} ref={ref} className={cn('bg-card md:rounded-md rounded overflow-hidden border-none md:px-3 px-1')}>
             <CardHeader className="py-3 px-2 hover:no-underline">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-1.5 bg-primary rounded-full hidden sm:block" style={styles?.titleBarStyle} />
@@ -248,10 +208,7 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
 
                         {renderBatch < visibleItems.length && (
                             <div className="flex justify-center mt-4">
-                                <button
-                                    onClick={loadMoreItems}
-                                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
-                                >
+                                <button onClick={loadMoreItems} className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
                                     Load More ({visibleItems.length - renderBatch} remaining)
                                 </button>
                             </div>
@@ -266,16 +223,11 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
 });
 
 export default function CustomerMenuViewer({ menuConfig, options = {} }) {
-    const {
-        enableImagePreloading = true,
-        preloadOptions = {}
-    } = options;
 
-
+    const { enableImagePreloading = true, preloadOptions = {} } = options;
 
     const categories = menuConfig?.categories || [];
     const globalFromConfig = menuConfig?.global || {};
-
 
     // Add image preloading
     useMenuPreloader(menuConfig, {
@@ -284,7 +236,6 @@ export default function CustomerMenuViewer({ menuConfig, options = {} }) {
         priority: 'visible',
         ...preloadOptions
     });
-
 
     const globalConfig = useMemo(() => ({
         background_color: globalFromConfig.background_color,
@@ -325,7 +276,6 @@ export default function CustomerMenuViewer({ menuConfig, options = {} }) {
     return (
         <div className="md:p-4 p-2 bg-gray-100/90 min-h-[100dvh] max-h-[100dvh] overflow-auto space-y-4" style={containerStyle}>
             {visibleCategories.map(category => (
-
                 <CategoryAccordion
                     key={category.id || category.unique_id || category.name}
                     globalConfig={globalConfig}

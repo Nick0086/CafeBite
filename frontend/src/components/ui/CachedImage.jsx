@@ -4,9 +4,9 @@ import { imageCache } from '@/services/ImageCacheService';
 import { ImagePlaceholder } from './Iimage-placeholder';
 import { cn } from '@/lib/utils';
 
-const CachedImage = memo(({ 
-    src, 
-    alt, 
+const CachedImage = memo(({
+    src,
+    alt,
     className,
     width = 400,
     height = 300,
@@ -15,13 +15,13 @@ const CachedImage = memo(({
     lazy = true,
     onLoad,
     onError,
-    ...props 
+    ...props
 }) => {
     const [imageSrc, setImageSrc] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [isVisible, setIsVisible] = useState(!lazy);
-    
+
     const imgRef = useRef(null);
     const { ref: inViewRef, inView } = useInView({
         threshold: 0.1,
@@ -74,8 +74,8 @@ const CachedImage = memo(({
 
     if (!isVisible) {
         return (
-            <div 
-                ref={setRefs} 
+            <div
+                ref={setRefs}
                 className={cn("bg-gray-100 animate-pulse rounded-lg", className)}
                 style={{ width, height }}
                 {...props}
@@ -85,7 +85,7 @@ const CachedImage = memo(({
 
     if (hasError) {
         return (
-            <div 
+            <div
                 className={cn("flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg", className)}
                 style={{ width, height }}
                 {...props}

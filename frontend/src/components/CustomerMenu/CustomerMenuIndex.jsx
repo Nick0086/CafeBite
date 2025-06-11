@@ -14,7 +14,6 @@ import { DEFAULT_SECTION_THEME } from '../Menu/Templates/utils';
 import CustomerMenuViewer from './CustomerMenuViewer';
 import { OrderHistoryProvider, OrderProvider } from '@/contexts/order-management-context';
 import { OrderDrawer } from './OrderDrawer';
-import MenuPage from '@/pages/MenuPage';
 
 export default function CustomerMenuIndex() {
     const { restaurantId, tableId } = useParams();
@@ -126,6 +125,24 @@ export default function CustomerMenuIndex() {
         };
     }, [menuTemplate, processedCategories]);
 
+    const menuOptions = {
+        enableVirtualization: true, // Enable for large menus (>50 items per category)
+        enableImagePreloading: true,
+        enablePerformanceMonitoring: process.env.NODE_ENV === 'development',
+
+        virtualConfig: {
+            containerHeight: 600,
+            itemWidth: 320,
+            itemHeight: 420,
+            columnCount: 3
+        },
+
+        preloadOptions: {
+            batchSize: 8,
+            priority: 'visible' // 'visible', 'all', 'none'
+        }
+    };
+
     // Combine all loading states.
     const isLoading = isLoadingTemplate || isLoadingCategories || isLoadingMenuItems;
     const hasError = templateError || categoryError || menuItemsError;
@@ -149,12 +166,11 @@ export default function CustomerMenuIndex() {
     return (
         <OrderProvider>
             <div className="relative">
-                <MenuPage menuConfig={derivedTemplateConfig} />
+                <CustomerMenuViewer menuConfig={derivedTemplateConfig} options={menuOptions}/>
                 {/* <OrderHistoryProvider restaurantId={restaurantId} tableId={tableId} >
                     <OrderDrawer />
                 </OrderHistoryProvider> */}
             </div>
         </OrderProvider>
-
     )
 }
