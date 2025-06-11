@@ -1,6 +1,7 @@
 class ImageCacheService {
     constructor() {
         this.cache = new Map();
+        this.blobCache = new Map(); // Separate cache for blob objects
         this.preloadQueue = new Set();
         this.maxCacheSize = 100;
         this.compressionQuality = 0.8;
@@ -77,6 +78,18 @@ class ImageCacheService {
         }
     }
 
+    // Create persistent blob URL that won't be revoked
+    createPersistentBlobUrl(blob, key) {
+        // Check if we already have a blob URL for this key
+        if (this.blobCache.has(key)) {
+            return this.blobCache.get(key);
+        }
+
+        const blobUrl = URL.createObjectURL(blob);
+        this.blobCache.set(key, blobUrl);
+        return blobUrl;
+    }
+
     async preloadImage(url, options = {}) {
         if (!url) return null;
         
@@ -90,7 +103,7 @@ class ImageCacheService {
         // Check IndexedDB cache
         const cachedBlob = await this.getFromIndexedDB(cacheKey);
         if (cachedBlob) {
-            const objectUrl = URL.createObjectURL(cachedBlob);
+            const objectUrl = this.createPersistentBlobUrl(cachedBlob, cacheKey);
             this.addToCache(cacheKey, objectUrl);
             return objectUrl;
         }
@@ -117,7 +130,7 @@ class ImageCacheService {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const blob = await response.blob();
-            const objectUrl = URL.createObjectURL(blob);
+            const objectUrl = this.createPersistentBlobUrl(blob, cacheKey);
             
             // Save to both caches
             this.addToCache(cacheKey, objectUrl);
@@ -136,12 +149,8 @@ class ImageCacheService {
     addToCache(key, value) {
         if (this.cache.size >= this.maxCacheSize) {
             const firstKey = this.cache.keys().next().value;
-            const oldUrl = this.cache.get(firstKey);
-            // Revoke old object URL to prevent memory leaks
-            if (oldUrl && oldUrl.startsWith('blob:')) {
-                URL.revokeObjectURL(oldUrl);
-            }
             this.cache.delete(firstKey);
+            // Don't revoke blob URLs here - keep them in blobCache
         }
         this.cache.set(key, value);
     }
@@ -159,13 +168,14 @@ class ImageCacheService {
     }
 
     clearCache() {
-        // Revoke all object URLs to prevent memory leaks
-        for (const url of this.cache.values()) {
+        // Only revoke blob URLs when explicitly clearing cache
+        for (const url of this.blobCache.values()) {
             if (url && url.startsWith('blob:')) {
                 URL.revokeObjectURL(url);
             }
         }
         this.cache.clear();
+        this.blobCache.clear();
         this.preloadQueue.clear();
     }
 
@@ -184,6 +194,7 @@ class ImageCacheService {
     getCacheStats() {
         return {
             memorySize: this.cache.size,
+            blobCacheSize: this.blobCache.size,
             maxSize: this.maxCacheSize,
             preloadQueueSize: this.preloadQueue.size
         };

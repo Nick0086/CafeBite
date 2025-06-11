@@ -4,15 +4,35 @@ import { imageCache } from '@/services/ImageCacheService';
 import { ImagePlaceholder } from './Iimage-placeholder';
 import { cn } from '@/lib/utils';
 
-const CachedImage = memo(({ src, alt, className, width = 400, height = 300, quality = 0.8, placeholder = true, lazy = true,
-    onLoad, onError, ...props }) => {
+const CachedImage = memo(({
+    src,
+    alt,
+    className,
+    width = 400,
+    height = 300,
+    quality = 0.8,
+    placeholder = true,
+    lazy = true,
+    showCacheStatus = process.env.NODE_ENV === 'development',
+    onLoad,
+    onError,
+    ...props
+}) => {
     const [imageSrc, setImageSrc] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [isVisible, setIsVisible] = useState(!lazy);
+    const [cacheStatus, setCacheStatus] = useState('loading');
 
     const imgRef = useRef(null);
-    const { ref: inViewRef, inView } = useInView({ threshold: 0.1, rootMargin: '200px', triggerOnce: true, skip: !lazy });
+    const mountedRef = useRef(true);
+    
+    const { ref: inViewRef, inView } = useInView({
+        threshold: 0.1,
+        rootMargin: '200px',
+        triggerOnce: true,
+        skip: !lazy
+    });
 
     const setRefs = (element) => {
         imgRef.current = element;
@@ -28,8 +48,6 @@ const CachedImage = memo(({ src, alt, className, width = 400, height = 300, qual
     useEffect(() => {
         if (!src || !isVisible) return;
 
-        let isMounted = true;
-
         const loadImage = async () => {
             try {
                 setIsLoading(true);
@@ -37,57 +55,64 @@ const CachedImage = memo(({ src, alt, className, width = 400, height = 300, qual
 
                 // Check cache first
                 const cachedImage = imageCache.getFromCache(src, { width, height, quality });
-                if (cachedImage && isMounted) {
+                if (cachedImage && mountedRef.current) {
                     setImageSrc(cachedImage);
                     setIsLoading(false);
+                    setCacheStatus(cachedImage.startsWith('blob:') ? 'cached' : 'network');
                     onLoad?.();
                     return;
                 }
 
                 // Preload and cache the image
                 const optimizedSrc = await imageCache.preloadImage(src, { width, height, quality });
-
-                if (isMounted) {
+                
+                if (mountedRef.current) {
                     setImageSrc(optimizedSrc);
                     setIsLoading(false);
+                    setCacheStatus(optimizedSrc.startsWith('blob:') ? 'cached' : 'network');
                     onLoad?.();
                 }
             } catch (error) {
                 console.warn('Image loading failed:', error);
-                if (isMounted) {
+                if (mountedRef.current) {
                     setHasError(true);
                     setIsLoading(false);
+                    setCacheStatus('error');
                     onError?.(error);
                 }
             }
         };
 
         loadImage();
-
-        return () => {
-            isMounted = false;
-        };
     }, [src, isVisible, width, height, quality, onLoad, onError]);
 
-    // Cleanup object URLs on unmount
+    // Cleanup on unmount only
     useEffect(() => {
+        mountedRef.current = true;
         return () => {
-            if (imageSrc && imageSrc.startsWith('blob:')) {
-                URL.revokeObjectURL(imageSrc);
-            }
+            mountedRef.current = false;
+            // Don't revoke blob URLs here - let ImageCacheService manage them
         };
-    }, [imageSrc]);
+    }, []);
 
     if (!isVisible) {
         return (
-            <div ref={setRefs} className={cn("bg-gray-100 animate-pulse rounded-lg", className)} style={{ width, height }}{...props}/>
+            <div
+                ref={setRefs}
+                className={cn("bg-gray-100 animate-pulse rounded-lg", className)}
+                style={{ width, height }}
+                {...props}
+            />
         );
     }
 
     if (hasError) {
         return (
             <div
-                className={cn("flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg", className)} style={{ width, height }} {...props}>
+                className={cn("flex items-center justify-center bg-gray-100 text-gray-400 rounded-lg", className)}
+                style={{ width, height }}
+                {...props}
+            >
                 <span className="text-sm">Image unavailable</span>
             </div>
         );
@@ -95,8 +120,22 @@ const CachedImage = memo(({ src, alt, className, width = 400, height = 300, qual
 
     return (
         <div ref={setRefs} className={cn("relative overflow-hidden rounded-lg", className)} {...props}>
+            {/* Cache status indicator for development */}
+            {showCacheStatus && cacheStatus && (
+                <div className={cn(
+                    "absolute top-1 left-1 px-1 py-0.5 text-xs rounded z-20",
+                    cacheStatus === 'cached' ? "bg-green-500 text-white" :
+                    cacheStatus === 'network' ? "bg-blue-500 text-white" :
+                    "bg-red-500 text-white"
+                )}>
+                    {cacheStatus === 'cached' ? '💾' : cacheStatus === 'network' ? '🌐' : '❌'}
+                </div>
+            )}
+            
             {isLoading && placeholder && (
-                <div className="absolute inset-0 z-10"> <ImagePlaceholder /></div>
+                <div className="absolute inset-0 z-10">
+                    <ImagePlaceholder />
+                </div>
             )}
             {imageSrc && (
                 <img
@@ -109,13 +148,17 @@ const CachedImage = memo(({ src, alt, className, width = 400, height = 300, qual
                     loading="lazy"
                     decoding="async"
                     onLoad={() => {
-                        setIsLoading(false);
-                        onLoad?.();
+                        if (mountedRef.current) {
+                            setIsLoading(false);
+                            onLoad?.();
+                        }
                     }}
                     onError={(e) => {
-                        setHasError(true);
-                        setIsLoading(false);
-                        onError?.(e);
+                        if (mountedRef.current) {
+                            setHasError(true);
+                            setIsLoading(false);
+                            onError?.(e);
+                        }
                     }}
                 />
             )}
