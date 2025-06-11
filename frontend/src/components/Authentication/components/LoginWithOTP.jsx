@@ -30,7 +30,9 @@ export default function LoginWithOTP({
     const loginWithOTPMutation = useMutation({
         mutationFn: verifyOneTimePassword,
         onSuccess: (res) => {
-            window.localStorage.setItem('userData', JSON.stringify(res?.data?.userData));
+            window.localStorage.setItem('userData', JSON.stringify(res?.userData));
+            window.localStorage.setItem('accessToken', res?.sessionId?.accessToken);
+            window.localStorage.setItem('refreshToken', res?.sessionId?.refreshToken);
             toastSuccess('Login Successful');
             navigate(`/`);
         },

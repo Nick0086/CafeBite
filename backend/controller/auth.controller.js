@@ -11,9 +11,9 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'DEV' ?  false : true,               // Required for cross-site cookies
-    sameSite: process.env.NODE_ENV === 'DEV' ?  true : 'None',           // Required for cross-site cookies
-    path: '/',                  
+    secure: process.env.NODE_ENV === 'DEV' ? false : true,               // Required for cross-site cookies
+    sameSite: process.env.NODE_ENV === 'DEV' ? true : 'None',           // Required for cross-site cookies
+    path: '/',
 };
 
 
@@ -58,14 +58,14 @@ export const verifyUserPassword = async (req, res) => {
             return res.status(401).json({ code: 'INVALID_CREDENTIALS', message: 'The password you entered is incorrect.' });
         }
 
-        const sessionId = await createUserSession(req, res,{ ...result[0], loginId, loginType })
+        const sessionId = await createUserSession(req, res, { ...result[0], loginId, loginType })
 
         // Check if session creation failed
         if (!sessionId) {
             return res.status(500).json({ code: 'SESSION_CREATION_FAILED', message: 'Unable to create a user session at this time.' });
         }
 
-        return res.status(200).json({ code: 'AUTH_SUCCESS', message: 'Password verified and session created successfully.', userData: result[0] });
+        return res.status(200).json({ code: 'AUTH_SUCCESS', message: 'Password verified and session created successfully.', userData: result[0], sessionId });
     }
     catch (error) {
         console.error('Error in verifyUserPassword:', error);
@@ -207,7 +207,7 @@ const createUserSession = async (req, res, userData) => {
             maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
         });
 
-        return sessionId;
+        return { sessionId, refreshToken, accessToken };
     } catch (error) {
         console.log('Error in createUserSession', error)
         return null;
@@ -282,7 +282,8 @@ export const validatePasswordResetToken = async (req, res) => {
 export const validateActiveUserSession = async (req, res) => {
     try {
         const userAgent = req.headers['user-agent'] || 'Unknown';
-        const refreshToken = req.cookies?.refreshToken;
+        const refreshToken = req.headers['user-data'];
+        console.log("validateActiveUserSession -> ",{refreshToken})
         const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
         const unique_id = decodedRefresh?.userDetails?.unique_id
 

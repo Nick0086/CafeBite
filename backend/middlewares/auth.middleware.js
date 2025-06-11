@@ -11,10 +11,8 @@ const COOKIE_OPTIONS = {
 
 export const authMiddleware = async (req, res, next) => {
     try {
-        const accessToken = req.cookies?.accessToken;
-        const refreshToken = req.cookies?.refreshToken;
-
-        console.log("authMiddleware",process.env.NODE_ENV !== 'DEV' ? {accessToken,refreshToken} : "");
+        const accessToken = req.headers['authorization'];
+        const refreshToken = req.headers['user-data'];
 
         if (!accessToken && !refreshToken) {
             clearAuthCookies(res)
@@ -27,14 +25,11 @@ export const authMiddleware = async (req, res, next) => {
                 req.user = decoded.userDetails;
                 return next();
             } catch (accessTokenError) {
-                // console.log({accessTokenError},accessTokenError?.name)
                 if (accessTokenError.name === 'TokenExpiredError' || accessTokenError.name === 'JsonWebTokenError') {
-
                     if (!refreshToken) {
                         clearAuthCookies(res)
                         return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Access token expired, no refresh token provided' });
                     }
-
                     try {
                         const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
                         const sessionSql = `SELECT * FROM client_sessions WHERE refresh_token = ? AND is_revoke = 0 AND expires_at > NOW()`;

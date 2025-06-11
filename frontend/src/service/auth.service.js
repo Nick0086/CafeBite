@@ -38,7 +38,7 @@ export const sendOneTimePassword = async (userData) => {
 
 export const checkUserSession  = async () => {
     try {
-        const response = await authApi.get(`/auth/session/active`);
+        const response = await api.get(`/auth/session/active`);
         return response.data;
     } catch (error) {
         throw handleApiError(error)

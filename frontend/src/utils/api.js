@@ -29,14 +29,20 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(async config => {
-    // const token = await waitForToken();
-    // const userData = window.localStorage.getItem("userData");
-    // if (token) {
-    //     config.headers.Authorization = token;
-    //     config.headers["user-data"] = userData;
-    // }
+    try {
+        const token = await waitForToken();
+        if (token) {
+            config.headers.Authorization = token.accessToken;
+            config.headers["user-data"] = token.refreshToken;
+        }
+    } catch (error) {
+        console.error("Error retrieving token:", error);
+    }
     return config;
-}, error => Promise.reject(error));
+}, error => {
+    console.error("Request error:", error);
+    return Promise.reject(error);
+});
 
 api.interceptors.response.use(
     response => response,
@@ -44,7 +50,8 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             console.log("401 detected, signing out...");
             // toast.error("Session expired, please sign in again");
-            // window.location.href = "/login";
+            window.localStorage.removeItem('accessToken');
+            window.location.href = "/login";
         }
         return Promise.reject(error);
     }
@@ -54,11 +61,12 @@ const waitForToken = () => {
     let retries = 0;
     return new Promise((resolve, reject) => {
         const interval = setInterval(() => {
-            const token = window.localStorage.getItem("token");
-            if (token || retries >= MAX_RETRIES) {
+            const refreshToken = window.localStorage.getItem('refreshToken');
+            const accessToken = window.localStorage.getItem('accessToken');
+            if (accessToken || refreshToken || retries >= MAX_RETRIES) {
                 clearInterval(interval);
-                if (token) {
-                    resolve(token);
+                if (accessToken || refreshToken) {
+                    resolve({ accessToken, refreshToken });
                 } else {
                     reject(new Error("No token found after max retries"));
                     window.localStorage.clear();
