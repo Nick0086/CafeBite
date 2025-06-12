@@ -351,3 +351,66 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
         </AccordionItem>
     );
 });
+export default function TemplateMenuViewerLayout({ templateConfig }) {
+    const categories = templateConfig?.categories || [];
+    const globalFromConfig = templateConfig?.global || {};
+
+    const globalConfig = useMemo(
+        () => ({
+            background_color: globalFromConfig.background_color,
+            section_background_color: globalFromConfig.section_background_color,
+            title_color: globalFromConfig.title_color,
+            card_title_color: globalFromConfig.card_title_color,
+            card_background_color: globalFromConfig.card_background_color,
+            description_color: globalFromConfig.description_color,
+            button_label_color: globalFromConfig.button_label_color,
+            button_background_color: globalFromConfig.button_background_color,
+        }),
+        [
+            globalFromConfig.background_color,
+            globalFromConfig.section_background_color,
+            globalFromConfig.title_color,
+            globalFromConfig.card_title_color,
+            globalFromConfig.card_background_color,
+            globalFromConfig.description_color,
+            globalFromConfig.button_label_color,
+            globalFromConfig.button_background_color,
+        ]
+    );
+
+    const visibleCategories = useMemo(
+        () => categories.filter(category => category?.visible),
+        [categories]
+    );
+
+    const firstCategoryId = useMemo(() => {
+        if (visibleCategories.length > 0) {
+            const firstCategory = visibleCategories[0];
+            return firstCategory.id || firstCategory.unique_id || firstCategory.name;
+        }
+        return null;
+    }, [visibleCategories]);
+
+    const containerStyle = useMemo(
+        () => (globalConfig?.background_color ? { backgroundColor: globalConfig.background_color } : {}),
+        [globalConfig?.background_color]
+    );
+
+    return (
+        <div className="p-4 max-h-[calc(100dvh-48px)] min-h-[calc(100dvh-48px)] min overflow-auto" style={containerStyle}>
+            <Accordion
+                type="multiple"
+                defaultValue={firstCategoryId ? [firstCategoryId] : []}
+                className="space-y-4"
+            >
+                {visibleCategories.map(category => (
+                    <CategoryAccordion
+                        key={category.id || category.unique_id || category.name}
+                        globalConfig={globalConfig}
+                        category={category}
+                    />
+                ))}
+            </Accordion>
+        </div>
+    );
+}
