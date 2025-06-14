@@ -232,7 +232,7 @@ export default function ProfileManagement() {
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
                     <div >
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap gap-2 items-center justify-between">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">Profile Management</h1>
                                 <p className="text-gray-600 mt-1">Manage your personal and cafe information</p>
@@ -259,7 +259,7 @@ export default function ProfileManagement() {
                     {/* Profile Summary Section */}
                     <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
                         <CardContent className="p-6">
-                            <div className="flex items-center space-x-6">
+                            <div className="flex flex-col md:flex-row items-center md:space-x-6  space-x-0">
                                 <div className="flex-shrink-0">
                                     <div
                                         onClick={isEditing ? triggerFileInput : undefined}
@@ -284,13 +284,13 @@ export default function ProfileManagement() {
                                     />
                                 </div>
                                 <div className="flex-1">
-                                    <h2 className="text-2xl font-bold text-gray-900">
+                                    <h2 className="text-2xl font-bold md:text-left text-center text-gray-900">
                                         {form.watch('cafeName') || 'Your Cafe Name'}
                                     </h2>
-                                    <p className="text-gray-600 mt-1">
+                                    <p className="text-gray-600 mt-1 md:text-left text-center">
                                         Owned by {form.watch('firstName')} {form.watch('lastName')}
                                     </p>
-                                    <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                                    <div className="flex items-center justify-center md:justify-start gap-4 mt-3 text-sm text-gray-500">
                                         {form.watch('cafeCity') && (
                                             <div className="flex items-center gap-1">
                                                 <MapPin size={14} />

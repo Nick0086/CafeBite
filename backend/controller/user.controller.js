@@ -176,7 +176,7 @@ export const getClinetDataById = async (req, res) => {
             return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing user identifier.' });
         }
 
-        const userData = await query(`SELECT * FROM clients WHERE unique_id = ?`, [unique_id]);
+        const userData = await query(`SELECT cli.*, cur.name as currency_name, cur.symbol as currency_symbol FROM clients as cli LEFT JOIN currencies as cur ON cli.currency_code = cur.code WHERE cli.unique_id = ?`, [unique_id]);
 
         if (userData?.length > 0) {
 

@@ -169,13 +169,82 @@ CREATE TABLE menu_items (
 
 CREATE TABLE templates (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID for the template
-    client_id CHAR(36) NOT NULL,           -- Owner of the template (café admin)
-    name VARCHAR(255) NOT NULL,          -- Template name (e.g., "Modern Coffee Shop")
-    config JSON NOT NULL,                -- Template settings (colors, fonts, layout)
+    unique_id CHAR(36) NOT NULL UNIQUE,
+    client_id CHAR(36) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    status INT DEFAULT 1,
+    config JSON NOT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE template_global_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    template_id CHAR(36) NOT NULL,
+    background_color VARCHAR(7) DEFAULT '#f4f5f7',
+    section_background_color VARCHAR(7) DEFAULT '#ffffff',
+    title_color VARCHAR(7) DEFAULT '#1e2939',
+    card_title_color VARCHAR(7) DEFAULT '#1e2939',
+    card_background_color VARCHAR(7) DEFAULT '#ffffff',
+    description_color VARCHAR(7) DEFAULT '#4a5565',
+    button_label_color VARCHAR(7) DEFAULT '#ffffff',
+    button_background_color VARCHAR(7) DEFAULT '#615FFF',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (template_id) REFERENCES templates(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE template_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,
+    template_id CHAR(36) NOT NULL,
+    category_id CHAR(36) NOT NULL,
+    position INT DEFAULT 0,
+    visible BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (template_id) REFERENCES templates(unique_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE template_category_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    template_category_id CHAR(36) NOT NULL,
+    section_background_color VARCHAR(7),
+    title_color VARCHAR(7),
+    card_title_color VARCHAR(7),
+    card_background_color VARCHAR(7),
+    description_color VARCHAR(7),
+    button_label_color VARCHAR(7),
+    button_background_color VARCHAR(7),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (template_category_id) REFERENCES template_categories(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE template_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,
+    template_category_id CHAR(36) NOT NULL,
+    menu_item_id CHAR(36) NOT NULL,
+    position INT DEFAULT 0,
+    visible BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (template_category_id) REFERENCES template_categories(unique_id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE template_styling (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    template_id CHAR(36) NOT NULL,
+    border_radius VARCHAR(10) DEFAULT '8px',
+    shadow VARCHAR(50) DEFAULT '0 2px 4px rgba(0,0,0,0.1)',
+    font_family VARCHAR(100) DEFAULT 'system-ui',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (template_id) REFERENCES templates(unique_id) ON DELETE CASCADE
 );
 
 CREATE TABLE tables (

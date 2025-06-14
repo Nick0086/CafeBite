@@ -15,7 +15,7 @@ export const registerUser = async (userData) => {
 
 export const updateClinetProfile = async (userData) => {
     try {
-        const response = await authApi.put('/client/update-client-profile', userData, {
+        const response = await api.put('/client/update-client-profile', userData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

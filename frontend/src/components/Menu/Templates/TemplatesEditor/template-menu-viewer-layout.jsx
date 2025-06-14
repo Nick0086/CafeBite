@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo } from 'react';
+import React, { memo, useEffect, useState, useMemo, useContext } from 'react';
 import {
     Accordion,
     AccordionContent,
@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { CachedImage } from '@/components/ui/CachedImage';
 import { imageCache } from '@/services/ImageCacheService';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
+import { PermissionsContext } from '@/contexts/PermissionsContext';
 
 /* Enhanced OptimizedImage with caching */
 const OptimizedImage = memo(({ src, alt }) => {
@@ -77,7 +78,7 @@ const StatusBadge = memo(({ type }) => {
 })
 
 /* Enhanced MenuItem with better caching and state management */
-const MenuItem = memo(({ item, globalConfig, categoryStyle }) => {
+const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol }) => {
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
     
     const { ref, inView } = useInView({
@@ -187,7 +188,7 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle }) => {
                         </div>
                         <div className="flex items-center justify-between mt-2">
                             <span style={titleStyle} className="text-base font-bold">
-                                ${item?.price}
+                                {currencySymbol} {item?.price}
                             </span>
                             {/* Uncomment if needed
                             <Button disabled={!(item.availability === 'in_stock')} style={buttonBackgroundStyle} variant='primary' size='sm' > 
@@ -205,7 +206,7 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle }) => {
 });
 
 /* Enhanced CategoryAccordion with image preloading */
-const CategoryAccordion = memo(({ category, globalConfig }) => {
+const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
@@ -337,6 +338,7 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
                                 globalConfig={globalConfig}
                                 categoryStyle={categoryStyle}
                                 item={item}
+                                currencySymbol={currencySymbol}
                             />
                         )) : (
                             <p className='flex items-center justify-center h-20 font-semibold text-lg w-full lg:col-span-3 md:col-span-2 col-span-1'>
@@ -352,6 +354,7 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
     );
 });
 export default function TemplateMenuViewerLayout({ templateConfig }) {
+    const {permissions} = useContext(PermissionsContext);
     const categories = templateConfig?.categories || [];
     const globalFromConfig = templateConfig?.global || {};
 
@@ -408,6 +411,7 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
                         key={category.id || category.unique_id || category.name}
                         globalConfig={globalConfig}
                         category={category}
+                        currencySymbol={permissions?.currency_symbol}
                     />
                 ))}
             </Accordion>

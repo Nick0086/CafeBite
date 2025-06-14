@@ -25,23 +25,21 @@ import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 export default function TemplateEditorIndex() {
 
   const queryClient = useQueryClient();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const { templateId } = useParams();
   const navigation = useNavigate();
-  const {currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor } = useTemplate();
-
+  const { currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor } = useTemplate();
   const [templateConfig, setTemplateConfig] = useState(templateDefaultValue);
   const [templateName, setTemplateName] = useState('Default Template');
   const [currenctCategoryItems, setCurrenctCategoryItems] = useState(null);
 
   const visibleHandler = (value) => {
-    if(value === false){
+    if (value === false) {
       return false;
     }
 
     return true
   }
-
 
   const { data: templateData, isLoading, error, isError } = useQuery({
     queryKey: [templateQueryKeyLoopUp['TEMPLATE_LIST'], templateId],
@@ -116,7 +114,7 @@ export default function TemplateEditorIndex() {
         acc[element.unique_id] = element;
         return acc;
       }, {});
-      const existingItems = existingItemsByCategoryId?.[categoryId]?.map(item => ({...allMenuItems[item.unique_id], visible: item?.visible})) || [];
+      const existingItems = existingItemsByCategoryId?.[categoryId]?.filter(item => !!allMenuItems?.[item.unique_id])?.map(item => ({ ...allMenuItems[item.unique_id], visible: item?.visible })) || [];
       const existingItemIds = new Set(existingItems.map(item => item.unique_id));
       const newItems = menuItems.filter(item => !existingItemIds.has(item.unique_id));
 
@@ -133,8 +131,8 @@ export default function TemplateEditorIndex() {
       acc[element.unique_id] = element;
       return acc;
     }, {});
-    
-    const existingCategories = templateData?.template?.config?.categories?.map(category => ({...existingCategoriesVisible[category.unique_id], visible: category?.visible, style: category?.style || {}})) || [];
+
+    const existingCategories = templateData?.template?.config?.categories?.filter(category => !!existingCategoriesVisible?.[category.unique_id]).map(category => ({ ...existingCategoriesVisible[category.unique_id], visible: category?.visible, style: category?.style || {} })) || [];
     const existingCategoryIds = new Set(existingCategories.map(category => category.unique_id));
 
     const newCategories = allCategories.filter(category => !existingCategoryIds.has(category.unique_id));
@@ -192,7 +190,17 @@ export default function TemplateEditorIndex() {
       return;
     }
 
-    const obj = { name: templateName, config: templateConfig }
+    const optimzeTemplateConfig = []
+    templateConfig.categories.forEach(category => {
+      const items = [];
+      category?.items?.forEach(item => {
+        items.push({ position: item?.position, visible: item?.visible, status: item?.status, unique_id: item?.unique_id, category_id: item?.category_id })
+      });
+      optimzeTemplateConfig.push({ ...category, items: items })
+    });
+
+
+    const obj = { name: templateName, config: { ...templateConfig, categories: optimzeTemplateConfig } }
     if (!!templateId) {
       updateTemplateMutation.mutate({ templateId: templateId, templateData: obj });
     } else {

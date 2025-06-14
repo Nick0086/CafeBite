@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useContext } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Button } from '@/components/ui/button';
 import { Plus, SquarePen } from 'lucide-react';
@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { CachedImage } from '@/components/ui/CachedImage';
 import { imageCache } from '@/services/ImageCacheService';
 import { BlobHealthChecker } from '@/utils/blobHealthCheck';
+import { PermissionsContext } from '@/contexts/PermissionsContext';
 
 // Enhanced image component with caching
 const OptimizedImage = memo(({ src, alt, t }) => {
@@ -50,7 +51,7 @@ function StatusBadge({ type, t }) {
 }
 
 // Individual menu item card with intersection observer and image preloading
-const MenuItem = memo(({ item, setIsModalOpen, t }) => {
+const MenuItem = memo(({ item, setIsModalOpen, t , currencySymbol}) => {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true, rootMargin: '100px 0px' });
 
   // Preload image when item comes into view
@@ -82,7 +83,7 @@ const MenuItem = memo(({ item, setIsModalOpen, t }) => {
               <CardDescription className="text-secondary">{item?.description}</CardDescription>
             </div>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-base font-bold">${item?.price}</span>
+              <span className="text-base font-bold flex items-center gap-1">{currencySymbol} {item?.price}</span>
               <div className='flex items-center gap-1'>
                 {item.availability === 'in_stock' ? (
                   <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
@@ -148,6 +149,7 @@ const useCategoryImagePreloader = (groupedItems) => {
 };
 
 export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOptions }) {
+  const {permissions} = useContext(PermissionsContext);
   const { t } = useTranslation();
   const [menuItems, setMenuItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -267,7 +269,7 @@ export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOpti
 
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
             {items?.map((item) => (
-              <MenuItem key={item.unique_id || item.id} item={item} setIsModalOpen={setIsModalOpen} t={t} />
+              <MenuItem key={item.unique_id || item.id} item={item} setIsModalOpen={setIsModalOpen} t={t} currencySymbol={permissions?.currency_symbol} />
             ))}
           </div>
         </div>

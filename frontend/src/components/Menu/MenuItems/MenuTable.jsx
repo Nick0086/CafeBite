@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { Chip } from '@/components/ui/chip';
 import { Card } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import CommonTableToolbar from './components/CommonTableToolbar';
 import CommonTable from '@/common/Table/CommonTable';
 import { useTranslation } from 'react-i18next';
 import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
+import { PermissionsContext } from '@/contexts/PermissionsContext';
 
 const columnsMapping = (t) => {
   return {
@@ -33,6 +34,7 @@ export default function MenuTable({
   categoryIsLoading
 }) {
 
+  const {permissions} = useContext(PermissionsContext);
   const { t } = useTranslation();
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([{ id: "status", value: [1] }])
@@ -66,6 +68,12 @@ export default function MenuTable({
       header: t('price'),
       accessorKey: "price",
       colClassName: "w-1/12",
+      cell : ({cell}) => (
+        <div className='flex items-center gap-0.5'>
+          <span>{permissions?.currency_symbol}</span>
+          <span>{cell?.getValue()}</span>
+        </div>
+      ),
       filterFn: (row, id, filterValue) => {
         // If no filter value, return all rows
         if (!filterValue) return true;

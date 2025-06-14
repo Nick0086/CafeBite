@@ -89,7 +89,7 @@ export default function CustomerMenuIndex() {
                 acc[element.unique_id] = element;
                 return acc;
             }, {});
-            const existingItems = existingItemsByCategory?.[categoryId]?.map(item => ({ ...allMenuItems[item.unique_id], visible: item?.visible })) || [];
+            const existingItems = existingItemsByCategory?.[categoryId]?.filter(item => !!allMenuItems?.[item.unique_id])?.map(item => ({ ...allMenuItems[item.unique_id], visible: item?.visible })) || [];
             const existingItemIds = new Set(existingItems.map(item => item.unique_id));
             const newItems = items.filter(item => !existingItemIds.has(item.unique_id));
             result[categoryId] = [...existingItems, ...newItems];
