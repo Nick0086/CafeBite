@@ -530,7 +530,7 @@ export default function ProfileManagement() {
                                 Social Media
                             </CardTitle>
                             <CardDescription>
-                                Connect with customers on social platforms (Optional)
+                                Connect with customers on social platformsZ
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">

@@ -16,6 +16,7 @@ export function TemplateProvider({ children }) {
     const [descriptionColor, setDescriptionColor] = useState(DEFAULT_THEME.descriptionColor);
     const [buttonBackgroundColor, setButtonBackgroundColor] = useState(DEFAULT_THEME.buttonBackgroundColor);
     const [buttonLabelColor, setButtonLabelColor] = useState(DEFAULT_THEME.buttonLabelColor);
+    const [currentView, setCurrentView] = useState('list');
 
     const [currentSection, setCurrentSection] = useState(null);
 
@@ -57,8 +58,10 @@ export function TemplateProvider({ children }) {
         nameError,
         setNameError,
         // Methods
-        resetAllHandler
-    }), [backgroundColor, sectionBackgroundColor, titleColor, cardTitleColor, cardBackgroundColor, descriptionColor, buttonBackgroundColor, buttonLabelColor, currentSection, nameError]);
+        resetAllHandler,
+        currentView,
+        setCurrentView
+    }), [backgroundColor, sectionBackgroundColor, titleColor, cardTitleColor, cardBackgroundColor, descriptionColor, buttonBackgroundColor, buttonLabelColor, currentSection, nameError, currentView]);
 
     return (
         <TemplateContext.Provider value={value}>

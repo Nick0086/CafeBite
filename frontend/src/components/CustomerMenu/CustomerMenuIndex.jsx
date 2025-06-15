@@ -132,6 +132,7 @@ export default function CustomerMenuIndex() {
             name: menuTemplate.name,
             global: menuTemplate.config?.global,
             styling: menuTemplate.config?.styling,
+            view : menuTemplate?.config?.view,
             categories: processedCategories,
         };
     }, [menuTemplate, processedCategories]);
@@ -177,7 +178,7 @@ export default function CustomerMenuIndex() {
     return (
         <OrderProvider>
             <div className="relative">
-                <CustomerMenuViewer menuConfig={derivedTemplateConfig} options={menuOptions}/>
+                <CustomerMenuViewer menuConfig={derivedTemplateConfig} options={menuOptions} clinetInfo={clinetInfo}/>
                 {/* <OrderHistoryProvider restaurantId={restaurantId} tableId={tableId} >
                     <OrderDrawer />
                 </OrderHistoryProvider> */}

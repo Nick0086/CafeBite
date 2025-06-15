@@ -8,11 +8,12 @@ import { CachedImage } from '../ui/CachedImage';
 import { AppTooltip } from '@/common/AppTooltip';
 import { Chip } from '../ui/chip';
 import { cn } from '@/lib/utils';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, MapPin, Phone, Mail } from 'lucide-react';
 import { useOrder } from '@/contexts/order-management-context';
 import { useMenuStyles } from './utils';
 import { useTranslation } from 'react-i18next';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
+import { Separator } from '../ui/separator';
 
 
 const StatusBadge = memo(({ type }) => {
@@ -25,19 +26,19 @@ const StatusBadge = memo(({ type }) => {
     )
 })
 
-const OptimizedImage = memo(({ src, alt }) => {
+const OptimizedImage = memo(({ src, alt, currentView }) => {
     return (
-        <CachedImage src={src} alt={alt || 'Menu item'} className="w-full h-56 rounded-lg" width={400} height={224} quality={0.8} lazy={true} placeholder={true}
+        <CachedImage currentView src={src} alt={alt || 'Menu item'} className={cn("rounded-lg overflow-hidden", currentView ? 'w-[124px] min-w-[124px] h-[100px]' : 'w-full h-64')}  width={400} height={256} quality={0.8} lazy={true} placeholder={true}
         />
     );
 });
 
-const MenuItem = memo(({ item, styles }) => {
+const MenuItem = memo(({ item, styles, currencyInfo, currentView }) => {
     const { t } = useTranslation();
     const { ref, inView } = useInView({
         threshold: 0.1,
         triggerOnce: true,
-        rootMargin: '100px 0px',
+        rootMargin: '300px 0px',
     });
 
     const { addItem, removeItem, orderItems } = useOrder();
@@ -59,7 +60,7 @@ const MenuItem = memo(({ item, styles }) => {
     const handlers = useMemo(() => ({
         handleAddToOrder: () => {
             if (isInStock) {
-                addItem({ id: item.id,unique_id: item.unique_id,name: item.name,price: price,veg_status: item.veg_status,image: item.image_details?.url});
+                addItem({ id: item.id, unique_id: item.unique_id, name: item.name, price: price, veg_status: item.veg_status, image: item.image_details?.url });
             }
         },
         handleRemoveFromOrder: () => removeItem(item)
@@ -68,14 +69,13 @@ const MenuItem = memo(({ item, styles }) => {
     return (
         <div ref={ref} className="h-full">
             {inView ? (
-                <Card style={styles?.cardStyle} className="flex flex-col justify-between overflow-hidden h-full relative group">
-                    <div className='absolute top-2 right-2 z-[1]' >
+                <Card style={styles?.cardStyle} className={cn("flex flex-col justify-between overflow-hidden h-full relative", currentView === 'list' && 'flex-row p-3 gap-4')}>
+                    {currentView === 'list' ? "" : <div className='absolute top-2 right-2 z-[1]' >
                         <StatusBadge type={item?.veg_status} />
-                    </div>
+                    </div>}
 
-                    <OptimizedImage src={item?.image_details?.url} alt={item?.name} />
-
-                    <CardContent className="flex flex-col flex-auto justify-between p-4 px-2">
+                    <OptimizedImage src={item?.image_details?.url} alt={item?.name} currentView={currentView === 'list'} />
+                    <CardContent className={cn("flex flex-col flex-auto justify-between p-4 px-2", currentView === 'list' && 'p-0')}>
                         <div className="flex flex-col gap-1">
                             <CardTitle style={styles?.titleStyle} className="text-lg text-primary">
                                 {item?.name}
@@ -84,9 +84,19 @@ const MenuItem = memo(({ item, styles }) => {
                                 {item?.description}
                             </CardDescription>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
+                        <div className="flex sm:flex-row-reverse flex-col justify-between mt-2 gap-1">
+                            <div className='flex items-center gap-2' >
+                                <StatusBadge type={item?.veg_status} currentView={currentView} />
+                                <Separator orientation='vertical' className='bg-gray-400' />
+                                <Chip variant="light" color={isInStock ? "green" : "red"} radius="md" size="xs">{isInStock ? "In Stock" : "Out Of Stock"}</Chip>
+                            </div>
                             <span style={styles?.titleStyle} className="text-base font-bold">
-                                ${price.toFixed(2)}
+                                {currencyInfo} {price.toFixed(2)}
+                            </span>
+                        </div>
+                        {/* <div className="flex items-center justify-between mt-2">
+                            <span style={styles?.titleStyle} className="text-base font-bold">
+                                {currencyInfo} {price.toFixed(2)}
                             </span>
                             {
                                 !!itemInOrder ? (
@@ -113,7 +123,7 @@ const MenuItem = memo(({ item, styles }) => {
                                     </>
                                 )
                             }
-                        </div>
+                        </div> */}
                     </CardContent>
                 </Card>
             ) : (
@@ -123,18 +133,18 @@ const MenuItem = memo(({ item, styles }) => {
     );
 });
 
-const CategoryAccordion = memo(({ category, globalConfig }) => {
+const CategoryAccordion = memo(({ category, globalConfig, currencyInfo, currentView }) => {
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
 
     const { ref, inView } = useInView({
         threshold: 0.1,
-        rootMargin: '300px 0px',
+        rootMargin: '600px 0px',
         triggerOnce: true,
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
-    const [renderBatch, setRenderBatch] = useState(6); // Progressive loading
+    const [renderBatch, setRenderBatch] = useState(9); // Progressive loading
 
     useEffect(() => {
         if (inView && !isLoaded) {
@@ -186,11 +196,13 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
             <CardContent className="p-2">
                 {(inView || isLoaded) ? (
                     <>
-                        <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 gap-4">
+                        <div className={cn("grid  gap-4", currentView === 'grid' ? 'lg:grid-cols-3 md:grid-cols-2 grid-cols-1' : 'grid-cols-1')}>
                             {displayedItems.length > 0 ? displayedItems.map(item => (
                                 <MenuItem
+                                    currencyInfo={currencyInfo}
                                     key={item.unique_id || item.id}
                                     item={item}
+                                    currentView={currentView}
                                     styles={{
                                         cardStyle: styles.cardStyle,
                                         titleStyle: styles.titleStyle,
@@ -222,7 +234,7 @@ const CategoryAccordion = memo(({ category, globalConfig }) => {
     );
 });
 
-export default function CustomerMenuViewer({ menuConfig, options = {} }) {
+export default function CustomerMenuViewer({ menuConfig, options = {}, clinetInfo }) {
 
     const { enableImagePreloading = true, preloadOptions = {} } = options;
 
@@ -273,13 +285,58 @@ export default function CustomerMenuViewer({ menuConfig, options = {} }) {
         [globalConfig?.background_color]
     );
 
+    const styles = useMenuStyles(globalConfig, visibleCategories[0]?.style || {});
+
     return (
         <div className="md:p-4 p-2 bg-gray-100/90 min-h-[100dvh] max-h-[100dvh] overflow-auto space-y-4" style={containerStyle}>
+
+            <Card key={"clinet_info"} value={"clinet_info"} style={styles?.sectionStyle} id={"clinet_info"} className={cn('bg-card md:rounded-md rounded overflow-hidden border-none md:px-3 px-1')}>
+                <CardContent className="p-6 md:py-4  py-2">
+                    <div className="flex flex-col md:flex-row items-center justify-center md:space-x-6  space-x-0">
+                        <div className="flex-shrink-0">
+                            <div className={`w-24 h-24 rounded-full bg-white border-4 border-white shadow-lg flex flex-col items-center justify-center overflow-hidden cursor-default`}>
+                                <img src={clinetInfo?.logo_signed_url} alt="Cafe logo preview" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div className="">
+                            <h2 className="text-2xl font-bold md:text-left text-center" style={styles?.titleBarStyle}>
+                                {clinetInfo?.cafe_name || 'Your Cafe Name'}
+                            </h2>
+                            <p className=" mt-1 md:text-left text-center" style={styles?.titleTextStyle}   >
+                                Owned by {clinetInfo?.first_name} {clinetInfo?.last_name}
+                            </p>
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 text-sm text-gray-500">
+                                {clinetInfo?.cityName && (
+                                    <div className="flex items-center gap-1">
+                                        <MapPin size={14} />
+                                        <span>{clinetInfo?.cityName}</span>
+                                    </div>
+                                )}
+                                {clinetInfo?.cafe_phone && (
+                                    <div style={styles.descriptionStyle} className="flex items-center gap-1">
+                                        <Phone size={14} />
+                                        <span>{clinetInfo?.cafe_phone}</span>
+                                    </div>
+                                )}
+                                {clinetInfo?.cafe_email && (
+                                    <div style={styles.descriptionStyle} className="flex items-center gap-1">
+                                        <Mail size={14} />
+                                        <span>{clinetInfo?.cafe_email}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             {visibleCategories.map(category => (
                 <CategoryAccordion
                     key={category.id || category.unique_id || category.name}
                     globalConfig={globalConfig}
                     category={category}
+                    currencyInfo={clinetInfo?.currency_symbol}
+                    currentView={menuConfig?.view || "grid"}
                 />
             ))}
 

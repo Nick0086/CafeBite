@@ -38,6 +38,7 @@ export const templateDefaultValue = {
         "button_background_color": DEFAULT_THEME.buttonBackgroundColor
     },
     "categories": [],
+    "view": "list",
     "styling": {
         "borderRadius": "8px",
         "shadow": "0 2px 4px rgba(0,0,0,0.1)"

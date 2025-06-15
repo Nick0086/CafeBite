@@ -4,9 +4,10 @@ import { Label } from '@/components/ui/label';
 import { useTemplate } from '@/contexts/TemplateContext';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { LayoutGrid, List, RotateCcw } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { DEFAULT_THEME, templateDefaultValue } from '../utils';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ColorPicker = ({ label, currentColor, onColorChange, colorKey, updateTemplateConfig, t }) => {
   const defaultColors = templateDefaultValue.global;
@@ -37,7 +38,7 @@ const ColorPicker = ({ label, currentColor, onColorChange, colorKey, updateTempl
           </div>
         </div>
         <Input value={currentColor} onChange={(e) => handleChange(e.target.value)} className="font-mono text-sm" />
-        <ResetButton onClick={() => handleChange(defaultColors[colorKey])} tooltipText={t('reset')}/>
+        <ResetButton onClick={() => handleChange(defaultColors[colorKey])} tooltipText={t('reset')}  />
       </div>
     </div>
   );
@@ -81,6 +82,8 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
     buttonLabelColor,
     setButtonLabelColor,
     resetAllHandler,
+    currentView,
+    setCurrentView
   } = useTemplate();
 
   const colorConfigs = [
@@ -107,6 +110,23 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
 
   return (
     <div className="space-y-3">
+      <div className='flex items-center gap-1 mt-3' >
+        <h5 className="text font-medium px-4 pr-1">View</h5>
+        <div className=" flex-1 space-y-4">
+          <Tabs value={currentView} onValueChange={setCurrentView} defaultValue={templateDefaultValue['view']}>
+            <TabsList className="bg-muted rounded-md p-1">
+              <TabsTrigger value="list" className="p-1.5">
+                <List size={20} />
+              </TabsTrigger>
+              <Separator orientation="vertical" className="h-6 bg-gray-300" />
+              <TabsTrigger value="grid" className="p-1.5">
+                <LayoutGrid size={20} />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+      <Separator />
       <div>
         <div className="flex items-center justify-between">
           <h5 className="text-lg font-medium px-4 pb-2">{t("background_&_colors")}</h5>

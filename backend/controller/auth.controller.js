@@ -287,7 +287,7 @@ export const validateActiveUserSession = async (req, res) => {
         const unique_id = decodedRefresh?.userDetails?.unique_id
 
         if (!refreshToken || !unique_id) {
-            return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing authentication tokens or user identifier.' });
+            return res.status(402).json({ code: 'UNAUTHORIZED', message: 'Missing authentication tokens or user identifier.' });
         }
 
         const sessions = await authService.validateSession(unique_id, userAgent, refreshToken);
@@ -295,7 +295,7 @@ export const validateActiveUserSession = async (req, res) => {
         if (sessions?.length > 0) {
             return res.status(200).json({ code: 'AUTHORIZED', message: 'Active session confirmed.' });
         } else {
-            return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Session is not active or has expired.' });
+            return res.status(402).json({ code: 'UNAUTHORIZED', message: 'Session is not active or has expired.' });
         }
 
     } catch (error) {

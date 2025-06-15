@@ -1,16 +1,6 @@
 import React, { memo, useEffect, useState, useMemo, useContext } from 'react';
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from '@/components/ui/accordion';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardTitle,
-} from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent, CardDescription, CardTitle, } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { cn } from '@/lib/utils';
 import { useInView } from 'react-intersection-observer';
@@ -21,9 +11,11 @@ import { CachedImage } from '@/components/ui/CachedImage';
 import { imageCache } from '@/services/ImageCacheService';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
+import { useTemplate } from '@/contexts/TemplateContext';
+import { Separator } from '@/components/ui/separator';
 
 /* Enhanced OptimizedImage with caching */
-const OptimizedImage = memo(({ src, alt }) => {
+const OptimizedImage = memo(({ src, alt, currentView }) => {
     const { ref, inView } = useInView({
         threshold: 0.1,
         rootMargin: '150px',
@@ -31,21 +23,20 @@ const OptimizedImage = memo(({ src, alt }) => {
     });
 
     return (
-        <div ref={ref} className="w-full h-56 rounded-lg overflow-hidden">
+        <div ref={ref} className={cn("rounded-lg overflow-hidden", currentView ? 'w-[124px] min-w-[124px] h-[100px]' : 'w-full h-64')}>
             {inView ? (
-                <CachedImage 
+                <CachedImage
                     src={src}
                     alt={alt || 'Menu item'}
-                    className="w-full h-full object-cover"
-                    width={400}
-                    height={224}
+                    className="object-cover"
+                    currentView={currentView}
                     quality={0.8}
-                    lazy={false} // Already handled by inView
+                    lazy={false}
                     placeholder={true}
                     showCacheStatus={process.env.NODE_ENV === 'development'}
                 />
             ) : (
-                <div className="w-full h-56 bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
+                <div className={cn("bg-gray-200 rounded-lg flex items-center justify-center animate-pulse", currentView ? 'w-[124px] h-[100px]' : 'w-full h-64')}>
                     <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                             strokeLinecap="round"
@@ -60,7 +51,7 @@ const OptimizedImage = memo(({ src, alt }) => {
     );
 });
 
-const StatusBadge = memo(({ type }) => {
+const StatusBadge = memo(({ type, currentView }) => {
     return (
         <TooltipProvider>
             <Tooltip>
@@ -78,9 +69,9 @@ const StatusBadge = memo(({ type }) => {
 })
 
 /* Enhanced MenuItem with better caching and state management */
-const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol }) => {
+const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, currentView }) => {
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
-    
+    const isInStock = item.availability === 'in_stock';
     const { ref, inView } = useInView({
         threshold: 0.1,
         triggerOnce: false, // Allow re-triggering for better scroll handling
@@ -91,11 +82,11 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol }) =>
     useEffect(() => {
         if (inView && !hasBeenVisible && item?.image_details?.url) {
             setHasBeenVisible(true);
-            
+
             // Preload image in background
             imageCache.preloadImage(item.image_details.url, {
                 width: 400,
-                height: 224,
+                height: 256,
                 quality: 0.8
             }).catch(error => {
                 console.warn('Failed to preload template image:', item.image_details.url, error);
@@ -172,29 +163,34 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol }) =>
         <div ref={ref} className="h-full">
             {/* Always render if it has been visible once to prevent blob URL issues */}
             {(inView || hasBeenVisible) ? (
-                <Card style={cardStyle} className="flex flex-col justify-between overflow-hidden h-full relative">
-                    <div className='absolute top-2 right-2 z-[1]' >
+                <Card style={cardStyle} className={cn("flex flex-col justify-between overflow-hidden h-full relative", currentView === 'list' && 'flex-row p-3 gap-4')}>
+                    {currentView === 'list' ? "" : <div className='absolute top-2 right-2 z-[1]' >
                         <StatusBadge type={item?.veg_status} />
-                    </div>
-                    <OptimizedImage src={item?.image_details?.url} alt={item?.name} />
-                    <CardContent className="flex flex-col flex-auto justify-between p-4 px-2">
+                    </div>}
+                    <OptimizedImage src={item?.image_details?.url} alt={item?.name} currentView={currentView === 'list'} />
+                    <CardContent className={cn("flex flex-col flex-auto justify-between p-4 px-2", currentView === 'list' && 'p-0')}>
                         <div className="flex flex-col gap-1">
-                            <CardTitle style={titleStyle} className="text-lg text-primary">
+                            <CardTitle style={titleStyle} className="md:text-lg text-base text-primary flex items-center gap-2">
                                 {item?.name}
                             </CardTitle>
-                            <CardDescription style={descriptionStyle} className="text-secondary">
+                            <CardDescription style={descriptionStyle} className="text-secondary md:text-sm text-xs">
                                 {item?.description}
                             </CardDescription>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
-                            <span style={titleStyle} className="text-base font-bold">
-                                {currencySymbol} {item?.price}
-                            </span>
+                        <div className="flex sm:flex-row-reverse flex-col justify-between mt-2 gap-1">
                             {/* Uncomment if needed
                             <Button disabled={!(item.availability === 'in_stock')} style={buttonBackgroundStyle} variant='primary' size='sm' > 
                                 <p style={buttonLabelStyle} > {item.availability === 'in_stock' ? "Order" : "Out of Stock"}</p>
                             </Button>
                             */}
+                            <div className='flex items-center gap-2' >
+                                <StatusBadge type={item?.veg_status} currentView={currentView} />
+                                <Separator orientation='vertical' className='bg-gray-400'  />
+                                <Chip variant="light" color={isInStock ? "green" : "red"} radius="md" size="xs">{isInStock ? "In Stock" : "Out Of Stock"}</Chip>
+                            </div>
+                            <span style={titleStyle} className="text-base font-bold">
+                                {currencySymbol} {item?.price}
+                            </span>
                         </div>
                     </CardContent>
                 </Card>
@@ -206,7 +202,7 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol }) =>
 });
 
 /* Enhanced CategoryAccordion with image preloading */
-const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
+const CategoryAccordion = memo(({ category, globalConfig, currencySymbol, currentView }) => {
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
@@ -218,7 +214,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
     });
 
     const [isLoaded, setIsLoaded] = useState(false);
-    
+
     useEffect(() => {
         if (inView && !isLoaded) {
             setIsLoaded(true);
@@ -235,7 +231,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
 
             if (imageUrls.length > 0) {
                 console.log(`Preloading ${imageUrls.length} images for category: ${category.name}`);
-                
+
                 // Preload in batches
                 const batchSize = 3;
                 const preloadBatch = async (urls, startIndex = 0) => {
@@ -245,10 +241,10 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
                     try {
                         await imageCache.preloadImages(batch, {
                             width: 400,
-                            height: 224,
+                            height: 256,
                             quality: 0.8
                         });
-                        
+
                         // Continue with next batch after a small delay
                         if (startIndex + batchSize < urls.length) {
                             setTimeout(() => preloadBatch(urls, startIndex + batchSize), 200);
@@ -303,7 +299,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
         return {};
     }, [globalConfig?.title_color, categoryStyle?.title_color]);
 
-    const visibleItems = useMemo(() => 
+    const visibleItems = useMemo(() =>
         category?.items?.filter(item => item?.visible) || [],
         [category?.items]
     );
@@ -331,7 +327,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
             </AccordionTrigger>
             <AccordionContent className="pt-2">
                 {(inView || isLoaded) ? (
-                    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
+                    <div className={cn("grid  gap-4", currentView === 'grid' ? 'lg:grid-cols-3 md:grid-cols-2 grid-cols-1' : 'grid-cols-1')}>
                         {visibleItems.length > 0 ? visibleItems.map(item => (
                             <MenuItem
                                 key={item.unique_id || item.id}
@@ -339,6 +335,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
                                 categoryStyle={categoryStyle}
                                 item={item}
                                 currencySymbol={currencySymbol}
+                                currentView={currentView}
                             />
                         )) : (
                             <p className='flex items-center justify-center h-20 font-semibold text-lg w-full lg:col-span-3 md:col-span-2 col-span-1'>
@@ -353,11 +350,12 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol }) => {
         </AccordionItem>
     );
 });
+
 export default function TemplateMenuViewerLayout({ templateConfig }) {
-    const {permissions} = useContext(PermissionsContext);
+    const { permissions } = useContext(PermissionsContext);
     const categories = templateConfig?.categories || [];
     const globalFromConfig = templateConfig?.global || {};
-
+    const { currentView } = useTemplate();
     const globalConfig = useMemo(
         () => ({
             background_color: globalFromConfig.background_color,
@@ -412,6 +410,7 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
                         globalConfig={globalConfig}
                         category={category}
                         currencySymbol={permissions?.currency_symbol}
+                        currentView={currentView}
                     />
                 ))}
             </Accordion>

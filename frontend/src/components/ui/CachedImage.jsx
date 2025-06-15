@@ -4,18 +4,18 @@ import { imageCache } from '@/services/ImageCacheService';
 import { ImagePlaceholder } from './Iimage-placeholder';
 import { cn } from '@/lib/utils';
 
-const CachedImage = memo(({
-    src,
+const CachedImage = memo(({src,
     alt,
     className,
     width = 400,
-    height = 300,
+    height = 256,
     quality = 0.8,
     placeholder = true,
     lazy = true,
     showCacheStatus = process.env.NODE_ENV === 'development',
     onLoad,
     onError,
+    currentView,
     ...props
 }) => {
     const [imageSrc, setImageSrc] = useState(null);
@@ -84,7 +84,7 @@ const CachedImage = memo(({
         };
 
         loadImage();
-    }, [src, isVisible, width, height, quality, onLoad, onError]);
+    }, [src, isVisible, width, height, quality, onLoad, onError, currentView]);
 
     // Cleanup on unmount only
     useEffect(() => {
@@ -134,7 +134,7 @@ const CachedImage = memo(({
             
             {isLoading && placeholder && (
                 <div className="absolute inset-0 z-10">
-                    <ImagePlaceholder />
+                    <ImagePlaceholder currentView={currentView} />
                 </div>
             )}
             {imageSrc && (
@@ -142,9 +142,15 @@ const CachedImage = memo(({
                     src={imageSrc}
                     alt={alt}
                     className={cn(
-                        "w-full h-full object-cover transition-opacity duration-300",
-                        isLoading ? "opacity-0" : "opacity-100"
+                        "object-cover transition-opacity duration-300",
+                        isLoading ? "opacity-0" : "opacity-100",
+                        currentView ? "w-[124px] h-[100px]" : "w-full h-full"
                     )}
+                    style={{
+                        width: currentView ? '124px' : "100%",
+                        minWidth: currentView ? '124px' : "100%",
+                        height: currentView ? '100px' : height
+                    }}
                     loading="lazy"
                     decoding="async"
                     onLoad={() => {

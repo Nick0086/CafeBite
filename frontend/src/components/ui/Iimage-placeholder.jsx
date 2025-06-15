@@ -1,5 +1,7 @@
-export const ImagePlaceholder = () => (
-    <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+import { cn } from "@/lib/utils"
+
+export const ImagePlaceholder = ({currentView}) => (
+    <div className={cn(" bg-gray-200 rounded-lg flex items-center justify-center",currentView ? "w-[124px] h-[100px]" : "w-full h-64")}>
         <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
                 strokeLinecap="round"

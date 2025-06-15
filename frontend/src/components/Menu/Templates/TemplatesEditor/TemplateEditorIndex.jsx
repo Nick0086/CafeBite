@@ -21,14 +21,13 @@ import { createTemplate, getTemplateById, updateTemplate } from '@/service/templ
 import { useTranslation } from 'react-i18next';
 import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 
-
 export default function TemplateEditorIndex() {
 
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const { templateId } = useParams();
   const navigation = useNavigate();
-  const { currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor } = useTemplate();
+  const { currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor ,currentView, setCurrentView} = useTemplate();
   const [templateConfig, setTemplateConfig] = useState(templateDefaultValue);
   const [templateName, setTemplateName] = useState('Default Template');
   const [currenctCategoryItems, setCurrenctCategoryItems] = useState(null);
@@ -60,6 +59,7 @@ export default function TemplateEditorIndex() {
       setDescriptionColor(config?.global?.description_color);
       setButtonBackgroundColor(config?.global?.button_background_color);
       setButtonLabelColor(config?.global?.button_label_color);
+      setCurrentView(config?.view);
     }
   }, [templateData]);
 
@@ -200,7 +200,7 @@ export default function TemplateEditorIndex() {
     });
 
 
-    const obj = { name: templateName, config: { ...templateConfig, categories: optimzeTemplateConfig } }
+    const obj = { name: templateName, config: { ...templateConfig, view : currentView, categories: optimzeTemplateConfig } }
     if (!!templateId) {
       updateTemplateMutation.mutate({ templateId: templateId, templateData: obj });
     } else {

@@ -12,8 +12,9 @@ export const getMenuForCustomerByTableId = async (req, res) => {
             return res.status(404).json({ status: "error", code: "TABLE_NOT_FOUND", message: "Table not found." });
         }
 
-        const cilentINfo = await query('SELECT * FROM clients WHERE unique_id = ?', [userId]);
-        if(!cilentINfo.length) {
+        var cilentINfo = await query(`SELECT cli.*, cur.name as currency_name, cur.symbol as currency_symbol, cm.city as cityName FROM clients as cli LEFT JOIN currencies as cur ON cli.currency_code = cur.code LEFT JOIN ucmt_tbl_city_master as cm ON cm.id = cli.city_id WHERE cli.unique_id = ?`, [userId]);
+
+        if (!cilentINfo.length) {
             return res.status(404).json({ status: "error", code: "CLIENT_NOT_FOUND", message: "Client not found." });
         }
         var user = cilentINfo[0];
