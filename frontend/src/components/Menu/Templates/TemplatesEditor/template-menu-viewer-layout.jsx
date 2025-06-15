@@ -185,7 +185,7 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, curr
                             */}
                             <div className='flex items-center gap-2' >
                                 <StatusBadge type={item?.veg_status} currentView={currentView} />
-                                <Separator orientation='vertical' className='bg-gray-400'  />
+                                <Separator orientation='vertical' className='bg-gray-400' />
                                 <Chip variant="light" color={isInStock ? "green" : "red"} radius="md" size="xs">{isInStock ? "In Stock" : "Out Of Stock"}</Chip>
                             </div>
                             <span style={titleStyle} className="text-base font-bold">
@@ -202,7 +202,7 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, curr
 });
 
 /* Enhanced CategoryAccordion with image preloading */
-const CategoryAccordion = memo(({ category, globalConfig, currencySymbol, currentView }) => {
+const CategoryAccordion = memo(({ category, globalConfig, accordingHander, currencySymbol, currentView }) => {
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
@@ -305,14 +305,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencySymbol, curren
     );
 
     return (
-        <AccordionItem
-            key={categoryId}
-            value={categoryId}
-            className={cn('bg-card rounded-md overflow-hidden border-none px-3')}
-            style={sectionStyle}
-            id={categoryId}
-            ref={ref}
-        >
+        <AccordionItem key={categoryId} value={categoryId} className={cn('bg-card rounded-md overflow-hidden border-none px-3')} style={sectionStyle} id={categoryId} ref={ref}>
             <AccordionTrigger className="py-3 px-2 hover:no-underline">
                 <div className="flex items-center gap-2">
                     <div className="h-6 w-1.5 bg-primary rounded-full hidden sm:block" style={titleBarStyle} />
@@ -355,6 +348,7 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
     const { permissions } = useContext(PermissionsContext);
     const categories = templateConfig?.categories || [];
     const globalFromConfig = templateConfig?.global || {};
+    const [firstCategoryId, setFirstCategoryId] = useState([]);
     const { currentView } = useTemplate();
     const globalConfig = useMemo(
         () => ({
@@ -384,13 +378,23 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
         [categories]
     );
 
-    const firstCategoryId = useMemo(() => {
+    const firstCategory = useMemo(() => {
         if (visibleCategories.length > 0) {
             const firstCategory = visibleCategories[0];
             return firstCategory.id || firstCategory.unique_id || firstCategory.name;
         }
         return null;
     }, [visibleCategories]);
+
+    useEffect(() => {
+        if (firstCategory) {
+            setFirstCategoryId([firstCategory]);
+        }
+    }, [firstCategory])
+
+    const accordingHander = (e) => {
+        setFirstCategoryId(e);
+    }
 
     const containerStyle = useMemo(
         () => (globalConfig?.background_color ? { backgroundColor: globalConfig.background_color } : {}),
@@ -401,11 +405,14 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
         <div className="p-4 max-h-[calc(100dvh-48px)] min-h-[calc(100dvh-48px)] min overflow-auto" style={containerStyle}>
             <Accordion
                 type="multiple"
-                defaultValue={firstCategoryId ? [firstCategoryId] : []}
+                value={firstCategoryId}
+                defaultValue={firstCategoryId ? firstCategoryId : []}
                 className="space-y-4"
+                onValueChange={accordingHander}
             >
                 {visibleCategories.map(category => (
                     <CategoryAccordion
+                        accordingHander={accordingHander}
                         key={category.id || category.unique_id || category.name}
                         globalConfig={globalConfig}
                         category={category}
