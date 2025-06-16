@@ -60,9 +60,8 @@ const ResetButton = ({ onClick, tooltipText }) => (
   </TooltipProvider>
 );
 
-const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateConfig, t }) => {
+const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateConfig, currentSection, t }) => {
 
-  const { currentSection, setCurrentSection } = useTemplate();
   const [currentCategory, setCurrentCategory] = useState(null);
 
   useEffect(() => {
@@ -130,10 +129,10 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
 
   return (
     <div className="space-y-1.5 pt-1">
-      <h5 className="text-lg font-medium px-4 pb-2">{t("section_style")}</h5>
+      {/* <h5 className="text-lg font-medium px-4 pb-2">{t("section_style")}</h5> */}
 
       {/* Category Selection */}
-      <div className="flex flex-col gap-1 border-b border-gray-200 px-4 my-4 pb-4">
+      {/* <div className="flex flex-col gap-1 border-b border-gray-200 px-4 my-4 pb-4">
         <Label className="text-xs">{t('select_category')}</Label>
         <Select value={currentSection} onValueChange={setCurrentSection}>
           <SelectTrigger>
@@ -147,7 +146,7 @@ const TemplateStyling = ({ categoryData, templateConfig, isLoading, setTemplateC
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
 
       {/* Color Settings */}
       <div className="py-4 px-0 pt-2 space-y-2">

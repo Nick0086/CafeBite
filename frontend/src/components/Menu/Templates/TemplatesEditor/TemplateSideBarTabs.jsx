@@ -5,6 +5,7 @@ import TemplateCategories from './template-categories';
 import TemplateStyling from './template-Styling';
 import TemplateItems from './template-items';
 import { useTranslation } from 'react-i18next';
+import { useTemplate } from '@/contexts/TemplateContext';
 
 export default function TemplateSideBarTabs({
     categoryData,
@@ -17,10 +18,8 @@ export default function TemplateSideBarTabs({
 }) {
 
     const { t } = useTranslation();
-    const [selectedTab, setSelectedTab] = useState('Global');
-    const handleTabChange = (tab) => {
-        setSelectedTab(tab);
-    }
+    const {selectedTab, handleTabChange} = useTemplate()
+
 
     return (
         <div className="w-full mx-auto px-0">
@@ -35,9 +34,9 @@ export default function TemplateSideBarTabs({
                     <TabsTrigger value="items" variant="team" className="text-xs text-green-500 border-green-500 data-[state=active]:bg-green-200 data-[state=active]:text-green-700 py-1.5 px-2">
                         {t('items')}
                     </TabsTrigger>
-                    <TabsTrigger value="Styling" variant="team" className="text-xs text-yellow-500 border-yellow-500 data-[state=active]:bg-yellow-200 data-[state=active]:text-yellow-700 py-1.5 px-2">
+                    {/* <TabsTrigger value="Styling" variant="team" className="text-xs text-yellow-500 border-yellow-500 data-[state=active]:bg-yellow-200 data-[state=active]:text-yellow-700 py-1.5 px-2">
                         {t('styling')}
-                    </TabsTrigger>
+                    </TabsTrigger> */}
                 </TabsList>
 
                 <TabsContent value='Global' >
@@ -49,7 +48,7 @@ export default function TemplateSideBarTabs({
                         isCategoryLoading={isCategoryLoading}
                         templateConfig={templateConfig}
                         setTemplateConfig={setTemplateConfig}
-                        handleTabChang={handleTabChange}
+                        setCurrenctCategoryItems={setCurrenctCategoryItems}
                         t={t}
                     />
                 </TabsContent>
@@ -66,7 +65,7 @@ export default function TemplateSideBarTabs({
                     />
                 </TabsContent>
 
-                <TabsContent value='Styling' >
+                {/* <TabsContent value='Styling' >
                     <TemplateStyling
                         isLoading={isCategoryLoading || isMenuItemLoading}
                         categoryData={categoryData}
@@ -74,7 +73,7 @@ export default function TemplateSideBarTabs({
                         setTemplateConfig={setTemplateConfig}
                         t={t}
                     />
-                </TabsContent>
+                </TabsContent> */}
             </Tabs>
         </div>
     )

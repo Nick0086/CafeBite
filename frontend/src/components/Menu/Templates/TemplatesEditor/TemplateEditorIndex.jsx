@@ -20,6 +20,7 @@ import { getAllMenuItems } from '@/service/menuItems.service';
 import { createTemplate, getTemplateById, updateTemplate } from '@/service/templates.service';
 import { useTranslation } from 'react-i18next';
 import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
+import { PenIcon } from 'lucide-react';
 
 export default function TemplateEditorIndex() {
 
@@ -31,6 +32,7 @@ export default function TemplateEditorIndex() {
   const [templateConfig, setTemplateConfig] = useState(templateDefaultValue);
   const [templateName, setTemplateName] = useState('Default Template');
   const [currenctCategoryItems, setCurrenctCategoryItems] = useState(null);
+  
 
   const visibleHandler = (value) => {
     if (value === false) {
@@ -230,9 +232,9 @@ export default function TemplateEditorIndex() {
       <SidebarInset className={cn('h-full w-full min-w-0')} >
         <header className="flex justify-between flex-wrap min-h-11  sticky top-0 items-center gap-4 border-b bg-background px-6 z-10">
           <h1 className="text-xl font-semibold">{templateName}</h1>
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger MyIcon={<PenIcon size={18} />} className="-ml-1 border border-foreground md:hidden " />
         </header>
-        <TemplateMenuViewerLayout templateConfig={templateConfig} />
+        <TemplateMenuViewerLayout templateConfig={templateConfig} setCurrenctCategoryItems={setCurrenctCategoryItems} />
       </SidebarInset>
 
       <SidebarComponent className='overflow-auto' side='right' >

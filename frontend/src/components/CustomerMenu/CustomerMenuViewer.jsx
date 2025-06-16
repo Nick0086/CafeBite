@@ -187,14 +187,14 @@ const CategoryAccordion = memo(({ category, globalConfig, currencyInfo, currentV
         <Card key={categoryId} value={categoryId} style={styles?.sectionStyle} id={categoryId} ref={ref} className={cn('bg-card md:rounded-md rounded overflow-hidden border-none md:px-3 px-1')}>
             <CardHeader className="py-3 px-2 hover:no-underline">
                 <div className="flex items-center gap-2">
-                    <div className="h-6 w-1.5 bg-primary rounded-full hidden sm:block" style={styles?.titleBarStyle} />
+                    <div className="h-6 w-1.5 bg-primary rounded-full" style={styles?.titleBarStyle} />
                     <h2 style={styles?.titleTextStyle} className="text-xl font-semibold">
                         {category?.name}
                     </h2>
                 </div>
             </CardHeader>
             <CardContent className="p-2">
-                {(inView || isLoaded) ? (
+                {(inView || isLoaded ) ? (
                     <>
                         <div className={cn("grid  gap-4", currentView === 'grid' ? 'lg:grid-cols-3 md:grid-cols-2 grid-cols-1' : 'grid-cols-1')}>
                             {displayedItems.length > 0 ? displayedItems.map(item => (
@@ -227,7 +227,7 @@ const CategoryAccordion = memo(({ category, globalConfig, currencyInfo, currentV
                         )}
                     </>
                 ) : (
-                    <div className="h-20 bg-gray-100 animate-pulse rounded-md" />
+                    <div className={cn("h-20 bg-gray-100 animate-pulse rounded-md",currentView === 'list' ? "h-12" :"h-20")} />
                 )}
             </CardContent>
         </Card>

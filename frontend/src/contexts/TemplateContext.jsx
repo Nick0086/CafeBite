@@ -17,6 +17,12 @@ export function TemplateProvider({ children }) {
     const [buttonBackgroundColor, setButtonBackgroundColor] = useState(DEFAULT_THEME.buttonBackgroundColor);
     const [buttonLabelColor, setButtonLabelColor] = useState(DEFAULT_THEME.buttonLabelColor);
     const [currentView, setCurrentView] = useState('list');
+    const [selectedTab, setSelectedTab] = useState('Global');
+    const [currentSubItemTab, setCurrentSubItemTab] = useState('item')
+
+    const handleTabChange = (tab) => {
+        setSelectedTab(tab);
+    }
 
     const [currentSection, setCurrentSection] = useState(null);
 
@@ -56,12 +62,17 @@ export function TemplateProvider({ children }) {
         currentSection,
         setCurrentSection,
         nameError,
+        currentView,
+        setCurrentView,
+        selectedTab,
+        setSelectedTab,
         setNameError,
+        currentSubItemTab,
+        setCurrentSubItemTab,
         // Methods
         resetAllHandler,
-        currentView,
-        setCurrentView
-    }), [backgroundColor, sectionBackgroundColor, titleColor, cardTitleColor, cardBackgroundColor, descriptionColor, buttonBackgroundColor, buttonLabelColor, currentSection, nameError, currentView]);
+        handleTabChange
+    }), [backgroundColor,currentSubItemTab, selectedTab, sectionBackgroundColor, titleColor, cardTitleColor, cardBackgroundColor, descriptionColor, buttonBackgroundColor, buttonLabelColor,  currentSection, nameError, currentView]);
 
     return (
         <TemplateContext.Provider value={value}>

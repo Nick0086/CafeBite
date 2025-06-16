@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo, useContext } from 'react';
+import React, { memo, useEffect, useState, useMemo, useContext, useCallback } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardTitle, } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
@@ -13,6 +13,7 @@ import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 import { useTemplate } from '@/contexts/TemplateContext';
 import { Separator } from '@/components/ui/separator';
+import { Edit, PenIcon } from 'lucide-react';
 
 /* Enhanced OptimizedImage with caching */
 const OptimizedImage = memo(({ src, alt, currentView }) => {
@@ -202,7 +203,7 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, curr
 });
 
 /* Enhanced CategoryAccordion with image preloading */
-const CategoryAccordion = memo(({ category, globalConfig, accordingHander, currencySymbol, currentView }) => {
+const CategoryAccordion = memo(({ category, globalConfig, itemEditHander, currencySymbol, currentView }) => {
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
@@ -304,6 +305,11 @@ const CategoryAccordion = memo(({ category, globalConfig, accordingHander, curre
         [category?.items]
     );
 
+    const handleMenuEdit = useCallback((e) => {
+        e.stopPropagation();
+        itemEditHander(categoryId);
+    }, []);
+
     return (
         <AccordionItem key={categoryId} value={categoryId} className={cn('bg-card rounded-md overflow-hidden border-none px-3')} style={sectionStyle} id={categoryId} ref={ref}>
             <AccordionTrigger className="py-3 px-2 hover:no-underline">
@@ -316,6 +322,7 @@ const CategoryAccordion = memo(({ category, globalConfig, accordingHander, curre
                     <Chip variant="light" color="slate" radius="md" size="xs">
                         {visibleItems.length} items
                     </Chip>
+                    <Button onClick={handleMenuEdit} variant='submit' type='button' size='icon' className='h-7 w-7' ><Edit size={14} /></Button>
                 </div>
             </AccordionTrigger>
             <AccordionContent className="pt-2">
@@ -344,12 +351,13 @@ const CategoryAccordion = memo(({ category, globalConfig, accordingHander, curre
     );
 });
 
-export default function TemplateMenuViewerLayout({ templateConfig }) {
+export default function TemplateMenuViewerLayout({ templateConfig , setCurrenctCategoryItems}) {
     const { permissions } = useContext(PermissionsContext);
     const categories = templateConfig?.categories || [];
     const globalFromConfig = templateConfig?.global || {};
     const [firstCategoryId, setFirstCategoryId] = useState([]);
-    const { currentView } = useTemplate();
+    const { currentView, handleTabChange, setCurrentSubItemTab } = useTemplate();
+
     const globalConfig = useMemo(
         () => ({
             background_color: globalFromConfig.background_color,
@@ -396,6 +404,15 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
         setFirstCategoryId(e);
     }
 
+    const itemEditHander = (e) => {
+        if (!firstCategoryId?.includes(e)) {
+            setFirstCategoryId((prv) => ([...prv, e]));
+        }
+        setCurrenctCategoryItems(e)
+        handleTabChange('items')
+        setCurrentSubItemTab("item")
+    }
+
     const containerStyle = useMemo(
         () => (globalConfig?.background_color ? { backgroundColor: globalConfig.background_color } : {}),
         [globalConfig?.background_color]
@@ -412,7 +429,7 @@ export default function TemplateMenuViewerLayout({ templateConfig }) {
             >
                 {visibleCategories.map(category => (
                     <CategoryAccordion
-                        accordingHander={accordingHander}
+                        itemEditHander={itemEditHander}
                         key={category.id || category.unique_id || category.name}
                         globalConfig={globalConfig}
                         category={category}

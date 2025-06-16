@@ -1,15 +1,15 @@
 import { Button } from '@/components/ui/button'
-import { 
-  closestCenter, 
-  DndContext, 
-  KeyboardSensor, 
-  PointerSensor, 
-  useSensor, 
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
   useSensors,
   DragOverlay
 } from '@dnd-kit/core'
-import { 
-  arrayMove, 
+import {
+  arrayMove,
   sortableKeyboardCoordinates,
   SortableContext,
   useSortable,
@@ -27,13 +27,13 @@ import { useTemplate } from '@/contexts/TemplateContext'
  */
 function SortableCategoryItem({ category, onToggleVisibility, onEdit }) {
   // Get sortable properties and methods from dnd-kit
-  const { 
-    attributes, 
-    listeners, 
-    setNodeRef, 
-    transform, 
-    transition, 
-    isDragging 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
   } = useSortable({
     id: category.unique_id,
     data: { type: "category", category },
@@ -51,18 +51,17 @@ function SortableCategoryItem({ category, onToggleVisibility, onEdit }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center bg-white gap-1 px-2 py-1 rounded-md ${
-        isDragging ? "bg-muted/80" : "hover:bg-muted/50"
-      } border mb-2`}
+      className={`flex items-center bg-white gap-1 px-2 py-1 rounded-md ${isDragging ? "bg-muted/80" : "hover:bg-muted/50"
+        } border mb-2`}
     >
       {/* Drag handle */}
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
         <GripVertical size={16} className="text-muted-foreground" />
       </div>
-      
+
       {/* Category name */}
       <div className="flex-1 truncate text-sm">{category.name}</div>
-      
+
       {/* Visibility toggle button */}
       <Button
         variant="ghost"
@@ -72,12 +71,12 @@ function SortableCategoryItem({ category, onToggleVisibility, onEdit }) {
       >
         {category.visible ? <Eye size={12} /> : <EyeOff size={12} />}
       </Button>
-      
+
       {/* Edit button */}
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        title="Edit Category" 
+      <Button
+        variant="ghost"
+        size="icon"
+        title="Edit Category"
         onClick={() => onEdit(category.unique_id)}
       >
         <Pencil size={12} />
@@ -94,13 +93,13 @@ export default function TemplateCategories({
   isCategoryLoading,
   templateConfig,
   setTemplateConfig,
-  handleTabChang,
+  setCurrenctCategoryItems,
   t
 }) {
-  const {setCurrentSection} = useTemplate()
+  const {  handleTabChange , setCurrentSubItemTab} = useTemplate()
   // Extract categories from template config with fallback to empty array
   const initialCategories = templateConfig?.categories || [];
-  
+
   // State for managing the categories and currently dragged item
   const [categories, setCategories] = useState(initialCategories);
   const [activeDragItem, setActiveDragItem] = useState(null);
@@ -119,8 +118,8 @@ export default function TemplateCategories({
   )
 
   // Memoize category IDs to prevent unnecessary re-renders in SortableContext
-  const categoryIds = useMemo(() => 
-    categories.map((c) => c.unique_id), 
+  const categoryIds = useMemo(() =>
+    categories.map((c) => c.unique_id),
     [categories]
   );
 
@@ -132,10 +131,10 @@ export default function TemplateCategories({
 
   // Toggle visibility handler - memoized to prevent recreation on each render
   const handleToggleVisibility = useCallback((uniqueId) => {
-    setCategories((prev) => 
-      prev.map((cat) => 
-        cat.unique_id === uniqueId 
-          ? { ...cat, visible: !cat.visible } 
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.unique_id === uniqueId
+          ? { ...cat, visible: !cat.visible }
           : cat
       )
     );
@@ -144,14 +143,15 @@ export default function TemplateCategories({
   // Edit category handler - memoized to prevent recreation on each render
   const handleEditCategory = useCallback((uniqueId) => {
     // Implement your edit logic here
-    setCurrentSection(uniqueId)
-    handleTabChang('Styling');
+    setCurrenctCategoryItems(uniqueId)
+    handleTabChange('items')
+    setCurrentSubItemTab("Styling")
   }, []);
 
   // Handle the end of a drag operation
   const handleCategoriesDragEnd = useCallback((event) => {
     const { active, over } = event;
-    
+
 
     // Skip if not dropped on a valid target
     if (!over) return;
@@ -179,7 +179,7 @@ export default function TemplateCategories({
 
   // Loading state
   if (isCategoryLoading) {
-    return <div className="p-4 h-96 flex items-center justify-center "><SlackLoader/></div>;
+    return <div className="p-4 h-96 flex items-center justify-center "><SlackLoader /></div>;
   }
 
   // Empty state
@@ -190,7 +190,7 @@ export default function TemplateCategories({
   return (
     <div className="space-y-1.5 p-4 pt-1">
       <h5 className="text-lg font-medium">{t('category_management')}</h5>
-      
+
       {/* DndContext provides the drag-and-drop functionality */}
       <DndContext
         sensors={sensors}
@@ -199,8 +199,8 @@ export default function TemplateCategories({
         onDragEnd={handleCategoriesDragEnd}
       >
         {/* SortableContext manages the sortable items */}
-        <SortableContext 
-          items={categoryIds} 
+        <SortableContext
+          items={categoryIds}
           strategy={verticalListSortingStrategy}
         >
           {/* Render each category as a sortable item */}
@@ -221,7 +221,7 @@ export default function TemplateCategories({
               <GripVertical size={16} className="text-muted-foreground" />
               <div className="flex-1 truncate">{activeDragItem?.category?.name}</div>
               <Button variant="ghost" size="icon">
-                {activeDragItem?.category?.visible ? <Eye size={12}/> : <EyeOff size={12} />}
+                {activeDragItem?.category?.visible ? <Eye size={12} /> : <EyeOff size={12} />}
               </Button>
               <Button variant="ghost" size="icon">
                 <Pencil size={12} />

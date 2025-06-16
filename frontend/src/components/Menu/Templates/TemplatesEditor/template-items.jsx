@@ -21,6 +21,9 @@ import {
 import { Eye, EyeOff, GripVertical } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
+import { useTemplate } from '@/contexts/TemplateContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import TemplateStyling from './template-Styling';
 
 function SortableCategoryItem({ item, onToggleVisibility }) {
     // Get sortable properties and methods from dnd-kit
@@ -82,6 +85,7 @@ export default function TemplateItems({
 }) {
     const [currentItemsCategoryObj, setCurrentItemsCategoryObj] = useState(null);
     const [activeDragItem, setActiveDragItem] = useState(null);
+    const { currentSubItemTab, setCurrentSubItemTab } = useTemplate();
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -193,8 +197,8 @@ export default function TemplateItems({
 
     return (
         <div className="space-y-1.5 pt-1">
-            <h5 className="text-lg font-medium px-4 pb-2">{t('items_management')}</h5>
-            <div className="flex flex-col gap-1 border-b border-gray-200 px-4 my-4 pb-4">
+            {/* <h5 className="text-lg font-medium px-4 pb-2">{t('items_management')}</h5> */}
+            <div className="flex flex-col gap-1 border-b border-gray-200 px-4  pb-4">
                 <Label className="text-xs">{t('select_category')}</Label>
                 <Select value={currentCategoryItems} onValueChange={onChangeCategory}>
                     <SelectTrigger>
@@ -209,41 +213,69 @@ export default function TemplateItems({
                     </SelectContent>
                 </Select>
             </div>
-            <div className="p-4 pt-2">
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleCategoriesDragEnd}
-                >
-                    {/* SortableContext manages the sortable items */}
-                    <SortableContext
-                        items={currentItems.map(item => item.unique_id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        {/* Render each item as a sortable item */}
-                        {currentItems.map((item) => (
-                            <SortableCategoryItem
-                                key={item.unique_id}
-                                item={item}
-                                onToggleVisibility={handleToggleVisibility}
-                            />
-                        ))}
-                    </SortableContext>
-                    {/* Overlay to show while dragging */}
-                    <DragOverlay>
-                        {activeDragItem && activeDragItem?.type === 'item' && (
-                            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/80 border">
-                                <GripVertical size={16} className="text-muted-foreground" />
-                                <div className="flex-1 truncate">{activeDragItem?.item?.name}</div>
-                                <Button variant="ghost" size="icon">
-                                    {activeDragItem?.item?.visible ? <Eye size={12} /> : <EyeOff size={12} />}
-                                </Button>
-                            </div>
-                        )}
-                    </DragOverlay>
-                </DndContext>
+            <div className="w-full mx-auto p-0">
+                <Tabs value={currentSubItemTab} className='border-none w-full' onValueChange={setCurrentSubItemTab}>
+                    <TabsList className="flex overflow-auto w-full border-b border-gray-300">
+                        <TabsTrigger value="item" variant="team" className="text-xs flex-1 text-green-500 border-green-500 data-[state=active]:bg-green-200 data-[state=active]:text-green-700 py-1.5 px-2">
+                            Item
+                        </TabsTrigger>
+                        <TabsTrigger value="Styling" variant="team" className="text-xs flex-1 text-green-500 border-green-500 data-[state=active]:bg-green-200 data-[state=active]:text-green-700 py-1.5 px-2">
+                            Style
+                        </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value='item' >
+                        <div className='p-4 pt-2' >
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragStart={handleDragStart}
+                                onDragEnd={handleCategoriesDragEnd}
+                            >
+                                {/* SortableContext manages the sortable items */}
+                                <SortableContext
+                                    items={currentItems.map(item => item.unique_id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    {/* Render each item as a sortable item */}
+                                    {currentItems.map((item) => (
+                                        <SortableCategoryItem
+                                            key={item.unique_id}
+                                            item={item}
+                                            onToggleVisibility={handleToggleVisibility}
+                                        />
+                                    ))}
+                                </SortableContext>
+                                {/* Overlay to show while dragging */}
+                                <DragOverlay>
+                                    {activeDragItem && activeDragItem?.type === 'item' && (
+                                        <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted/80 border">
+                                            <GripVertical size={16} className="text-muted-foreground" />
+                                            <div className="flex-1 truncate">{activeDragItem?.item?.name}</div>
+                                            <Button variant="ghost" size="icon">
+                                                {activeDragItem?.item?.visible ? <Eye size={12} /> : <EyeOff size={12} />}
+                                            </Button>
+                                        </div>
+                                    )}
+                                </DragOverlay>
+                            </DndContext>
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value='Styling' >
+                        <TemplateStyling
+                            isLoading={isLoading}
+                            categoryData={categoryData}
+                            templateConfig={templateConfig}
+                            setTemplateConfig={setTemplateConfig}
+                            currentSection={currentCategoryItems}
+                            setCurrentSection={setCurrentCategoryItems}
+                            t={t}
+                        />
+                    </TabsContent>
+                </Tabs>
             </div>
+
         </div>
     );
 }

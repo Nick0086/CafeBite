@@ -29,7 +29,7 @@ const dotVariants = cva(
 const PilsatingDotesLoader = ({
     className,
     dotClassName,
-    size = "md",
+    size = "sm",
     color = "blue",
     count = 5
 }) => {
