@@ -14,6 +14,7 @@ import { PermissionsContext } from '@/contexts/PermissionsContext';
 import { useTemplate } from '@/contexts/TemplateContext';
 import { Separator } from '@/components/ui/separator';
 import { Edit, PenIcon } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
 
 /* Enhanced OptimizedImage with caching */
 const OptimizedImage = memo(({ src, alt, currentView }) => {
@@ -353,6 +354,8 @@ const CategoryAccordion = memo(({ category, globalConfig, itemEditHander, curren
 
 export default function TemplateMenuViewerLayout({ templateConfig , setCurrenctCategoryItems}) {
     const { permissions } = useContext(PermissionsContext);
+    const { toggleSidebar } = useSidebar();
+
     const categories = templateConfig?.categories || [];
     const globalFromConfig = templateConfig?.global || {};
     const [firstCategoryId, setFirstCategoryId] = useState([]);
@@ -405,6 +408,7 @@ export default function TemplateMenuViewerLayout({ templateConfig , setCurrenctC
     }
 
     const itemEditHander = (e) => {
+        toggleSidebar()
         if (!firstCategoryId?.includes(e)) {
             setFirstCategoryId((prv) => ([...prv, e]));
         }

@@ -25,6 +25,7 @@ import { PenIcon } from 'lucide-react';
 export default function TemplateEditorIndex() {
 
   const queryClient = useQueryClient();
+  const {  handleTabChange } = useTemplate()
   const { t } = useTranslation();
   const { templateId } = useParams();
   const navigation = useNavigate();
@@ -232,7 +233,7 @@ export default function TemplateEditorIndex() {
       <SidebarInset className={cn('h-full w-full min-w-0')} >
         <header className="flex justify-between flex-wrap min-h-11  sticky top-0 items-center gap-4 border-b bg-background px-6 z-10">
           <h1 className="text-xl font-semibold">{templateName}</h1>
-          <SidebarTrigger MyIcon={<PenIcon size={18} />} className="-ml-1 border border-foreground md:hidden " />
+          <SidebarTrigger onClick={() => handleTabChange('Global')} MyIcon={<PenIcon size={18} />} className="-ml-1 border border-foreground md:hidden " />
         </header>
         <TemplateMenuViewerLayout templateConfig={templateConfig} setCurrenctCategoryItems={setCurrenctCategoryItems} />
       </SidebarInset>
