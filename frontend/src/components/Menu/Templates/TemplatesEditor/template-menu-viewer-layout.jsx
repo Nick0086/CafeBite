@@ -352,9 +352,14 @@ const CategoryAccordion = memo(({ category, globalConfig, itemEditHander, curren
     );
 });
 
-export default function TemplateMenuViewerLayout({ templateConfig , setCurrenctCategoryItems}) {
+const isMobileDevice = () => {
+  return window.innerWidth <= 768; // or any mobile breakpoint
+};
+
+
+export default function TemplateMenuViewerLayout({ templateConfig, setCurrenctCategoryItems }) {
     const { permissions } = useContext(PermissionsContext);
-    const { toggleSidebar } = useSidebar();
+    const { setOpenMobile, setOpen } = useSidebar();
 
     const categories = templateConfig?.categories || [];
     const globalFromConfig = templateConfig?.global || {};
@@ -407,8 +412,13 @@ export default function TemplateMenuViewerLayout({ templateConfig , setCurrenctC
         setFirstCategoryId(e);
     }
 
+    const toggleSidebar = useCallback((isMobile) => {
+        return isMobile ? setOpenMobile(true) : setOpen(true);
+    }, [setOpen, setOpenMobile])
+
     const itemEditHander = (e) => {
-        toggleSidebar()
+
+        toggleSidebar(isMobileDevice());
         if (!firstCategoryId?.includes(e)) {
             setFirstCategoryId((prv) => ([...prv, e]));
         }
