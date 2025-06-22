@@ -59,6 +59,7 @@ export default function CategoriesIndex() {
       header: t('unique_no'),
       accessorKey: "id",
       colClassName: "w-2/12 text-start",
+      cell: ({ row }) => row.index + 1,
     },
     {
       header:  t('category'),

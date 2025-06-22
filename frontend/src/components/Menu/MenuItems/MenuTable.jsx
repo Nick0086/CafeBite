@@ -58,6 +58,7 @@ export default function MenuTable({
       header: t('sr_no'),
       accessorKey: "id",
       colClassName: "w-1/12",
+      cell: ({ row }) => row.index + 1,
     },
     {
       header: t('item_name'),
