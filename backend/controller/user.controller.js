@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { createUniqueId, handleError } from "../utils/utils.js";
 import { convertEmptyStringsToNull } from "../utils/convertEmptyStringsToNull.js";
 import multer from "multer";
-import { deleteResourceFromCloudinary, getSignedUrlFromCloudinary, uploadStreamToCloudinary } from "../services/cloudinary/cloudinary.service.js";
+import { deleteObjectFromS3, getSignedUrlFromS3, uploadstreamToS3 } from "../services/r2/r2.service.js";
 
 const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
@@ -41,7 +41,7 @@ export const registerClient = async (req, res) => {
         const { originalname, buffer, mimetype } = req.file;
         const fileName = `${clientId}_${Date.now()}_${originalname}`
         const key = `profile/${fileName?.split('.')[0]}`;
-        const fullPath = `${key}/${fileName}`;
+        const fullPath = `${key}`;
 
         const options = {
             folder: key,
@@ -52,10 +52,10 @@ export const registerClient = async (req, res) => {
         };
 
         try {
-            const fileUploadResult = await uploadStreamToCloudinary(buffer, options);
-            if (!fileUploadResult?.secure_url) {
-                throw new Error('Upload succeeded but no secure URL returned');
-            }
+            const fileUploadResult = await uploadstreamToS3(buffer, options);
+            // if (!fileUploadResult?.secure_url) {
+            //     throw new Error('Upload succeeded but no secure URL returned');
+            // }
 
             console.log("File uploaded successfully:", key, fileUploadResult);
         } catch (error) {
@@ -124,12 +124,12 @@ export const updateClientProfile = async (req, res) => {
 
         var fullPath = updateUserOldData[0]?.logo_url;
         if (req?.file) {
-            await deleteResourceFromCloudinary(updateUserOldData[0]?.logo_url);
+            await deleteObjectFromS3(updateUserOldData[0]?.logo_url);
             const clientId = createUniqueId('CLIENT');
             const { originalname, buffer, mimetype } = req.file;
             const fileName = `${clientId}_${Date.now()}_${originalname}`
             const key = `profile/${fileName?.split('.')[0]}`;
-            fullPath = `${key}/${fileName}`;
+            fullPath = `${key}`;
 
             const options = {
                 folder: key,
@@ -140,10 +140,10 @@ export const updateClientProfile = async (req, res) => {
             };
 
             try {
-                const fileUploadResult = await uploadStreamToCloudinary(buffer, options);
-                if (!fileUploadResult?.secure_url) {
-                    throw new Error('Upload succeeded but no secure URL returned');
-                }
+                const fileUploadResult = await uploadstreamToS3(buffer, options);
+                // if (!fileUploadResult?.secure_url) {
+                //     throw new Error('Upload succeeded but no secure URL returned');
+                // }
 
                 console.log("File uploaded successfully:", key, fileUploadResult);
             } catch (error) {
@@ -153,6 +153,7 @@ export const updateClientProfile = async (req, res) => {
         }
 
         const sql = `UPDATE clients SET first_name = ?, last_name = ?, email = ?, mobile = ?, cafe_name = ?, cafe_description = ?, address_line1 = ?, city_id = ?, state_id = ?, country_id = ?, postal_code = ?, currency_code = ?, cafe_phone = ?, cafe_email = ?, cafe_website = ?, social_instagram = ?, social_facebook = ?, social_twitter = ?, logo_url = ? WHERE unique_id = ?`;
+
         const result = await query(sql, [firstName, lastName, email, phoneNumber, cafeName, cafeDescription, cafeAddress, cafeCity, cafeState, cafeCountry, cafeZip, cafeCurrency, cafePhone, cafeEmail, cafeWebsite, socialInstagram, socialFacebook, socialTwitter, fullPath , clientId]);
 
         if (result?.affectedRows > 0) {
@@ -184,7 +185,8 @@ export const getClinetDataById = async (req, res) => {
 
             if (user.logo_url) {
                 // Get 24-hour signed image URL
-                const signedUrl = await getSignedUrlFromCloudinary(user.logo_url, {}, 86400);
+                const signedUrl = await getSignedUrlFromS3(user.logo_url, 86400);
+                console.log(signedUrl)
                 user.logo_signed_url = signedUrl;
 
             }

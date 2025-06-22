@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import menuItemsRepository from '../repositories/menuItems.repository.js';
-import { deleteResourceFromCloudinary, uploadStreamToCloudinary } from "../services/cloudinary/cloudinary.service.js";
+import { deleteObjectFromS3, getSignedUrlFromS3, uploadstreamToS3 } from './r2/r2.service.js';
 
 let counter = 0;
 
@@ -32,7 +32,7 @@ const handleImageUpload = async (file, clientId, menuItemId) => {
 
     const { originalname, buffer, mimetype } = file;
     const fileName = `${menuItemId}_${Date.now()}_${originalname}`;
-    const key = `menuItem/${clientId}`;
+    const key = `menuItem/${clientId}/${menuItemId}_${Date.now()}_${originalname}`;
     // let processedBuffer = buffer;
 
     // if (buffer.length > 500 * 1024) {
@@ -93,26 +93,40 @@ const handleImageUpload = async (file, clientId, menuItemId) => {
         format: 'webp'
     };
 
-    const fileUploadResult = await uploadStreamToCloudinary(finalBuffer, options);
-    if (!fileUploadResult?.secure_url) {
-        throw new Error('Upload succeeded but no secure URL returned');
-    }
+    const fileUploadResult = await uploadstreamToS3(finalBuffer, options);
+    // if (!fileUploadResult?.secure_url) {
+    //     throw new Error('Upload succeeded but no secure URL returned');
+    // }
 
     return {
         fileName: originalname,
         public_id: fileName,
         fileMimeType: 'image/webp',
         path: key,
-        url: fileUploadResult.secure_url
     };
 };
 
 const fetchAllMenuItems = async (clientId) => {
     const menuItems = await menuItemsRepository.getAllMenuItems(clientId);
+
+    var data = [];
+    for (let items of menuItems) {
+        var url = '';
+        try {
+            if (items?.image_details?.path) {
+                const signedUrl = await getSignedUrlFromS3(items?.image_details?.path, 86400);
+                url = signedUrl;
+            }
+            data.push({ ...items, image_details : {...items?.image_details,url : url} })
+        } catch (error) {
+            data.push(items)
+        }
+    }
+
     return {
         success: true,
-        message: menuItems?.length > 0 ? "Menu items fetched successfully" : "No menu items found.",
-        menuItems: menuItems || [],
+        message: data?.length > 0 ? "Menu items fetched successfully" : "No menu items found.",
+        menuItems: data || [],
         status: "success"
     };
 };
@@ -190,7 +204,7 @@ const modifyMenuItem = async (clientId, menuItemId, categoryId, name, descriptio
     let coverImageDetails = existingMenuItem.image_details ? existingMenuItem.image_details : null;
     if (file) {
         if (coverImageDetails?.path) {
-            await deleteResourceFromCloudinary(`${coverImageDetails.path}/${coverImageDetails.public_id}`);
+            await deleteObjectFromS3(`${coverImageDetails.path}/${coverImageDetails.public_id}`);
         }
         coverImageDetails = await handleImageUpload(file, clientId, menuItemId);
         if (!coverImageDetails) {

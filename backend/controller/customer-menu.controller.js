@@ -1,4 +1,4 @@
-import { getSignedUrlFromCloudinary } from "../services/cloudinary/cloudinary.service.js";
+import { getSignedUrlFromS3 } from "../services/r2/r2.service.js";
 import query from "../utils/query.utils.js";
 import { handleError } from "../utils/utils.js";
 
@@ -19,7 +19,7 @@ export const getMenuForCustomerByTableId = async (req, res) => {
         }
         var user = cilentINfo[0];
         if (user.logo_url) {
-            const signedUrl = await getSignedUrlFromCloudinary(user.logo_url, {}, 86400);
+            const signedUrl = await getSignedUrlFromS3(user.logo_url, 86400);
             user.logo_signed_url = signedUrl;
         }
 
@@ -76,10 +76,24 @@ export const getMenuItemsForConsumer = async (req, res) => {
 
         const categoryExists = await query(sql, [userId]);
 
+        var data = [];
+        for (let items of categoryExists) {
+            var url = '';
+            try {
+                if (items?.image_details?.path) {
+                    const signedUrl = await getSignedUrlFromS3(items?.image_details?.path, 86400);
+                    url = signedUrl;
+                }
+                data.push({ ...items, image_details: { ...items?.image_details, url: url } })
+            } catch (error) {
+                data.push({...items,image_details: { ...items?.image_details, url: '' }})
+            }
+        }
+
         return res.status(200).json({
             success: true,
-            message: categoryExists?.length > 0 ? "Menu items fetched successfully" : "No menu items found.",
-            menuItems: categoryExists || [],
+            message: data?.length > 0 ? "Menu items fetched successfully" : "No menu items found.",
+            menuItems: data || [],
             status: "success"
         });
 

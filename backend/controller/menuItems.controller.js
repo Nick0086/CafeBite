@@ -17,6 +17,7 @@ const getAllMenuItems = async (req, res) => {
     try {
         const { unique_id: clientId } = req.user;
         const response = await menuItemsService.fetchAllMenuItems(clientId);
+
         return res.status(200).json(response);
     } catch (error) {
         handleError('menuItems.controller.js', 'getAllMenuItems', res, error, 'An unexpected error occurred while fetching menu items.');
@@ -72,7 +73,7 @@ const updateMenuItem = async (req, res) => {
     }
 };
 
-export default  {
+export default {
     getAllMenuItems,
     addMenuItem,
     updateMenuItem
