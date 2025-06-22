@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import menuItemsRepository from '../repositories/menuItems.repository.js';
 import { deleteObjectFromS3, getSignedUrlFromS3, uploadstreamToS3 } from './r2/r2.service.js';
 
+var signedUrlCache = {};
 let counter = 0;
 
 export const createUniqueId = (prefix) => {
@@ -108,16 +109,37 @@ const handleImageUpload = async (file, clientId, menuItemId) => {
 
 const fetchAllMenuItems = async (clientId) => {
     const menuItems = await menuItemsRepository.getAllMenuItems(clientId);
-
+    
     var data = [];
     for (let items of menuItems) {
         var url = '';
         try {
+            const uniqueId = items.unique_id;
             if (items?.image_details?.path) {
-                const signedUrl = await getSignedUrlFromS3(items?.image_details?.path, 86400);
-                url = signedUrl;
+
+                if (!signedUrlCache[uniqueId]) {
+                    signedUrlCache[uniqueId] = {}
+                }
+
+                const cached = signedUrlCache[uniqueId];
+                const now = Date.now();
+
+                if (cached && cached.expiresAt > now) {
+                    // Use cached signed URL
+                    items.image_details.url = cached.url;
+                    items.image_details.url_expire_at = cached.expiresAt;
+                } else {
+                    const signedUrl = await getSignedUrlFromS3(items?.image_details?.path, 86400);
+                    const expiresAt = now + 86400 * 1000;
+                    signedUrlCache[uniqueId] = {
+                        url: signedUrl,
+                        expiresAt
+                    };
+                    items.image_details.url = signedUrl;
+                    items.image_details.url_expire_at = expiresAt;
+                }
             }
-            data.push({ ...items, image_details : {...items?.image_details,url : url} })
+            data.push(items)
         } catch (error) {
             data.push(items)
         }

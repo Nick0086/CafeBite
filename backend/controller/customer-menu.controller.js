@@ -2,6 +2,8 @@ import { getSignedUrlFromS3 } from "../services/r2/r2.service.js";
 import query from "../utils/query.utils.js";
 import { handleError } from "../utils/utils.js";
 
+let signedUrlCache = {};
+
 export const getMenuForCustomerByTableId = async (req, res) => {
     try {
         const { tableId, userId } = req.params;
@@ -77,16 +79,37 @@ export const getMenuItemsForConsumer = async (req, res) => {
         const categoryExists = await query(sql, [userId]);
 
         var data = [];
+
         for (let items of categoryExists) {
-            var url = '';
             try {
+                const uniqueId = items.unique_id;
                 if (items?.image_details?.path) {
-                    const signedUrl = await getSignedUrlFromS3(items?.image_details?.path, 86400);
-                    url = signedUrl;
+
+                    if (!signedUrlCache[uniqueId]) {
+                        signedUrlCache[uniqueId] = {}
+                    }
+
+                    const cached = signedUrlCache[uniqueId];
+                    const now = Date.now();
+
+                    if (cached && cached.expiresAt > now) {
+                        // Use cached signed URL
+                        items.image_details.url = cached.url;
+                        items.image_details.url_expire_at = cached.expiresAt;
+                    } else {
+                        const signedUrl = await getSignedUrlFromS3(items?.image_details?.path, 86400);
+                        const expiresAt = now + 86400 * 1000;
+                        signedUrlCache[uniqueId] = {
+                            url: signedUrl,
+                            expiresAt
+                        };
+                        items.image_details.url = signedUrl;
+                        items.image_details.url_expire_at = expiresAt;
+                    }
                 }
-                data.push({ ...items, image_details: { ...items?.image_details, url: url } })
+                data.push(items)
             } catch (error) {
-                data.push({...items,image_details: { ...items?.image_details, url: '' }})
+                data.push(items)
             }
         }
 
