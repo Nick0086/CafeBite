@@ -2,7 +2,7 @@ import { TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
-const FeedbackProgressCard = ({ title, items }) => {
+const FeedbackProgressCard = ({ title,totalCount, items }) => {
     return (
         <Card className='shadow-sm' >
             <CardHeader className='px-4 py-3'>
@@ -13,7 +13,7 @@ const FeedbackProgressCard = ({ title, items }) => {
             </CardHeader>
             <CardContent className="space-y-4 px-4">
                 {items.map((item) => {
-                    const total = Number.parseInt(item.count.toString());
+                    const total = Number.parseInt(totalCount.toString());
                     const percentage = total > 0 ? (Number.parseInt(item.count.toString()) / total) * 100 : 0;
                     return (
                         <div key={item.status} className="space-y-2">

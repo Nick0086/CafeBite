@@ -97,6 +97,7 @@ export default function DashboardIndex() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <FeedbackProgressCard
                         title="Feedback by Status"
+                        totalCount={stats?.total_feedback || 0}
                         items={[
                             { status: "open", count: stats?.open_count || 0, label: "Open" },
                             { status: "in_progress", count: stats?.in_progress_count || 0, label: "In Progress" },
@@ -107,6 +108,7 @@ export default function DashboardIndex() {
                     />
                     <FeedbackProgressCard
                         title="Feedback by Type"
+                        totalCount={stats?.total_feedback || 0}
                         items={[
                             { type: "bug", count: stats?.bug_count || 0, label: "Bug Reports" },
                             { type: "complaint", count: stats?.complaint_count || 0, label: "Complaints" },
