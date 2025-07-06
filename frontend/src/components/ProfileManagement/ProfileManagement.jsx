@@ -14,6 +14,8 @@ import { toastError, toastSuccess } from '@/utils/toast-utils'
 import { getAllCountry, getAllCurrency, getCityByState, getStateByCountry } from '@/service/common.service'
 import { PermissionsContext } from '@/contexts/PermissionsContext'
 import { getClientData, updateClinetProfile } from '@/service/user.service'
+import { Separator } from '../ui/separator'
+import { verifySubscriptionPayment } from '@/service/subscription.service'
 
 const profileFormSchema = z.object({
     ...personalFormSchema.shape,
@@ -100,6 +102,20 @@ export default function ProfileManagement() {
         onError: (error) => {
             console.error('Error updating profile:', error)
             toastError(`Error updating profile: ${error?.message || 'Unknown error'}`)
+        }
+    })
+
+    // payment check mutation
+    const paymentCheckMutation = useMutation({
+        mutationFn: verifySubscriptionPayment,
+        onSuccess: () => {
+            toastSuccess('Payment successful! Your subscription has been renewed.');
+            // Refresh the page or update the subscription data
+            window.location.reload();
+        },
+        onError: (error) => {
+            console.error('Payment verification error:', error);
+            toastError('Payment verification failed. Please contact support.');
         }
     })
 
@@ -257,9 +273,21 @@ export default function ProfileManagement() {
                     </div>
 
                     {/* Profile Summary Section */}
-                    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-                        <CardContent className="p-6">
-                            <div className="flex flex-col md:flex-row items-center md:space-x-6  space-x-0">
+                    <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 overflow-hidden">
+                        {permissions?.subscription?.is_expired === true && (
+                            <div className="border-t border-blue-200 bg-gradient-to-r from-red-50 to-orange-50 p-4">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                                        <span className="text-red-700 font-medium text-sm">
+                                            Your subscription has expired. Please renew to continue using our services.
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <CardContent className="p-6 flex flex-col gap-y-4 lg:flex-row lg:justify-between">
+                            <div className="flex flex-col md:flex-row items-center md:space-x-6 space-x-0">
                                 <div className="flex-shrink-0">
                                     <div
                                         onClick={isEditing ? triggerFileInput : undefined}
@@ -303,6 +331,131 @@ export default function ProfileManagement() {
                                                 <span>{form.watch('cafePhone')}</span>
                                             </div>
                                         )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className='bg-white rounded-lg p-4 flex flex-col lg:flex-row lg:gap-4 gap-y-2'>
+                                <div className='space-y-2'>
+                                    <div className="flex gap-2 justify-between items-center">
+                                        <span className="text-sm text-gray-600">Plan:</span>
+                                        <span className="text-sm font-medium text-gray-900">{permissions?.subscription?.plan_name || "-"}</span>
+                                    </div>
+                                    <div className="flex gap-2 justify-between items-center">
+                                        <span className="text-sm text-gray-600">Amount:</span>
+                                        <span className="text-sm font-medium text-gray-900">
+                                            {permissions?.subscription?.amount ? `₹ ${permissions?.subscription?.amount}` : "-"}
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-2 justify-between items-center">
+                                        <span className="text-sm text-gray-600">Status:</span>
+                                        {permissions?.subscription?.status ? <span className={`text-xs px-2 py-1 rounded-full font-medium ${permissions?.subscription?.status === 'trial'
+                                            ? 'bg-orange-100 text-orange-800'
+                                            : permissions?.subscription?.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
+                                            }`}>
+                                            {permissions?.subscription?.status.charAt(0).toUpperCase() + permissions?.subscription?.status?.slice(1)}
+                                        </span> : "-"}
+                                    </div>
+                                </div>
+
+                                <Separator orientation="vertical" className='h-20 lg:block hidden' />
+
+                                <div className='space-y-2'>
+                                    <div className="flex gap-2 justify-between items-center">
+                                        <span className="text-sm text-gray-600">Expires On:</span>
+                                        <span className="text-sm font-medium text-gray-900">
+                                            {permissions?.subscription?.end_date ? new Date(permissions?.subscription?.end_date).toLocaleDateString('en-GB', {
+                                                day: '2-digit',
+                                                month: '2-digit',
+                                                year: 'numeric'
+                                            }) : "-"}
+                                        </span>
+                                    </div>
+                                    <div className="flex gap-2 justify-between items-center">
+                                        <span className="text-sm text-gray-600">Days Remaining:</span>
+                                        {permissions?.subscription?.remaining_days ? <span className={`text-sm font-medium ${permissions?.subscription?.remaining_days <= 7
+                                            ? 'text-red-600'
+                                            : permissions?.subscription?.remaining_days <= 14
+                                                ? 'text-orange-600'
+                                                : 'text-green-600'
+                                            }`}>
+                                            {permissions?.subscription?.remaining_days} days
+                                        </span> : "-"}
+                                    </div>
+                                    <div className="flex-shrink-0">
+                                        <button
+                                            type='button'
+                                            onClick={() => {
+                                                // Load Razorpay script dynamically
+                                                const script = document.createElement('script');
+                                                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                                                script.onload = () => {
+                                                    const options = {
+                                                        key: import.meta.env.VITE_BASE_RAZORPAY, // Replace with your key
+                                                        amount: 1 * 100, // Amount in paise
+                                                        currency: 'INR',
+                                                        captured: true,
+                                                        name: 'Cafe Bite Subscription',
+                                                        description: 'Renew your subscription',
+                                                        handler: async function (response) {
+                                                            try {
+                                                                // console.log('Payment response:', response);
+                                                                paymentCheckMutation.mutate(response.razorpay_payment_id);
+
+                                                                // Verify payment using Razorpay API
+                                                                // const verificationResponse = await fetch('/api/verify-payment-with-razorpay', {
+                                                                //     method: 'POST',
+                                                                //     headers: {
+                                                                //         'Content-Type': 'application/json',
+                                                                //     },
+                                                                //     body: JSON.stringify({
+                                                                //         payment_id: response.razorpay_payment_id,
+                                                                //         expected_amount: permissions?.subscription?.amount * 100,
+                                                                //         user_id: permissions?.user?.id // Add user ID for subscription update
+                                                                //     })
+                                                                // });
+
+                                                                // const result = await verificationResponse.json();
+
+                                                                // if (result.success) {
+                                                                //     alert('Payment successful! Your subscription has been renewed.');
+                                                                //     // Refresh the page or update the subscription data
+                                                                //     window.location.reload();
+                                                                // } else {
+                                                                //     alert(`Payment verification failed: ${result.message}`);
+                                                                // }
+                                                            } catch (error) {
+                                                                console.error('Payment verification error:', error);
+                                                                alert('Payment verification failed. Please contact support.');
+                                                            }
+                                                        },
+                                                        modal: {
+                                                            ondismiss: function () {
+                                                                console.log('Payment modal closed');
+                                                            }
+                                                        },
+
+                                                        prefill: {
+                                                            name: `${form.watch('firstName')} ${form.watch('lastName')}`,
+                                                            email: permissions?.email, // Add user email
+                                                            contact: form.watch('cafePhone'),
+                                                            captured: true,
+                                                        },
+                                                        theme: {
+                                                            color: '#3B82F6'
+                                                        }
+                                                    };
+                                                    const rzp = new window.Razorpay(options);
+                                                    rzp.open();
+                                                };
+                                                document.head.appendChild(script);
+                                            }}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                        >
+                                            Renew Subscription
+                                        </button>
                                     </div>
                                 </div>
                             </div>

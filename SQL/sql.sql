@@ -325,3 +325,39 @@ CREATE TABLE client_feedback_images (
     
     FOREIGN KEY (feedback_id) REFERENCES client_feedback(unique_id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE client_subscriptions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id CHAR(36) NOT NULL, -- FK to clients.unique_id
+    razorpay_subscription_id VARCHAR(100) NOT NULL UNIQUE, -- Razorpay subscription ID
+    plan_name VARCHAR(100) DEFAULT 'Standard Monthly',
+    amount DECIMAL(10,2) NOT NULL DEFAULT 10.00, -- in USD or INR
+    currency CHAR(3) NOT NULL DEFAULT 'USD',
+
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL, -- next billing date / expiry
+    status ENUM('active', 'cancelled', 'expired', 'trial', 'payment_failed') DEFAULT 'trial',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uniq_client_sub (client_id),
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE client_subscription_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    client_id CHAR(36) NOT NULL, -- FK to clients.unique_id
+    razorpay_payment_id VARCHAR(100), -- Razorpay payment ID
+    razorpay_invoice_id VARCHAR(100), -- Razorpay invoice ID
+    amount DECIMAL(10,2) NOT NULL,
+    currency CHAR(3) NOT NULL DEFAULT 'USD',
+    status ENUM('paid', 'failed', 'refunded', 'cancelled') DEFAULT 'paid',
+    
+    paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    
+    INDEX idx_subscription_history_client (client_id),
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+);
