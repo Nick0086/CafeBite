@@ -12,6 +12,7 @@ import menuRoutes from './routes/menuItems.routes.js'
 import templateRoutes from './routes/templates.routes.js'
 import tablesQrcodeRoutes from './routes/tables-qrcode.routes.js'
 import customerMenuRoutes from './routes/customer-menu.routes.js'
+import clinetFeedbackRoutes from './routes/clinetFeedback.routes.js'
 
 const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -62,6 +63,9 @@ app.use('/v1/tables', tablesQrcodeRoutes)
 
 // menu viwer
 app.use('/v1/customer-menu', customerMenuRoutes);
+
+// feedback api
+app.use('/v1/feedback', clinetFeedbackRoutes);
 
 const PORT = process.env.PORT || 3002;
 

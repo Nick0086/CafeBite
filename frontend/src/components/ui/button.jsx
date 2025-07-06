@@ -40,6 +40,7 @@ const buttonVariants = cva(
         default: "px-4 py-2",
         sm: " rounded-md px-3 py-1.5",
         lg: "rounded-md px-5 py-3",
+        smicon: "h-7 w-7",
         icon: "h-8 w-8",
         lgIcon: "h-10 w-10",
         xs: "text-xs px-2 py-2",

@@ -186,8 +186,12 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, curr
                             </Button>
                             */}
                             <div className='flex items-center gap-2' >
-                                <StatusBadge type={item?.veg_status} currentView={currentView} />
-                                <Separator orientation='vertical' className='bg-gray-400' />
+                                {currentView === 'list' &&
+                                    <>
+                                        <StatusBadge type={item?.veg_status} currentView={currentView} />
+                                        <Separator orientation='vertical' className='bg-gray-400' />
+                                    </>
+                                }
                                 <Chip variant="light" color={isInStock ? "green" : "red"} radius="md" size="xs">{isInStock ? "In Stock" : "Out Of Stock"}</Chip>
                             </div>
                             <span style={titleStyle} className="text-base font-bold">
@@ -353,7 +357,7 @@ const CategoryAccordion = memo(({ category, globalConfig, itemEditHander, curren
 });
 
 const isMobileDevice = () => {
-  return window.innerWidth <= 768; // or any mobile breakpoint
+    return window.innerWidth <= 768; // or any mobile breakpoint
 };
 
 

@@ -259,3 +259,69 @@ CREATE TABLE tables (
     FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
     FOREIGN KEY (template_id) REFERENCES templates(unique_id) ON DELETE CASCADE
 );
+
+CREATE TABLE client_feedback (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID for global tracking
+    client_id CHAR(36) NOT NULL,         -- FK to clients
+    type ENUM('complaint', 'bug', 'suggestion', 'billing', 'feature_request') NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+
+    status ENUM('open', 'in_progress', 'resolved', 'closed', 'cancelled') DEFAULT 'open',
+    assigned_to_admin_id INT DEFAULT NULL,
+    resolved_at TIMESTAMP NULL,
+    client_satisfaction_rating TINYINT DEFAULT NULL CHECK (client_satisfaction_rating BETWEEN 1 AND 5),
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_client_feedback_client_id (client_id),
+    INDEX idx_client_feedback_status (status),
+    INDEX idx_client_feedback_type (type),
+    INDEX idx_client_feedback_created_at (created_at),
+    INDEX idx_client_feedback_assigned_admin (assigned_to_admin_id),
+    
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+);
+
+CREATE TABLE feedback_comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID for global tracking
+    feedback_id CHAR(36) NOT NULL,       -- FK to client_feedback
+    commented_by ENUM('client', 'admin') NOT NULL,
+    admin_id INT DEFAULT NULL,           -- Track which admin commented
+    comment TEXT NOT NULL,
+    parent_comment_id INT DEFAULT NULL,  -- Reference to parent comment ID
+    is_internal BOOLEAN DEFAULT FALSE,   -- Internal admin notes
+    
+    commented_by_id CHAR(36),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_feedback_comments_feedback_id (feedback_id),
+    INDEX idx_feedback_comments_parent (parent_comment_id),
+    INDEX idx_feedback_comments_created_at (created_at),
+    
+    FOREIGN KEY (commented_by_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+    FOREIGN KEY (feedback_id) REFERENCES client_feedback(unique_id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_comment_id) REFERENCES feedback_comments(id) ON DELETE CASCADE
+);
+
+CREATE TABLE client_feedback_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID for global tracking
+    feedback_id CHAR(36) NOT NULL,       -- FK to client_feedback(unique_id)
+    image_url TEXT NOT NULL,             -- Cloudflare R2, S3, etc.
+    original_filename VARCHAR(255),
+    file_size_bytes INT DEFAULT NULL,
+    file_type VARCHAR(50) DEFAULT NULL,
+    uploaded_by ENUM('client', 'admin') DEFAULT 'client',
+    
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_feedback_images_feedback_id (feedback_id),
+    INDEX idx_feedback_images_uploaded_at (uploaded_at),
+    
+    FOREIGN KEY (feedback_id) REFERENCES client_feedback(unique_id) ON DELETE CASCADE
+);

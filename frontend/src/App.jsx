@@ -22,6 +22,8 @@ import { PermissionsProvider } from './contexts/PermissionsContext';
 import QrCodeManagerIndex from './components/Table-QrCode/table-qrcodeIndex';
 import CustomerMenuIndex from './components/CustomerMenu/CustomerMenuIndex';
 import ProfileManagement from './components/ProfileManagement/ProfileManagement';
+import ClinetSupportIndex from './components/ClinetSupport/index';
+import FeedbackRoutes from './routes/FeedbackRoutes';
 
 
 function App() {
@@ -50,6 +52,7 @@ function App() {
                   <Route path="/menu-management/*" element={<MenuRoutes />} />
                   <Route path="/qr-management" element={<QrCodeManagerIndex />} />
                   <Route path="/profile-management" element={<ProfileManagement />} />
+                  <Route path="/ticket-management/*" element={<FeedbackRoutes/>} />
                   {/* <Route path="/order-management/*" element={<OrderRoutes />} /> */}
                   {/* <Route path="/invoice-management/*" element={<InvoiceRoutes />} /> */}
                   <Route path="*" element={<Navigate to="/" replace />} />

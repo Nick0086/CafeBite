@@ -44,7 +44,7 @@ const ReusableFormField = ({
     radioLabelClassName,
     radioGroupBodyClassName,
     coustomValue,
-    textAreaClassName='',
+    textAreaClassName = '',
     activeTagIndex,
     setActiveTagIndex
 }) => {
@@ -83,7 +83,7 @@ const ReusableFormField = ({
                 return (
                     <Select
                         onValueChange={(value) => {
-                            if (value === 0 ||value || value === null) {
+                            if (value === 0 || value || value === null) {
                                 field.onChange(value);
                                 onValueChange?.(value);
                             }
@@ -156,9 +156,22 @@ const ReusableFormField = ({
                         }}
                     />
                 );
+            case 'singleSelect':
+                return (
+                    <ReactSelect
+                        isClearable
+                        options={options}
+                        isDisabled={disabled || isLoading || readonly}
+                        value={field.value ? options.find((option) => option?.value === field.value) : []}
+                        onChange={(value) => {
+                            field.onChange(value ? value.value : '')
+                            onValueChange?.(value);
+                        }}
+                    />
+                );
             case 'tagInput':
                 return (
-                    <TagInput   
+                    <TagInput
                         placeholder={placeholder}
                         includeTagsInInput
                         activeTagIndex={activeTagIndex}
@@ -235,7 +248,7 @@ const ReusableFormField = ({
             case 'OTP':
                 return (
                     <InputOTP
-                    className='w-full'
+                        className='w-full'
                         value={field.value}
                         disabled={disabled || isLoading || readonly}
                         maxLength={6}

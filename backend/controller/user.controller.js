@@ -186,7 +186,6 @@ export const getClinetDataById = async (req, res) => {
             if (user.logo_url) {
                 // Get 24-hour signed image URL
                 const signedUrl = await getSignedUrlFromS3(user.logo_url, 86400);
-                console.log(signedUrl)
                 user.logo_signed_url = signedUrl;
 
             }
