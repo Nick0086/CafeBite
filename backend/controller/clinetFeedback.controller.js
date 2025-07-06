@@ -336,9 +336,9 @@ export const updateFeedbackStatus = async (req, res) => {
         }
 
         updateSql += ', updated_at = NOW() WHERE unique_id = ?';
-        updateParams.push(feedback_id, client_id);
+        updateParams.push(feedback_id);
 
-        const result = await query(updateSql);
+        const result = await query(updateSql,updateParams);
 
         if (result?.affectedRows > 0) {
             return res.status(200).json({ status: 'success', message: 'Feedback status updated successfully' });
