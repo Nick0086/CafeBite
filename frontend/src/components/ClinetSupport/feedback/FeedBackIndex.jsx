@@ -18,10 +18,10 @@ import FeedBackDetails from './FeedBackDetails';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 import { Chip } from '@/components/ui/chip';
 
-export default function FeedBackIndex() {
+export default function FeedBackIndex({pagenation=true}) {
     const queryClient = useQueryClient();
     const { isSuperAdmin, permissions } = useContext(PermissionsContext);
-    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 25 });
+    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: pagenation ? 25 : 10 });
     const [isOpen, setIsOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
@@ -225,7 +225,7 @@ export default function FeedBackIndex() {
                     <Button onClick={() => handleView(row?.original)} size='xs' type='button' variant="ghost" className="rounded-full text-indigo-500 hover:bg-indigo-100 hover:text-indigo-600" >
                         <Eye size={16} />
                     </Button>
-                    {(permissions?.unique_id === row.original.client_id &&
+                    {((permissions?.unique_id === row.original.client_id && pagenation) && 
                         <Button onClick={() => handleEdit(row?.original)} size='xs' type='button' variant="ghost" className="rounded-full text-green-500 hover:bg-green-100 hover:text-green-600">
                             <Edit size={16} />
                         </Button>)}
@@ -273,7 +273,7 @@ export default function FeedBackIndex() {
             />
 
             <Card className="shadow-none border-none">
-                <CardHeader className="p-0 pb-2 border-b px-2 pt-2">
+                {pagenation && <CardHeader className="p-0 pb-2 border-b px-2 pt-2">
                     <div className="">
                         <div className='flex flex-wrap gap-2 justify-between items-center' >
                             <div>
@@ -289,7 +289,7 @@ export default function FeedBackIndex() {
                             </Button>}
                         </div>
                     </div>
-                </CardHeader>
+                </CardHeader>}
                 <CardContent className=" pb-0 px-0">
                     <div className=''>
                         <CommonTable
@@ -299,9 +299,9 @@ export default function FeedBackIndex() {
                             tableBodyRowStyle='bg-transparent hover:bg-indigo-50/50'
                         />
                     </div>
-                    <div className="mt-2 pt-2 border-t">
+                   {pagenation && <div className="mt-2 pt-2 border-t">
                         <DataTablePagination table={tableInstance} count={latestFeedback?.pagination?.total || 0} />
-                    </div>
+                    </div>}
                 </CardContent>
             </Card>
         </>

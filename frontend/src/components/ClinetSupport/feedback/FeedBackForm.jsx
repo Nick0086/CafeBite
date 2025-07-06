@@ -25,7 +25,7 @@ export default function FeedBackForm({ isOpen, onClose, isEdit, editData }) {
         defaultValues: feedbackdefaultValues,
     });
     const handleModalClose = () => {
-        form.reset();
+        form.reset(feedbackdefaultValues);
         setFiles([]);
         onClose()
     }
@@ -36,7 +36,7 @@ export default function FeedBackForm({ isOpen, onClose, isEdit, editData }) {
             form.setValue("description", editData?.description);
             form.setValue("type", editData?.type);
         } else {
-            form.reset();
+            form.reset(feedbackdefaultValues);
         }
         setFiles([]);
     }, [editData])
@@ -45,7 +45,7 @@ export default function FeedBackForm({ isOpen, onClose, isEdit, editData }) {
         mutationFn: isEdit ? updateFeedback : createFeedback,
         onSuccess: () => {
             toastSuccess('Ticket submitted successfully!');
-            onClose();
+            handleModalClose();
             queryClient.invalidateQueries(feedBackListQueryKeys['FEEDBACK_LIST']);
         },
         onError: (error) => {

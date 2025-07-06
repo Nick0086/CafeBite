@@ -1,44 +1,34 @@
 import React, { useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { toastError } from '@/utils/toast-utils';
 import { feedBackQueryKeys } from './utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
-import { getClientFeedback, getFeedbackStats } from '@/service/clinetFeedback.service';
+import { getFeedbackStats } from '@/service/clinetFeedback.service';
 import FeedbackCard from './components/FeedbackCard';
 import FeedbackProgressCard from './components/FeedbackProgressCard';
 import { CheckCircle, Clock, MessageSquare, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { StatusBadge } from './components/status-badge';
+import FeedBackIndex from '../feedback/FeedBackIndex';
 
 export default function DashboardIndex() {
 
     const navigate = useNavigate();
 
-    const { data: latestFeedback, isLoading: latestFeedbackIsLoading, error: latestFeedbackError } = useQuery({
-        queryKey: [feedBackQueryKeys['FEEDBACK_DASHBOARD_LIST']],
-        queryFn: () => getClientFeedback({ limit: 5 }),
-    });
-
     const { data: feedBackState, isLoading: feedBackStateIsLoading, error: feedBackStateError } = useQuery({
         queryKey: [feedBackQueryKeys['FEEDBACK_STATS']],
         queryFn: getFeedbackStats,
     });
-
-    const latestFeedbackData = useMemo(() => latestFeedback?.data, [latestFeedback]);
     const stats = useMemo(() => feedBackState?.data, [feedBackState]);
 
     useEffect(() => {
-        if (latestFeedbackError) {
-            toastError(`Error During Fetching Feedback: ${latestFeedbackError?.err?.message}`);
-        }
         if (feedBackStateError) {
             toastError(`Error During Fetching Feedback State: ${feedBackStateError?.err?.message}`);
         }
-    }, [latestFeedbackError || feedBackStateError]);
+    }, [feedBackStateError]);
 
-    if (latestFeedbackIsLoading || feedBackStateIsLoading) {
+    if (feedBackStateIsLoading) {
         return (
             <Card className='h-screen w-full transition ease-in-out duration-300'>
                 <GoogleStyleLoader className={'h-[70%]'} />
@@ -133,7 +123,7 @@ export default function DashboardIndex() {
                         <CardTitle>Recent Feedback</CardTitle>
                     </CardHeader>
                     <CardContent className='px-0 pb-2' >
-                        <div className="space-y-4 px-4">
+                        {/* <div className="space-y-4 px-4">
                             {latestFeedbackData?.map((feedback) => (
                                 <div key={feedback.id} className="flex items-start gap-3 p-3 rounded-lg border">
                                     <div className="flex-1 min-w-0">
@@ -149,9 +139,10 @@ export default function DashboardIndex() {
                                 </div>
                             ))}
                             {latestFeedbackData?.length === 0 && <p className="text-foreground text-center h-[40dvh] flex items-center justify-center py-4 text-xl font-bold">No recent feedback</p>}
-                        </div>
+                        </div> */}
+                        <FeedBackIndex pagenation={false} />
                         <div className="mt-2 pt-2 px-2 border-t text-center">
-                            <Button  onClick={() => navigate("/ticket-management/feedback")} variant="outline" className="lg:w-1/4 w-full bg-transparent border-border">
+                            <Button onClick={() => navigate("/ticket-management/feedback")} variant="outline" className="lg:w-1/4 w-full bg-transparent border-border">
                                 View All Feedback
                             </Button>
                         </div>
