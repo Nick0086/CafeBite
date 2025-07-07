@@ -30,7 +30,7 @@ export default function TemplateIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_templates_list')}: ${JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_templates_list')}: ${error?.err?.message}`);
     }
   }, [error]);
 

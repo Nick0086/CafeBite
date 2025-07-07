@@ -167,7 +167,7 @@ export const getSubscriptionHistory = async (req, res) => {
 
         const [history] = await query(`SELECT * FROM client_subscription_history WHERE client_id = ? ORDER BY paid_at DESC LIMIT ? OFFSET ?`, [clientId, parseInt(limit), offset]);
 
-        const total = await query('SELECT COUNT(*) as total FROM client_subscription_history WHERE client_id = ?',[clientId]);
+        const total = await query('SELECT COUNT(*) as total FROM client_subscription_history WHERE client_id = ?', [clientId]);
 
         return res.status(200).json({
             status: "success",
@@ -186,3 +186,27 @@ export const getSubscriptionHistory = async (req, res) => {
         handleError('subscription.controller.js', 'getSubscriptionHistory', res, error, 'An unexpected error occurred while fetching subscription history.');
     }
 };
+
+export const checkSubscriptionStatus = async (clinetId) => {
+    try {
+        if  (clinetId === process.env.SUPER_ADMIN_ID) {
+            return true
+        }
+
+        const subscription = await query('SELECT * FROM client_subscriptions WHERE client_id = ?', [clinetId]);
+        
+        if (subscription.length === 0) {
+            return  false
+        }
+
+        const sub = subscription[0];
+        const today = new Date();
+        const endDate = new Date(sub.end_date);
+        const isExpired = endDate <= today;
+        return !isExpired
+
+    } catch (error) {
+        console.log("error in checkSubscriptionStatus", error)
+        return  false
+    }
+}

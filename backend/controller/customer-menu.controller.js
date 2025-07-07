@@ -1,12 +1,18 @@
 import { getSignedUrlFromS3 } from "../services/r2/r2.service.js";
 import query from "../utils/query.utils.js";
 import { handleError } from "../utils/utils.js";
+import { checkSubscriptionStatus } from "./subscription.controller.js";
 
 let signedUrlCache = {};
 
 export const getMenuForCustomerByTableId = async (req, res) => {
     try {
         const { tableId, userId } = req.params;
+
+        const isSubscribed = await checkSubscriptionStatus(userId);
+        if (!isSubscribed) {
+            return res.status(405).json({ code: 'SUBSCRIPTION_ExPIRED', message: 'Clinet Subscription Expired' });
+        }
 
         const table = await query('SELECT * FROM tables WHERE unique_id = ? AND client_id = ?', [tableId, userId]);
 
@@ -51,6 +57,11 @@ export const getMenuCategoryForConsumer = async (req, res) => {
     try {
         const { userId } = req.params;
 
+        const isSubscribed = await checkSubscriptionStatus(userId);
+        if (!isSubscribed) {
+            return res.status(405).json({ code: 'SUBSCRIPTION_ExPIRED', message: 'Clinet Subscription Expired' });
+        }
+
         const categoryExists = await query('SELECT * FROM categories WHERE client_id = ? ', [userId]);
 
         return res.status(200).json({
@@ -68,7 +79,10 @@ export const getMenuCategoryForConsumer = async (req, res) => {
 export const getMenuItemsForConsumer = async (req, res) => {
     try {
         const { userId } = req.params;
-
+        const isSubscribed = await checkSubscriptionStatus(userId);
+        if (!isSubscribed) {
+            return res.status(405).json({ code: 'SUBSCRIPTION_ExPIRED', message: 'Clinet Subscription Expired' });
+        }
         let sql = `
             SELECT menu_items.*, categories.name AS category_name
             FROM menu_items

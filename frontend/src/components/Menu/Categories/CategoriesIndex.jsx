@@ -34,7 +34,7 @@ export default function CategoriesIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_category')} ${JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_category')} ${error?.err?.message}`);
     }
   }, [error]);
 

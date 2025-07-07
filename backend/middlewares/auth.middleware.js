@@ -3,9 +3,9 @@ import query from '../utils/query.utils.js'; // Adjust the path as needed
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'DEV' ?  false : true,               // Required for cross-site cookies
-    sameSite: process.env.NODE_ENV === 'DEV' ?  true : 'None',           // Required for cross-site cookies
-    path: '/',                  
+    secure: process.env.NODE_ENV === 'DEV' ? false : true,               // Required for cross-site cookies
+    sameSite: process.env.NODE_ENV === 'DEV' ? true : 'None',           // Required for cross-site cookies
+    path: '/',
 };
 
 
@@ -56,6 +56,7 @@ export const authMiddleware = async (req, res, next) => {
 
                         // Set user data in req.user
                         req.user = decodedRefresh.userDetails;
+                        
                         return next(); // Proceed to the next middleware/route
                     } catch (refreshTokenError) {
                         clearAuthCookies(res)
@@ -67,6 +68,7 @@ export const authMiddleware = async (req, res, next) => {
                 }
             }
         }
+
         return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Unauthorized' });
     } catch (error) {
         console.error('Error in authMiddleware:', error);

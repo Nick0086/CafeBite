@@ -82,15 +82,15 @@ export default function TemplateEditorIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_template_data')}: ${error?.message || JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_template_data')}: ${error?.err?.message || JSON.stringify(error)}`);
     }
 
     if (categoryError) {
-      toastError(`${t('error_fetching_category')}: ${categoryError?.message || JSON.stringify(categoryError)}`);
+      toastError(`${t('error_fetching_category')}: ${categoryError?.err?.message || JSON.stringify(categoryError)}`);
     }
 
     if (menuItemError) {
-      toastError(`${t('error_fetching_menu_item')}: ${menuItemError?.message || JSON.stringify(menuItemError)}`);
+      toastError(`${t('error_fetching_menu_item')}: ${menuItemError?.err?.message || JSON.stringify(menuItemError)}`);
     }
   }, [categoryError, menuItemError]);
 

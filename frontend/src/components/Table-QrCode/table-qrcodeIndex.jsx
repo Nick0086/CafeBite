@@ -45,10 +45,10 @@ export default function QrCodeManagerIndex() {
 
     useEffect(() => {
         if (error) {
-            toastError(`${t('error_fetching_qr_codes')}: ${JSON.stringify(error)}`);
+            toastError(`${t('error_fetching_qr_codes')}: ${error?.err?.message}`);
         }
         if (templateError) {
-            toastError(`${t('error_fetching_templates')}: ${JSON.stringify(templateError)}`);
+            toastError(`${t('error_fetching_templates')}: ${templateError?.err?.message}`);
         }
     }, [error, templateError]);
 

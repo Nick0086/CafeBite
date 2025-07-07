@@ -77,10 +77,10 @@ export default function MenuItemsIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_menu_item')}: ${JSON.stringify(error)}`);
+      toastError(`${t('error_fetching_menu_item')}: ${error?.err?.message}`);
     }
     if (categoryError) {
-      toastError(`${t('error_fetching_category')}: ${JSON.stringify(categoryError)}`);
+      toastError(`${t('error_fetching_category')}: ${categoryError?.err?.message}`);
     }
   }, [error, categoryError]);
 

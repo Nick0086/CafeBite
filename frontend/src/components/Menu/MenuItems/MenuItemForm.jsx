@@ -94,7 +94,7 @@ const MenuItemForm = memo(({ open, onHide, isEdit, selectedRow, isDireact }) => 
     // Handle category fetch errors
     useEffect(() => {
         if (categoryError) {
-            toast.error(`${t("error_fetching_category")}: ${JSON.stringify(categoryError)}`);
+            toast.error(`${t("error_fetching_category")}: ${categoryError?.err?.message}`);
         }
     }, [categoryError]);
 
