@@ -16,6 +16,7 @@ import { PermissionsContext } from '@/contexts/PermissionsContext'
 import { getClientData, updateClinetProfile } from '@/service/user.service'
 import { Separator } from '../ui/separator'
 import { verifySubscriptionPayment } from '@/service/subscription.service'
+import { Link } from 'react-router'
 
 const profileFormSchema = z.object({
     ...personalFormSchema.shape,
@@ -332,6 +333,24 @@ export default function ProfileManagement() {
                                             </div>
                                         )}
                                     </div>
+                                    <div className="flex items-center justify-center md:justify-start gap-4 mt-3">
+                                        <a
+                                            href="https://merchant.razorpay.com/policy/QkdcFCJmy1V0gQ/terms"
+                                            className="text-sm text-blue-600"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Terms & Conditions
+                                        </a>
+                                        <a
+                                            href="https://merchant.razorpay.com/policy/QkdcFCJmy1V0gQ/contact_us"
+                                            className="text-sm text-blue-600"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Contact Us
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
@@ -385,7 +404,7 @@ export default function ProfileManagement() {
                                         </span> : "-"}
                                     </div>
                                     <div className="flex-shrink-0">
-                                        <button
+                                        {/* <button
                                             type='button'
                                             onClick={() => {
                                                 // Load Razorpay script dynamically
@@ -455,7 +474,7 @@ export default function ProfileManagement() {
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                                         >
                                             Renew Subscription
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>
