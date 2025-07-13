@@ -404,7 +404,7 @@ export default function ProfileManagement() {
                                         </span> : "-"}
                                     </div>
                                     <div className="flex-shrink-0">
-                                        {/* <button
+                                        {"CLIENT_17470726018932181" === permissions?.data?.unique_id && (<button
                                             type='button'
                                             onClick={() => {
                                                 // Load Razorpay script dynamically
@@ -474,7 +474,7 @@ export default function ProfileManagement() {
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                                         >
                                             Renew Subscription
-                                        </button> */}
+                                        </button>)}
                                     </div>
                                 </div>
                             </div>
