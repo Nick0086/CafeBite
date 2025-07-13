@@ -404,7 +404,7 @@ export default function ProfileManagement() {
                                         </span> : "-"}
                                     </div>
                                     <div className="flex-shrink-0">
-                                        {"CLIENT_17470726018932181" === permissions?.data?.unique_id && (<button
+                                        {("CLIENT_17470726018932181" === permissions?.unique_id) && (<button
                                             type='button'
                                             onClick={() => {
                                                 // Load Razorpay script dynamically
