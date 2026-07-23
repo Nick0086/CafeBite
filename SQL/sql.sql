@@ -1,6 +1,6 @@
-use `cafebite`;
+use `cafebite_db`;
 
-CREATE TABLE `ucmt_tbl_country_master` (
+CREATE TABLE IF NOT EXISTS `ucmt_tbl_country_master` (
     `id` INT          NOT NULL PRIMARY KEY,
     `countrycode`    VARCHAR(10)   NOT NULL,     -- e.g. 'US'
     `country`        VARCHAR(100)  NOT NULL,     -- e.g. 'United States'
@@ -10,7 +10,7 @@ CREATE TABLE `ucmt_tbl_country_master` (
     `currency_symbol` VARCHAR(10)                  -- e.g. '$'
 );
 
-CREATE TABLE `ucmt_tbl_state_master` (
+CREATE TABLE IF NOT EXISTS `ucmt_tbl_state_master` (
     `id`        INT NOT NULL AUTO_INCREMENT,
     `state`     VARCHAR(100)  NOT NULL,
     `countryid` INT           NOT NULL,
@@ -23,11 +23,11 @@ CREATE TABLE `ucmt_tbl_state_master` (
         ON DELETE RESTRICT
 );
 
-CREATE TABLE `ucmt_tbl_city_master` (
+CREATE TABLE IF NOT EXISTS `ucmt_tbl_city_master` (
     `id`      INT NOT NULL AUTO_INCREMENT,
     `city`    VARCHAR(100) NOT NULL,
     `stateid` INT          NOT NULL,
-    PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`), 
     KEY `idx_city_stateid` (`stateid`),
     CONSTRAINT `fk_city_state`
         FOREIGN KEY (`stateid`)
@@ -36,14 +36,14 @@ CREATE TABLE `ucmt_tbl_city_master` (
         ON DELETE RESTRICT
 );
 
-CREATE TABLE `currencies` (
+CREATE TABLE IF NOT EXISTS `currencies` (
     `code` CHAR(3) PRIMARY KEY,
     `name` VARCHAR(100) NOT NULL,
     `symbol` VARCHAR(5) NOT NULL,
     `decimal_places` INT NOT NULL
 );
 
-CREATE TABLE `clients` (
+CREATE TABLE IF NOT EXISTS `clients` (
     `id`            INT            NOT NULL AUTO_INCREMENT,
     `unique_id`     CHAR(36)       NOT NULL UNIQUE,  
     `first_name`    VARCHAR(255)   NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE `clients` (
 
     `social_instagram` VARCHAR(255) DEFAULT NULL,
     `social_facebook` VARCHAR(255) DEFAULT NULL,
-    `social_twitter` VARCHAR(255) DEFAULT NULL;
+    `social_twitter` VARCHAR(255) DEFAULT NULL,
 
     `currency_code` CHAR(3)        NOT NULL DEFAULT 'USD',
 
@@ -104,7 +104,7 @@ CREATE TABLE `clients` (
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE client_sessions (
+CREATE TABLE IF NOT EXISTS client_sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     session_id CHAR(36) NOT NULL UNIQUE, 
     client_id CHAR(36) NOT NULL,
@@ -119,7 +119,7 @@ CREATE TABLE client_sessions (
     FOREIGN KEY (client_id) REFERENCES clients(unique_id)
 );
 
-CREATE TABLE otps (
+CREATE TABLE IF NOT EXISTS otps (
     id INT AUTO_INCREMENT PRIMARY KEY,
     session_id CHAR(36) NOT NULL,  -- Reference to client_sessions.session_id
     otp VARCHAR(6) NOT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE otps (
     FOREIGN KEY (session_id) REFERENCES client_sessions(session_id)
 ); 
 
-CREATE TABLE password_reset_tokens (
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
     client_id CHAR(36) NOT NULL, 
     token CHAR(36) NOT NULL UNIQUE,
@@ -137,7 +137,7 @@ CREATE TABLE password_reset_tokens (
     FOREIGN KEY (client_id) REFERENCES clients(unique_id)
 );
 
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
     client_id CHAR(36) NOT NULL,  -- Should match the type of users.unique_id
@@ -148,7 +148,7 @@ CREATE TABLE categories (
     FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
 );
 
-CREATE TABLE menu_items (
+CREATE TABLE IF NOT EXISTS menu_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     unique_id CHAR(36) NOT NULL UNIQUE,  -- UUID as a unique identifier
     client_id CHAR(36) NOT NULL,  -- Each item belongs to a user (café)
@@ -167,7 +167,7 @@ CREATE TABLE menu_items (
     FOREIGN KEY (category_id) REFERENCES categories(unique_id) ON DELETE CASCADE
 );
 
-CREATE TABLE templates (
+CREATE TABLE IF NOT EXISTS templates (
     id INT AUTO_INCREMENT PRIMARY KEY,
     unique_id CHAR(36) NOT NULL UNIQUE,
     client_id CHAR(36) NOT NULL,
@@ -179,7 +179,7 @@ CREATE TABLE templates (
     FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
 );
 
-CREATE TABLE template_global_settings (
+CREATE TABLE IF NOT EXISTS template_global_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     template_id CHAR(36) NOT NULL,
     background_color VARCHAR(7) DEFAULT '#f4f5f7',
@@ -195,7 +195,7 @@ CREATE TABLE template_global_settings (
     FOREIGN KEY (template_id) REFERENCES templates(unique_id) ON DELETE CASCADE
 );
 
-CREATE TABLE template_categories (
+CREATE TABLE IF NOT EXISTS template_categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     unique_id CHAR(36) NOT NULL UNIQUE,
     template_id CHAR(36) NOT NULL,
@@ -208,7 +208,7 @@ CREATE TABLE template_categories (
     FOREIGN KEY (category_id) REFERENCES categories(unique_id) ON DELETE CASCADE
 );
 
-CREATE TABLE template_category_settings (
+CREATE TABLE IF NOT EXISTS template_category_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
     template_category_id CHAR(36) NOT NULL,
     section_background_color VARCHAR(7),
@@ -223,7 +223,7 @@ CREATE TABLE template_category_settings (
     FOREIGN KEY (template_category_id) REFERENCES template_categories(unique_id) ON DELETE CASCADE
 );
 
-CREATE TABLE template_items (
+CREATE TABLE IF NOT EXISTS template_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     unique_id CHAR(36) NOT NULL UNIQUE,
     template_category_id CHAR(36) NOT NULL,
@@ -256,7 +256,7 @@ CREATE TABLE tables (
     status INT DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+    FOREIGN KEY (client_id) REFERENCES clients(unique_id) ON DELETE CASCADE,
     FOREIGN KEY (template_id) REFERENCES templates(unique_id) ON DELETE CASCADE
 );
 
@@ -303,7 +303,7 @@ CREATE TABLE feedback_comments (
     INDEX idx_feedback_comments_parent (parent_comment_id),
     INDEX idx_feedback_comments_created_at (created_at),
     
-    FOREIGN KEY (commented_by_id) REFERENCES clients(unique_id) ON DELETE CASCADE
+    FOREIGN KEY (commented_by_id) REFERENCES clients(unique_id) ON DELETE CASCADE,
     FOREIGN KEY (feedback_id) REFERENCES client_feedback(unique_id) ON DELETE CASCADE,
     FOREIGN KEY (parent_comment_id) REFERENCES feedback_comments(id) ON DELETE CASCADE
 );

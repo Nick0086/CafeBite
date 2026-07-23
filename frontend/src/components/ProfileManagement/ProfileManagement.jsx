@@ -404,12 +404,12 @@ export default function ProfileManagement() {
                                         </span> : "-"}
                                     </div>
                                     <div className="flex-shrink-0">
-                                        {("CLIENT_17470726018932181" === permissions?.unique_id) && (<button
+                                        <button
                                             type='button'
                                             onClick={() => {
                                                 // Load Razorpay script dynamically
                                                 const script = document.createElement('script');
-                                                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                                                script.src = 'https://checkout.razorpay.com/v1/payment-button.js';
                                                 script.onload = () => {
                                                     const options = {
                                                         key: import.meta.env.VITE_BASE_RAZORPAY, // Replace with your key
@@ -420,31 +420,31 @@ export default function ProfileManagement() {
                                                         description: 'Renew your subscription',
                                                         handler: async function (response) {
                                                             try {
-                                                                // console.log('Payment response:', response);
+                                                                console.log('Payment response:', response);
                                                                 paymentCheckMutation.mutate(response.razorpay_payment_id);
 
                                                                 // Verify payment using Razorpay API
-                                                                // const verificationResponse = await fetch('/api/verify-payment-with-razorpay', {
-                                                                //     method: 'POST',
-                                                                //     headers: {
-                                                                //         'Content-Type': 'application/json',
-                                                                //     },
-                                                                //     body: JSON.stringify({
-                                                                //         payment_id: response.razorpay_payment_id,
-                                                                //         expected_amount: permissions?.subscription?.amount * 100,
-                                                                //         user_id: permissions?.user?.id // Add user ID for subscription update
-                                                                //     })
-                                                                // });
+                                                                const verificationResponse = await fetch('/api/verify-payment-with-razorpay', {
+                                                                    method: 'POST',
+                                                                    headers: {
+                                                                        'Content-Type': 'application/json',
+                                                                    },
+                                                                    body: JSON.stringify({
+                                                                        payment_id: response.razorpay_payment_id,
+                                                                        expected_amount: permissions?.subscription?.amount * 100,
+                                                                        user_id: permissions?.user?.id // Add user ID for subscription update
+                                                                    })
+                                                                });
 
-                                                                // const result = await verificationResponse.json();
+                                                                const result = await verificationResponse.json();
 
-                                                                // if (result.success) {
-                                                                //     alert('Payment successful! Your subscription has been renewed.');
-                                                                //     // Refresh the page or update the subscription data
-                                                                //     window.location.reload();
-                                                                // } else {
-                                                                //     alert(`Payment verification failed: ${result.message}`);
-                                                                // }
+                                                                if (result.success) {
+                                                                    alert('Payment successful! Your subscription has been renewed.');
+                                                                    // Refresh the page or update the subscription data
+                                                                    window.location.reload();
+                                                                } else {
+                                                                    alert(`Payment verification failed: ${result.message}`);
+                                                                }
                                                             } catch (error) {
                                                                 console.error('Payment verification error:', error);
                                                                 alert('Payment verification failed. Please contact support.');
@@ -474,7 +474,7 @@ export default function ProfileManagement() {
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                                         >
                                             Renew Subscription
-                                        </button>)}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
