@@ -1,0 +1,90 @@
+
+> backend@1.0.0 seed:geo
+> node src/db/seeds/seed-geography.js
+
+Inserting currencies...
+  Inserted 155 currencies
+Inserting countries...
+  Inserted 250 countries
+Fetching and inserting states...
+  Azerbaijan: 78 states
+  Bahrain: 4 states
+  Bangladesh: 72 states
+  Barbados: 11 states
+  Belarus: 7 states
+  Belgium: 13 states
+  Belize: 6 states
+  Benin: 12 states
+  Bermuda: 9 states
+  Bhutan: 20 states
+  Bolivia: 9 states
+  Bonaire, Sint Eustatius and Saba: 3 states
+  Bosnia and Herzegovina: 3 states
+  Botswana: 16 states
+  Bouvet Island: 0 states
+  Brazil: 27 states
+  British Indian Ocean Territory: 0 states
+  Brunei: 4 states
+  Bulgaria: 28 states
+  Burkina Faso: 58 states
+  Burundi: 18 states
+  Cambodia: 25 states
+  Cameroon: 10 states
+  Canada: 13 states
+  Cape Verde: 24 states
+  Cayman Islands: 3 states
+  Central African Republic: 17 states
+  Chad: 23 states
+  Chile: 16 states
+  China: 34 states
+  Christmas Island: 0 states
+  Cocos (Keeling) Islands: 0 states
+  Colombia: 33 states
+  Comoros: 3 states
+  Congo: 12 states
+  Cook Islands: 0 states
+  Costa Rica: 7 states
+  Croatia: 20 states
+  Cuba: 16 states
+  Curaçao: 0 states
+  Cyprus: 6 states
+  Czech Republic: 90 states
+  Democratic Republic of the Congo: 26 states
+  Denmark: 5 states
+  Djibouti: 6 states
+  Dominica: 10 states
+  Dominican Republic: 42 states
+  Ecuador: 24 states
+  Egypt: 27 states
+  El Salvador: 14 states
+  Equatorial Guinea: 10 states
+  Eritrea: 6 states
+  Estonia: 94 states
+  Eswatini: 4 states
+  Ethiopia: 13 states
+  Falkland Islands: 0 states
+  Faroe Islands: 6 states
+  Fiji Islands: 19 states
+  Finland: 18 states
+  France: 124 states
+  French Guiana: 1 states
+  French Polynesia: 5 states
+  French Southern Territories: 5 states
+  Gabon: 9 states
+  Georgia: 12 states
+  Germany: 16 states
+  Ghana: 16 states
+  Gibraltar: 0 states
+  Greece: 15 states
+  Greenland: 5 states
+  Grenada: 7 states
+  Guadeloupe: 2 states
+  Guam: 19 states
+  Guatemala: 22 states
+  Guernsey: 12 states
+  Guinea: 41 states
+  Guinea-Bissau: 12 states
+  Guyana: 10 states
+  Haiti: 10 states
+  Heard Island and McDonald Islands: 0 states
+Rate limited. Checkpoint saved. Run again tomorrow.
