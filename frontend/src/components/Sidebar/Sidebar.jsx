@@ -11,7 +11,6 @@ import Menu from '../../assets/SVG/menu.svg?react';
 import User from '../../assets/SVG/users.svg?react';
 import Support from '../../assets/SVG/supprot.svg?react';
 import { cn } from '@/lib/utils'
-import LanguageSwitcher from '../ui/Layouts/LanguageSwitcher'
 
 const sideBarData = [
     // {
@@ -125,7 +124,6 @@ export default function Sidebar({
                         <Separator orientation="vertical" className="mr-2 h-4" />
                     </div>
                     <div className="flex gap-2 flex-1 items-center justify-end">
-                    {/* <LanguageSwitcher /> */}
                         <Separator orientation="vertical" className="h-6" />
                         <UserNav />
                     </div>

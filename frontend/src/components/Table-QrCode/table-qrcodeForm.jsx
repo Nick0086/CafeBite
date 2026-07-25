@@ -10,17 +10,7 @@ import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { createQrCode, updateQrCode } from '@/service/table-qrcode.service';
 import { qrCodeQueryKeyLookup } from './utils';
 import ReusableFormField from '@/common/Form/ReusableFormField';
-import { useTranslation } from 'react-i18next';
 
-
-// Dynamic schema based on edit mode
-const getFormSchema = () => {
-    const { t } = useTranslation();
-    return yup.object().shape({
-        tableNumbers: yup.string().required(t('qr_code_name_required')),
-        templateId: yup.string().required(t('select_template_required')),
-    });
-};
 
 // Default values based on edit mode
 const getDefaultValues = () => {
@@ -31,7 +21,6 @@ const getDefaultValues = () => {
 };
 
 const QrCodeForm = memo(({ open, onClose, isEdit, selectedData, templateOptions, isLoadingTemplates }) => {
-    const { t } = useTranslation();
     const queryClient = useQueryClient();
 
     // Create form with dynamic schema based on isEdit
@@ -60,22 +49,22 @@ const QrCodeForm = memo(({ open, onClose, isEdit, selectedData, templateOptions,
     const createQrCodeMutation = useMutation({
         mutationFn: createQrCode,
         onSuccess: (res) => {
-            toastSuccess(res?.message || t('qr_code_created_success'));
+            toastSuccess(res?.message || 'QR Code created successfully');
             handleModalClose();
         },
         onError: (error) => {
-            toastError(`${t('error_creating_qr_code')}: ${error?.err?.error}`);
+            toastError(`Error creating QR Code: ${error?.err?.error}`);
         }
     });
 
     const updateQrCodeMutation = useMutation({
         mutationFn: updateQrCode,
         onSuccess: (res) => {
-            toastSuccess(res?.message || t('qr_code_updated_success'));
+            toastSuccess(res?.message || 'QR Code updated successfully');
             handleModalClose();
         },
         onError: (error) => {
-            toastError(`${t('error_updating_qr_code')}: ${error?.err?.error}`);
+            toastError(`Error updating QR Code: ${error?.err?.error}`);
         }
     });
 
@@ -93,7 +82,7 @@ const QrCodeForm = memo(({ open, onClose, isEdit, selectedData, templateOptions,
                 {open && (
                     <>
                         <DialogHeader>
-                            <DialogTitle>{isEdit ? t('edit_qr_code') : t('create_new_qr_codes')}</DialogTitle>
+                            <DialogTitle>{isEdit ? 'Edit QR Code' : 'Create New QR Codes'}</DialogTitle>
                         </DialogHeader>
                         <div className='max-h-[80dvh] overflow-auto p-0'>
                             <Form {...form}>
@@ -103,8 +92,8 @@ const QrCodeForm = memo(({ open, onClose, isEdit, selectedData, templateOptions,
                                             control={form.control}
                                             name="tableNumbers"
                                             required={true}
-                                            label={t('qr_code_name_label')}
-                                            placeholder={t('qr_code_name_placeholder')}
+                                            label="Qr Code Name"
+                                            placeholder="Enter Qr Code name"
                                             className=""
                                             disabled={updateQrCodeMutation.isPending}
                                         />
@@ -115,19 +104,19 @@ const QrCodeForm = memo(({ open, onClose, isEdit, selectedData, templateOptions,
                                             type='select'
                                             required
                                             name='templateId'
-                                            label={t('template_label')}
+                                            label="Template"
                                             isLoading={isLoadingTemplates}
                                             options={templateOptions}
-                                            placeholder={t('template_placeholder')}
+                                            placeholder="Select a template"
                                             disabled={createQrCodeMutation.isPending || updateQrCodeMutation.isPending}
                                         />
                                     </div>
                                     <div className='flex items-center justify-start gap-2 sticky bottom-0 border-t bg-white py-2 px-4'>
                                         <Button type='submit' variant='gradient' disabled={createQrCodeMutation.isPending || updateQrCodeMutation.isPending} isLoading={createQrCodeMutation.isPending || updateQrCodeMutation.isPending}>
-                                            {t('save_changes')}
+                                            Save Changes
                                         </Button>
                                         <Button type='button' variant='outline' color='ghost' disabled={createQrCodeMutation.isPending || updateQrCodeMutation.isPending} onClick={handleModalClose}>
-                                            {t('cancel')}
+                                            Cancel
                                         </Button>
                                     </div>
                                 </form>

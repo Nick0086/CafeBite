@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { toastError } from '@/utils/toast-utils';
-import { useTranslation } from 'react-i18next';
 
 export const usePrintQrCodes = (printFrameRef, selectedQrCodes, clearSelections) => {
-    const { t } = useTranslation();
     const [printContent, setPrintContent] = useState("");
     const [printDialogOpen, setPrintDialogOpen] = useState(false);
 
@@ -26,7 +24,7 @@ export const usePrintQrCodes = (printFrameRef, selectedQrCodes, clearSelections)
                     clearSelections();
                 } catch (error) {
                     console.error("Printing failed:", error);
-                    toastError(t('printing_failed'));
+                    toastError('Printing failed. Please try again.');
                 }
             }
         }, 500);
@@ -82,7 +80,7 @@ export const usePrintQrCodes = (printFrameRef, selectedQrCodes, clearSelections)
             const selectedItems = filteredItems.filter(qr => selectedQrCodes.includes(qr.unique_id));
             printMultipleQrCodes(selectedItems);
         } else {
-            toastError(t('no_qr_codes_selected'));
+            toastError('No QR codes selected. Please select at least one QR code.');
         }
     };
 

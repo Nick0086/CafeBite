@@ -9,7 +9,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { DEFAULT_THEME, templateDefaultValue } from '../utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const ColorPicker = ({ label, currentColor, onColorChange, colorKey, updateTemplateConfig, t }) => {
+const ColorPicker = ({ label, currentColor, onColorChange, colorKey, updateTemplateConfig }) => {
   const defaultColors = templateDefaultValue.global;
 
   const handleChange = (value) => {
@@ -38,7 +38,7 @@ const ColorPicker = ({ label, currentColor, onColorChange, colorKey, updateTempl
           </div>
         </div>
         <Input value={currentColor} onChange={(e) => handleChange(e.target.value)} className="font-mono text-sm" />
-        <ResetButton onClick={() => handleChange(defaultColors[colorKey])} tooltipText={t('reset')}  />
+        <ResetButton onClick={() => handleChange(defaultColors[colorKey])} tooltipText="Reset"  />
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ const ResetButton = ({ onClick, tooltipText }) => (
   </TooltipProvider>
 );
 
-const TemplateGlobal = ({ setTemplateConfig, t }) => {
+const TemplateGlobal = ({ setTemplateConfig }) => {
   const {
     backgroundColor,
     setBackgroundColor,
@@ -87,17 +87,17 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
   } = useTemplate();
 
   const colorConfigs = [
-    { label: t('background_color'), currentColor: backgroundColor, onColorChange: setBackgroundColor, colorKey: 'background_color' },
-    { label: t('section_background_color'), currentColor: sectionBackgroundColor, onColorChange: setSectionBackgroundColor, colorKey: 'section_background_color' },
-    { label: t('card_background_color'), currentColor: cardBackgroundColor, onColorChange: setCardBackgroundColor, colorKey: 'card_background_color' },
-    { label: t('title_color'), currentColor: titleColor, onColorChange: setTitleColor, colorKey: 'title_color' },
-    { label: t('card_title_color'), currentColor: cardTitleColor, onColorChange: setCardTitleColor, colorKey: 'card_title_color' },
-    { label: t('description_color'), currentColor: descriptionColor, onColorChange: setDescriptionColor, colorKey: 'description_color' },
+    { label: 'Background Color', currentColor: backgroundColor, onColorChange: setBackgroundColor, colorKey: 'background_color' },
+    { label: 'Section Background Color', currentColor: sectionBackgroundColor, onColorChange: setSectionBackgroundColor, colorKey: 'section_background_color' },
+    { label: 'Card Background Color', currentColor: cardBackgroundColor, onColorChange: setCardBackgroundColor, colorKey: 'card_background_color' },
+    { label: 'Title Color', currentColor: titleColor, onColorChange: setTitleColor, colorKey: 'title_color' },
+    { label: 'Card Title Color', currentColor: cardTitleColor, onColorChange: setCardTitleColor, colorKey: 'card_title_color' },
+    { label: 'Description Color', currentColor: descriptionColor, onColorChange: setDescriptionColor, colorKey: 'description_color' },
   ];
 
   const buttonColorConfigs = [
-    { label: t('label_color'), currentColor: buttonLabelColor, onColorChange: setButtonLabelColor, colorKey: 'button_label_color' },
-    { label: t('background_color'), currentColor: buttonBackgroundColor, onColorChange: setButtonBackgroundColor, colorKey: 'button_background_color' },
+    { label: 'Label Color', currentColor: buttonLabelColor, onColorChange: setButtonLabelColor, colorKey: 'button_label_color' },
+    { label: 'Background Color', currentColor: buttonBackgroundColor, onColorChange: setButtonBackgroundColor, colorKey: 'button_background_color' },
   ];
 
   const handleResetAll = () => {
@@ -129,12 +129,12 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
       <Separator />
       <div>
         <div className="flex items-center justify-between">
-          <h5 className="text-lg font-medium px-4 pb-2">{t("background_&_colors")}</h5>
-          <ResetButton onClick={handleResetAll} tooltipText={t('reset_all')} />
+          <h5 className="text-lg font-medium px-4 pb-2">Background & Colors</h5>
+          <ResetButton onClick={handleResetAll} tooltipText="Reset All" />
         </div>
         <div className="space-y-4 px-4 pb-2">
           {colorConfigs.map(({ label, currentColor, onColorChange, colorKey }) => (
-            <ColorPicker key={colorKey} label={label} currentColor={currentColor} onColorChange={onColorChange} colorKey={colorKey} updateTemplateConfig={setTemplateConfig} t={t} />
+            <ColorPicker key={colorKey} label={label} currentColor={currentColor} onColorChange={onColorChange} colorKey={colorKey} updateTemplateConfig={setTemplateConfig} />
           ))}
         </div>
       </div>
@@ -142,10 +142,10 @@ const TemplateGlobal = ({ setTemplateConfig, t }) => {
       {/* <Separator />
 
       <div>
-        <h5 className="text-lg font-medium px-4 pb-2">{t("button_colors")}</h5>
+        <h5 className="text-lg font-medium px-4 pb-2">Button Colors</h5>
         <div className="space-y-4 px-4 pb-2">
           {buttonColorConfigs.map(({ label, currentColor, onColorChange, colorKey }) => (
-            <ColorPicker key={colorKey} label={label} currentColor={currentColor} onColorChange={onColorChange} colorKey={colorKey} updateTemplateConfig={setTemplateConfig} t={t} />
+            <ColorPicker key={colorKey} label={label} currentColor={currentColor} onColorChange={onColorChange} colorKey={colorKey} updateTemplateConfig={setTemplateConfig} />
           ))}
         </div>
       </div> */}

@@ -8,7 +8,6 @@ import { Chip } from '../ui/chip';
 import { cn } from '@/lib/utils';
 import { Plus, Minus } from 'lucide-react';
 import { useOrder } from '@/contexts/order-management-context';
-import { useTranslation } from 'react-i18next';
 
 const StatusBadge = memo(({ type }) => (
     <AppTooltip content={type === "veg" ? "Veg" : "Non Veg"}>
@@ -60,19 +59,18 @@ const QuantityControls = memo(({ item, itemInOrder, onAdd, onRemove, isInStock, 
     </div>
 ));
 
-const StockStatus = memo(({ isInStock, t }) => (
+const StockStatus = memo(({ isInStock }) => (
     <Chip
         variant="light"
         color={isInStock ? "green" : "red"}
         radius="md"
         size="xs"
     >
-        {isInStock ? t("In_Stock") : t("Out_of_Stock")}
+        {isInStock ? "In Stock" : "Out of Stock"}
     </Chip>
 ));
 
 const OptimizedMenuItem = memo(({ item, styles }) => {
-    const { t } = useTranslation();
     const { ref, inView } = useInView({
         threshold: 0.1,
         triggerOnce: true,
@@ -170,7 +168,7 @@ const OptimizedMenuItem = memo(({ item, styles }) => {
                                 styles={styles}
                             />
                         ) : (
-                            <StockStatus isInStock={isInStock} t={t} />
+                            <StockStatus isInStock={isInStock} />
                         )}
                     </div>
                 </CardContent>

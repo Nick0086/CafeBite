@@ -81,7 +81,6 @@ export default function TemplateItems({
     setTemplateConfig,
     currentCategoryItems,
     setCurrentCategoryItems,
-    t
 }) {
     const [currentItemsCategoryObj, setCurrentItemsCategoryObj] = useState(null);
     const [activeDragItem, setActiveDragItem] = useState(null);
@@ -189,7 +188,7 @@ export default function TemplateItems({
     }
 
     if (!templateConfig?.categories?.length) {
-        return <div className="p-4">{t('no_items_available')}</div>;
+        return <div className="p-4">No Items available.</div>;
     }
 
     // Ensure items is always defined as an array
@@ -197,12 +196,12 @@ export default function TemplateItems({
 
     return (
         <div className="space-y-1.5 pt-1">
-            {/* <h5 className="text-lg font-medium px-4 pb-2">{t('items_management')}</h5> */}
+            {/* <h5 className="text-lg font-medium px-4 pb-2">Items Management</h5> */}
             <div className="flex flex-col gap-1 border-b border-gray-200 px-4  pb-4">
-                <Label className="text-xs">{t('select_category')}</Label>
+                <Label className="text-xs">Select Category</Label>
                 <Select value={currentCategoryItems} onValueChange={onChangeCategory}>
                     <SelectTrigger>
-                        <SelectValue placeholder={t('select_category')} />
+                        <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent>
                         {categoryDataOptions?.map((category) => (
@@ -270,7 +269,6 @@ export default function TemplateItems({
                             setTemplateConfig={setTemplateConfig}
                             currentSection={currentCategoryItems}
                             setCurrentSection={setCurrentCategoryItems}
-                            t={t}
                         />
                     </TabsContent>
                 </Tabs>

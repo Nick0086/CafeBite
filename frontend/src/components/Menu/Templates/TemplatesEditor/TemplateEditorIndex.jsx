@@ -18,7 +18,6 @@ import { Card } from '@/components/ui/card';
 import { getAllCategory } from '@/service/categories.service';
 import { getAllMenuItems } from '@/service/menuItems.service';
 import { createTemplate, getTemplateById, updateTemplate } from '@/service/templates.service';
-import { useTranslation } from 'react-i18next';
 import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 import { PenIcon } from 'lucide-react';
 
@@ -26,7 +25,6 @@ export default function TemplateEditorIndex() {
 
   const queryClient = useQueryClient();
   const {  handleTabChange } = useTemplate()
-  const { t } = useTranslation();
   const { templateId } = useParams();
   const navigation = useNavigate();
   const { currentSection, setCurrentSection, setNameError, setBackgroundColor, setSectionBackgroundColor, setTitleColor, setCardTitleColor, setCardBackgroundColor, setDescriptionColor, setButtonBackgroundColor, setButtonLabelColor ,currentView, setCurrentView} = useTemplate();
@@ -82,15 +80,15 @@ export default function TemplateEditorIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_template_data')}: ${error?.err?.message || JSON.stringify(error)}`);
+      toastError(`Error fetching Template Data: ${error?.err?.message || JSON.stringify(error)}`);
     }
 
     if (categoryError) {
-      toastError(`${t('error_fetching_category')}: ${categoryError?.err?.message || JSON.stringify(categoryError)}`);
+      toastError(`Error fetching Category: ${categoryError?.err?.message || JSON.stringify(categoryError)}`);
     }
 
     if (menuItemError) {
-      toastError(`${t('error_fetching_menu_item')}: ${menuItemError?.err?.message || JSON.stringify(menuItemError)}`);
+      toastError(`Error fetching Menu Item: ${menuItemError?.err?.message || JSON.stringify(menuItemError)}`);
     }
   }, [categoryError, menuItemError]);
 
@@ -189,7 +187,7 @@ export default function TemplateEditorIndex() {
   const handleFormSubmit = () => {
 
     if (!!(!templateName)) {
-      setNameError(t('please_select_template_name'))
+      setNameError('Please select a template name')
       return;
     }
 
@@ -222,7 +220,7 @@ export default function TemplateEditorIndex() {
   if (isError) {
     return (
       <Card className="flex justify-center items-center h-screen">
-        <p>{t('somthing_went_wrong')}</p>
+        <p>Somthing Went Wrong</p>
       </Card>
     );
   }
@@ -240,7 +238,7 @@ export default function TemplateEditorIndex() {
 
       <SidebarComponent className='overflow-auto' side='right' >
 
-        <SideBarHeader t={t} templateName={templateName} setTemplateName={setTemplateName} handleFormSubmit={handleFormSubmit} isSubmitting={createTemplateMutation?.isPending || updateTemplateMutation?.isPending} />
+        <SideBarHeader templateName={templateName} setTemplateName={setTemplateName} handleFormSubmit={handleFormSubmit} isSubmitting={createTemplateMutation?.isPending || updateTemplateMutation?.isPending} />
 
         <TemplateSideBarTabs
           categoryData={categoryData}

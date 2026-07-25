@@ -12,12 +12,11 @@ import MenuTable from './MenuTable'
 import MenuItemForm from './MenuItemForm'
 import { getAllCategory } from '@/service/categories.service'
 import { getAllMenuItems } from '@/service/menuItems.service'
-import { useTranslation } from 'react-i18next'
 
 // Memoize the header component to prevent unnecessary re-renders
-const Header = memo(({ onAddClick, t }) => (
+const Header = memo(({ onAddClick }) => (
   <div className="px-2 pb-2 flex flex-wrap justify-between items-center border-b">
-    <h2 className="text-2xl font-medium">{t('menu_items')}</h2>
+    <h2 className="text-2xl font-medium">Menu Items</h2>
     <div className="flex flex-wrap items-center gap-2">
       <Button
         onClick={onAddClick}
@@ -26,7 +25,7 @@ const Header = memo(({ onAddClick, t }) => (
       >
         <div className="flex items-center gap-1">
           <Plus size={18} />
-          <span className="text-sm whitespace-nowrap">{t('add')} {t('menu_items')}</span>
+          <span className="text-sm whitespace-nowrap">Add Menu Items</span>
         </div>
       </Button>
       <Separator orientation="vertical" className="h-8 bg-gray-300" />
@@ -48,7 +47,6 @@ const MemoizedMenuTable = memo(MenuTable);
 const MemoizedMenuCard = memo(MenuCard);
 
 export default function MenuItemsIndex() {
-  const {t} = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState({ isOpen: false, isEdit: false, data: null, isDirect : false });
   const [activeTab, setActiveTab] = useState("table-view");
 
@@ -77,10 +75,10 @@ export default function MenuItemsIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_menu_item')}: ${error?.err?.message}`);
+      toastError(`Error fetching Menu Item: ${error?.err?.message}`);
     }
     if (categoryError) {
-      toastError(`${t('error_fetching_category')}: ${categoryError?.err?.message}`);
+      toastError(`Error fetching Category: ${categoryError?.err?.message}`);
     }
   }, [error, categoryError]);
 
@@ -110,7 +108,7 @@ export default function MenuItemsIndex() {
         onValueChange={handleTabChange}
         defaultValue="table-view"
       >
-        <Header onAddClick={handleAddMenuItem} t={t} />
+        <Header onAddClick={handleAddMenuItem} />
 
         {/* Render content conditionally based on active tab */}
         {activeTab === "table-view" && (

@@ -11,12 +11,10 @@ import CommonTable from '@/common/Table/CommonTable';
 import CommonTableToolbar from './components/CommonTableToolbar';
 import { useNavigate } from 'react-router';
 import { getAllTemplates } from '@/service/templates.service';
-import { useTranslation } from 'react-i18next';
 import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
 
 export default function TemplateIndex() {
 
-  const {t} = useTranslation();
   const navigate = useNavigate();
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([])
@@ -30,7 +28,7 @@ export default function TemplateIndex() {
 
   useEffect(() => {
     if (error) {
-      toastError(`${t('error_fetching_templates_list')}: ${error?.err?.message}`);
+      toastError(`Error fetching Templates List: ${error?.err?.message}`);
     }
   }, [error]);
 
@@ -48,18 +46,18 @@ export default function TemplateIndex() {
 
   const columns = useMemo(() => [
     {
-      header: t('sr_no'),
+      header: 'Sr No',
       accessorKey: "id",
       colClassName: "w-1/12"
     },
     {
-      header: `${t('templates')} ${t('name')}`,
+      header: `Templates Name`,
       accessorKey: "name",
       colClassName: "w-4/12",
     },
     {
       id: "actions",
-      header: t('actions'),
+      header: 'Actions',
       HeaderClassName: "text-center",
       colClassName: "w-2/12 text-center",
       cell: ({ _, row }) => (
@@ -73,7 +71,7 @@ export default function TemplateIndex() {
         </div>
       ),
     },
-  ], [handleRowClick, handleEdit, t]);
+  ], [handleRowClick, handleEdit]);
 
   const tableData = useMemo(() => {
     return data?.templates || [];
@@ -117,17 +115,17 @@ export default function TemplateIndex() {
         isOpen={selectedRow !== null}
         onClose={handleClose}
         data={selectedRow || {}}
-        title={`${t('templates')} ${t('details')}`}
+        title={`Templates Details`}
       />
 
       <div className="w-full" >
         <div className=" px-2 my-2 flex justify-between items-center">
-          <h2 className='text-2xl font-medium' >{t('templates')}</h2>
+          <h2 className='text-2xl font-medium' >Templates</h2>
           <div className="flex items-center gap-2">
             <Button onClick={() => navigate('../tamplate-editor/new')} size='sm' className='text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500'>
               <div className='flex items-center gap-1 '>
                 <Plus size={18} />
-                <span className='text-sm'>{t('add')} {t('templates')}</span>
+                <span className='text-sm'>Add Templates</span>
               </div>
             </Button>
           </div>
@@ -136,7 +134,7 @@ export default function TemplateIndex() {
           <CommonTableToolbar
             table={tableInstance}
             searchColumnId="name"
-            searchPlaceholder={`${t('filter_by')} ${t('templates')}...`}
+            searchPlaceholder={`Filter By Templates...`}
           />
         </div>
         <div className='border-y border-gray-200'>

@@ -4,7 +4,6 @@ import { DataTableFacetedFilter } from '@/common/Table/data-table-faceted-filter
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from '../../../../common/Table/data-table-view-options';
-import { useTranslation } from 'react-i18next';
 
 const CommonTableToolbar = ({
     table,
@@ -12,10 +11,9 @@ const CommonTableToolbar = ({
     searchColumnId,
     searchPlaceholder,
 }) => {
-    const {t} = useTranslation();
     const isFiltered = table.getState().columnFilters.length > 0;
 
-    const statusOptions = getStatusOptions(t);
+    const statusOptions = getStatusOptions();
 
     return (
         <div className="flex lg:flex-row flex-col lg::items-center justify-between">
@@ -32,7 +30,7 @@ const CommonTableToolbar = ({
                     {table.getColumn("status") && (
                         <DataTableFacetedFilter
                             column={table.getColumn("status")}
-                            title={t('status')}
+                            title="Status"
                             options={statusOptions}
                         />
                     )}
@@ -48,7 +46,7 @@ const CommonTableToolbar = ({
                             }}
                             className="text-red-500 h-8 px-1 lg:px-2 hover:bg-red-100 hover:text-red-700"
                         >
-                            {t('reset')}
+                            Reset
                             <X className="ml-2 h-4 w-4" />
                         </Button>
                     </div>

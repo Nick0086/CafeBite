@@ -10,11 +10,10 @@ import { Button } from '@/components/ui/button';
 import ReusableFormField from '@/common/Form/ReusableFormField';
 import { queryKeyLoopUp, getStatusOptions } from './utils';
 import { createCategory, updateCategory } from '@/service/categories.service';
-import { useTranslation } from 'react-i18next';
 
-const getFormSchema = (t) =>{
+const getFormSchema = () =>{
     return yup.object().shape({
-        name: yup.string().required(t('category_required')),
+        name: yup.string().required('Category is required'),
         status: yup.number().notRequired(),
     });
 }
@@ -26,11 +25,10 @@ const defaultValues = {
 
 export default function CategoriesForm({ open, onHide, isEdit, selectedRow }) {
 
-    const {t} = useTranslation();
     const queryClient = useQueryClient();
-    const statusOptions = getStatusOptions(t);
+    const statusOptions = getStatusOptions();
     const form = useForm({
-        resolver: yupResolver(getFormSchema(t)),
+        resolver: yupResolver(getFormSchema()),
         defaultValues: defaultValues,
     });
 
@@ -52,11 +50,11 @@ export default function CategoriesForm({ open, onHide, isEdit, selectedRow }) {
         mutationFn: createCategory,
         onSuccess: (res) => {
             queryClient.invalidateQueries(queryKeyLoopUp['Category']);
-            toastSuccess(res?.message || `${t('category')} ${categoryName} ${t('created_success')}`);
+            toastSuccess(res?.message || `Category ${categoryName} added successfully`);
             handleModalClose();
         },
         onError: (error) => {
-            toastError(`${'error_creating'} ${t('category')}: ${error?.err?.error}`);
+            toastError(`${'error_creating'} Category: ${error?.err?.error}`);
         }
     });
 
@@ -64,11 +62,11 @@ export default function CategoriesForm({ open, onHide, isEdit, selectedRow }) {
         mutationFn: updateCategory,
         onSuccess: (res) => {
             queryClient.invalidateQueries(queryKeyLoopUp['Category']);
-            toastSuccess(res?.message || `${t('category')} ${categoryName} ${t('updated_success')}`);
+            toastSuccess(res?.message || `Category ${categoryName} updated successfully`);
             handleModalClose();
         },
         onError: (error) => {
-            toastError(`${'error_updating'} ${t('category')}: ${error?.err?.error}`);
+            toastError(`${'error_updating'} Category: ${error?.err?.error}`);
         }
     });
 
@@ -87,7 +85,7 @@ export default function CategoriesForm({ open, onHide, isEdit, selectedRow }) {
                     open && (
                         <>
                             <DialogHeader closeButton className={'p-3 py-2'} >
-                                <DialogTitle>{isEdit ? t('edit_category') : t('create_category')}</DialogTitle>
+                                <DialogTitle>{isEdit ? 'Edit Category' : 'Create Category'}</DialogTitle>
                             </DialogHeader>
 
                             <DialogDescription className='py-2' >
@@ -95,19 +93,19 @@ export default function CategoriesForm({ open, onHide, isEdit, selectedRow }) {
                                     <Form {...form}>
                                         <form onSubmit={form.handleSubmit(handleFormSubmit)} className=" space-y-4 mx-auto">
 
-                                            <ReusableFormField control={form.control} name='name' required={true} label={t('category_name')}  placeholder={t('add_category')} />
+                                            <ReusableFormField control={form.control} name='name' required={true} label="Category Name"  placeholder="Add Category" />
 
                                             {
                                                 isEdit && (
-                                                    <ReusableFormField control={form.control} type='select' name='status'  label={t('status')} options={statusOptions} />
+                                                    <ReusableFormField control={form.control} type='select' name='status'  label="Status" options={statusOptions} />
                                                 )
                                             }
 
                                             <div className='flex items-center gap-4 py-2'>
                                                 <Button type="submit" variant="gradient" disabled={createCategoryMutation?.isPending || updateCategoryMutation?.isPending} isLoading={createCategoryMutation?.isPending || updateCategoryMutation?.isPending}>
-                                                    {t('Submit')}
+                                                    Submit
                                                 </Button>
-                                                <Button type="button" variant="outline" color="ghost" className={`cursor-pointer`} onClick={handleModalClose}>{t('cancel')}</Button>
+                                                <Button type="button" variant="outline" color="ghost" className={`cursor-pointer`} onClick={handleModalClose}>Cancel</Button>
                                             </div>
                                         </form>
                                     </Form>

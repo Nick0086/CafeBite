@@ -8,20 +8,19 @@ import MenuFilters from './components/MenuCardFilters';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { useTranslation } from 'react-i18next';
 import { CachedImage } from '@/components/ui/CachedImage';
 import { imageCache } from '@/services/ImageCacheService';
 import { BlobHealthChecker } from '@/utils/blobHealthCheck';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 
 // Enhanced image component with caching
-const OptimizedImage = memo(({ src, alt, t }) => {
+const OptimizedImage = memo(({ src, alt }) => {
   const { ref, inView } = useInView({ threshold: 0.1, rootMargin: '150px' });
 
   return (
     <div ref={ref} className="w-full h-56 rounded-lg overflow-hidden">
       {inView ? (
-        <CachedImage src={src} alt={alt || t('menu_items')} className="w-full h-full object-cover" width={400} height={224} quality={0.8} lazy={false} placeholder={true} />
+        <CachedImage src={src} alt={alt || 'Menu Items'} className="w-full h-full object-cover" width={400} height={224} quality={0.8} lazy={false} placeholder={true} />
       ) : (
         <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
           <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +32,7 @@ const OptimizedImage = memo(({ src, alt, t }) => {
   );
 });
 
-function StatusBadge({ type, t }) {
+function StatusBadge({ type }) {
   return (
     <TooltipProvider>
       <Tooltip>
@@ -43,7 +42,7 @@ function StatusBadge({ type, t }) {
           </Chip>
         </TooltipTrigger>
         <TooltipContent className='z-50' >
-          <p>{type === "veg" ? t("veg") : t("non_veg")}</p>
+          <p>{type === "veg" ? "Veg" : "Non Veg"}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -51,7 +50,7 @@ function StatusBadge({ type, t }) {
 }
 
 // Individual menu item card with intersection observer and image preloading
-const MenuItem = memo(({ item, setIsModalOpen, t , currencySymbol}) => {
+const MenuItem = memo(({ item, setIsModalOpen, currencySymbol}) => {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true, rootMargin: '100px 0px' });
 
   // Preload image when item comes into view
@@ -69,13 +68,13 @@ const MenuItem = memo(({ item, setIsModalOpen, t , currencySymbol}) => {
       {inView ? (
         <Card className="flex flex-col justify-between overflow-hidden h-full relative">
           <div className='absolute top-2 left-2 z-[1] p-1'>
-            <StatusBadge type={item?.veg_status} t={t} />
+            <StatusBadge type={item?.veg_status} />
           </div>
           <Button onClick={() => { setIsModalOpen((prv) => ({ ...prv, isOpen: true, isEdit: true, data: item, isDirect: false })) }} className='absolute top-2 right-2 z-[1] p-1' variant="primary" size="xs">
             <SquarePen size={16} />
           </Button>
 
-          <OptimizedImage src={item?.image_details?.url} alt={item?.name} t={t} />
+          <OptimizedImage src={item?.image_details?.url} alt={item?.name} />
 
           <CardContent className="flex flex-col flex-auto justify-between p-4 px-2">
             <div className="flex flex-col gap-1">
@@ -86,15 +85,15 @@ const MenuItem = memo(({ item, setIsModalOpen, t , currencySymbol}) => {
               <span className="text-base font-bold flex items-center gap-1">{currencySymbol} {item?.price}</span>
               <div className='flex items-center gap-1'>
                 {item.availability === 'in_stock' ? (
-                  <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
+                  <Chip variant="light" color="green" radius="md" size="xs">In Stock</Chip>
                 ) : (
-                  <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
+                  <Chip variant="light" color="red" radius="md" size="xs">Out of Stock</Chip>
                 )}
                 <Separator orientation='vertical' className='h-5 w-0.5' />
                 {item.status ? (
-                  <Chip variant="light" color="green" radius="md" size="xs">{t("active")}</Chip>
+                  <Chip variant="light" color="green" radius="md" size="xs">Active</Chip>
                 ) : (
-                  <Chip variant="light" color="red" radius="md" size="xs">{t('inactive')}</Chip>
+                  <Chip variant="light" color="red" radius="md" size="xs">Inactive</Chip>
                 )}
               </div>
             </div>
@@ -150,7 +149,6 @@ const useCategoryImagePreloader = (groupedItems) => {
 
 export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOptions }) {
   const {permissions} = useContext(PermissionsContext);
-  const { t } = useTranslation();
   const [menuItems, setMenuItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -241,7 +239,7 @@ export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOpti
   if (menuItems.length === 0) {
     return (
       <div className='flex items-center justify-center w-full h-[60dvh]'>
-        <p className='text-xl font-semibold text-primary'>{t("No_menu_items_found")}</p>
+        <p className='text-xl font-semibold text-primary'>No menu items found</p>
       </div>
     );
   }
@@ -258,18 +256,18 @@ export default function MenuCard({ data, isLoading, setIsModalOpen, categoryOpti
               <div className="h-6 w-1.5 bg-primary rounded-full hidden sm:block"></div>
               <h2 className="text-xl font-semibold">{category}</h2>
               <Chip variant="light" color="slate" radius="md" size="xs">
-                {items.length} {items.length === 1 ? t("item") : t('items')}
+                {items.length} {items.length === 1 ? "Item" : "Items"}
               </Chip>
             </div>
             <Button onClick={() => setIsModalOpen((prev) => ({ ...prev, isDirect: true, isOpen: true, isEdit: false, data: { name: "", description: "", price: "", cover_image: "", category_id: items[0]?.category_id, status: 1, availability: "in_stock" } }))}
               className="!text-xs text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500" size="xs" >
-              <Plus size={14} /> {t("add_to")} {category}
+              <Plus size={14} /> Add to {category}
             </Button>
           </div>
 
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4">
             {items?.map((item) => (
-              <MenuItem key={item.unique_id || item.id} item={item} setIsModalOpen={setIsModalOpen} t={t} currencySymbol={permissions?.currency_symbol} />
+              <MenuItem key={item.unique_id || item.id} item={item} setIsModalOpen={setIsModalOpen} currencySymbol={permissions?.currency_symbol} />
             ))}
           </div>
         </div>

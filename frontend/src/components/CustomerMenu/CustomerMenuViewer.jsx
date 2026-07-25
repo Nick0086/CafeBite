@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils';
 import { Plus, Minus, MapPin, Phone, Mail } from 'lucide-react';
 import { useOrder } from '@/contexts/order-management-context';
 import { useMenuStyles } from './utils';
-import { useTranslation } from 'react-i18next';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 import { Separator } from '../ui/separator';
 
@@ -34,7 +33,6 @@ const OptimizedImage = memo(({ src, alt, currentView }) => {
 });
 
 const MenuItem = memo(({ item, styles, currencyInfo, currentView }) => {
-    const { t } = useTranslation();
     const { ref, inView } = useInView({
         threshold: 0.1,
         triggerOnce: true,
@@ -116,9 +114,9 @@ const MenuItem = memo(({ item, styles, currencyInfo, currentView }) => {
                                 ) : (
                                     <>
                                         {isInStock ? (
-                                            <Chip variant="light" color="green" radius="md" size="xs">{t("In_Stock")}</Chip>
+                                            <Chip variant="light" color="green" radius="md" size="xs">In Stock</Chip>
                                         ) : (
-                                            <Chip variant="light" color="red" radius="md" size="xs">{t("Out_of_Stock")}</Chip>
+                                            <Chip variant="light" color="red" radius="md" size="xs">Out of Stock</Chip>
                                         )}
                                     </>
                                 )
