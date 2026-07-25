@@ -334,7 +334,8 @@ export default function ProfileManagement() {
                                         )}
                                     </div>
                                     <div className="flex items-center justify-center md:justify-start gap-4 mt-3">
-                                        <a
+                                        {/* ponytail: Razorpay links disabled - uncomment when Razorpay is configured */}
+                                        {/* <a
                                             href="https://merchant.razorpay.com/policy/QkdcFCJmy1V0gQ/terms"
                                             className="text-sm text-blue-600"
                                             target="_blank"
@@ -349,7 +350,7 @@ export default function ProfileManagement() {
                                             rel="noopener noreferrer"
                                         >
                                             Contact Us
-                                        </a>
+                                        </a> */}
                                     </div>
                                 </div>
                             </div>
@@ -404,7 +405,8 @@ export default function ProfileManagement() {
                                         </span> : "-"}
                                     </div>
                                     <div className="flex-shrink-0">
-                                        <button
+                                        {/* ponytail: Razorpay renew button disabled - uncomment when Razorpay is configured */}
+                                        {/* <button
                                             type='button'
                                             onClick={() => {
                                                 // Load Razorpay script dynamically
@@ -474,7 +476,7 @@ export default function ProfileManagement() {
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                                         >
                                             Renew Subscription
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             </div>
