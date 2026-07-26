@@ -1,0 +1,28 @@
+import { authApi, handleApiError } from "@/utils/api";
+
+export const getMenuForCustomerByTableId = async ({ userId, tableId }) => {
+    try {
+        const response = await authApi.get(`/customer-menu/template/${userId}/${tableId}`);
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+}
+
+export const getMenuCategoryForConsumer = async (userId) => {
+    try {
+        const response = await authApi.get(`/customer-menu/category/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+}
+
+export const getMenuItemsForConsumer = async (userId) => {
+    try {
+        const response = await authApi.get(`/customer-menu/items/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+}

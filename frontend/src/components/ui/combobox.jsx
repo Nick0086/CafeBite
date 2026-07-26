@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { FormControl } from './form';
 import { Button } from './button';
@@ -30,7 +30,7 @@ export default function Combobox({ options, field, placeholder, disabled, inputC
     }, []);
 
     return (
-        <Popover open={isOpen} onOpenChange={(e) => {
+        <Popover open={isOpen} onOpenChange={() => {
             setIsOpen(!isOpen)
         }}  >
             <PopoverTrigger asChild>

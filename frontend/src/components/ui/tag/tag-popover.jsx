@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TagList } from './tag-list';
 
-
 export const TagPopover = ({ children, tags, customTagRenderer, activeTagIndex, setActiveTagIndex, ...tagProps }) => {
     const triggerRef = useRef(null);
     const [popoverWidth, setPopoverWidth] = useState(undefined);

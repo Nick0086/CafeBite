@@ -1,11 +1,9 @@
-import React from 'react';
 import { Tooltip } from 'react-tooltip';
 import { flexRender } from '@tanstack/react-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
-
-export default function CommonTable({
+export function CommonTable({
     table, //  it is required
     tableStyle,
     tableHeadStyle,
@@ -34,7 +32,7 @@ export default function CommonTable({
                                         header.column.columnDef.HeaderClassName
                                     )}
                                     colSpan={header.colSpan}
-                                    onClick={header?.column?.columnDef?.isSort ? header.column.getToggleSortingHandler() : () => console.log("Not Allowed")}
+                                    onClick={header?.column?.columnDef?.isSort ? header.column.getToggleSortingHandler() : undefined}
                                     data-tooltip-id={header.column.columnDef.headerTooltipText ? `tooltip-${header.id}` : undefined}
                                     data-tooltip-content={header.column.columnDef.headerTooltipText}
                                     data-tooltip-place={header.column.columnDef.headerTooltipPlacement ?? tooltipPlacement}
@@ -68,7 +66,7 @@ export default function CommonTable({
                                 className={cn(
                                     tableBodyRowStyle,
                                     selectRow && selectRow === row.original.unique_id && 'outline outline-1 outline-indigo-300 bg-indigo-50 hover:bg-indigo-50',
-                                    index % 2 === 0 ? stripedStyleTrue ?? 'bg-[#ededed]' : ''
+                                    index % 2 === 0 && stripedStyleTrue ? 'bg-[#ededed]' : ''
                                 )}
                             >
                                 {row.getVisibleCells().map((cell) => (

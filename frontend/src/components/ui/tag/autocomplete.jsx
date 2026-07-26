@@ -3,7 +3,6 @@ import { Command, CommandList, CommandItem, CommandGroup, CommandEmpty } from '@
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-
 export const Autocomplete = ({
     tags,
     setTags,

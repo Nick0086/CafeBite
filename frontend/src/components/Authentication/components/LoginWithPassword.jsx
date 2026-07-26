@@ -1,91 +1,45 @@
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-
-// Components
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import ReusableFormField from '@/common/Form/ReusableFormField';
+import { ReusableFormField } from '@/common/Form/ReusableFormField';
+import { toastSuccess } from '@/utils/toast-utils';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import {
+    usePasswordLoginMutation,
+    useSendOtpMutation,
+} from '../hooks/useLoginMutations';
+import { requestPasswordReset } from '@/service/auth.service';
+import { loginIdDisplayMap } from '../constants/auth.constants';
 
-// Services and Utilities
-import { requestPasswordReset, verifyUserPassword } from '@/service/auth.service';
-import { toastError, toastSuccess } from '@/utils/toast-utils';
-import { useNavigate } from 'react-router';
+const INITIAL_ERROR_STATE = { error: false, message: '' };
 
-// Constants
-const INITIAL_ERROR_STATE = {
-    error: false,
-    message: ''
+const formatError = (error) => {
+    if (error?.err?.status === 404 || error?.err?.status === 401) {
+        return error?.err?.message;
+    }
+    return error?.err?.error || error?.err?.message || 'Something went wrong';
 };
 
-const LOGIN_ID_MAP = {
-    EMAIL: 'email',
-    MOBILE: 'sms/whatsapp'
-};
+function useSilentRequestPasswordResetMutation() {
+    return useMutation({ mutationFn: requestPasswordReset });
+}
 
-export default function LoginWithPassword({
-    form,
-    onChangeLoginWithOption,
-    loginId,
-    loginType,
-}) {
+export default function LoginWithPassword({ form, onChangeLoginWithOption, loginId, loginType }) {
     const [errors, setErrors] = useState(INITIAL_ERROR_STATE);
-    const navigate = useNavigate();
 
-    const loginWithPasswordMutation = useMutation({
-        mutationFn: verifyUserPassword,
+    const loginMutation = usePasswordLoginMutation();
 
-        onSuccess: (res) => {
-            window.localStorage.setItem('accessToken', res?.sessionId?.accessToken);
-            window.localStorage.setItem('refreshToken', res?.sessionId?.refreshToken);
-            toastSuccess('Login Successful');
-            navigate(`/`);
-        },
-        onError: (error) => {
-            console.error("Error in verifying login id:", error);
-            toastError(`Error in verifying login id: ${JSON.stringify(error)}`);
-
-            const errorMessage =
-                error?.err?.status === 404 || error?.err?.status === 401
-                    ? error?.err?.message
-                    : error?.err?.error || 'Something went wrong';
-
-            setErrors(prev => ({
-                ...prev,
-                error: true,
-                message: errorMessage
-            }));
-        }
+    const sendOtpMutation = useSendOtpMutation({
+        onSuccess: () => onChangeLoginWithOption(true),
     });
 
-    const forgotPasswordMutation = useMutation({
-        mutationFn: requestPasswordReset,
-        onSuccess: () => {
-            toastSuccess(`Reset Password Link Send Successfully on ${loginId}`);
-        },
-        onError: (error) => {
-            console.error("Error in send Reset Password Link:", error);
-            toastError(`Error in send Reset Password Link: ${JSON.stringify(error)}`);
-
-            const errorMessage =
-                error?.err?.status === 404 || error?.err?.status === 401
-                    ? error?.err?.message
-                    : error?.err?.error || 'Something went wrong';
-
-            setErrors(prev => ({
-                ...prev,
-                error: true,
-                message: errorMessage
-            }));
-        }
-    });
+    const forgotPasswordMutation = useSilentRequestPasswordResetMutation();
 
     const onSubmitForm = (data) => {
-        loginWithPasswordMutation.mutate({ ...data, loginId, loginType });
+        loginMutation.mutate({ ...data, loginId, loginType });
     };
 
-    const resetError = () => {
-        setErrors(INITIAL_ERROR_STATE);
-    };
+    const resetError = () => setErrors(INITIAL_ERROR_STATE);
 
     return (
         <Form {...form}>
@@ -99,9 +53,10 @@ export default function LoginWithPassword({
                         labelClassName='text-xs'
                         placeholder='Email Address'
                         className='w-full'
-                        disabled={loginWithPasswordMutation?.isPending || onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}
-                        onValueChange={(e) => {
+                        disabled={loginMutation.isPending || sendOtpMutation.isPending || forgotPasswordMutation.isPending}
+                        onValueChange={() => {
                             form.clearErrors('loginId');
+                            resetError();
                         }}
                     />
                 </div>
@@ -112,13 +67,13 @@ export default function LoginWithPassword({
                         name='password'
                         type='password'
                         label='Password'
-                        disabled={loginWithPasswordMutation?.isPending || onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}
+                        disabled={loginMutation.isPending || sendOtpMutation.isPending || forgotPasswordMutation.isPending}
                         labelClassName='text-xs'
                         onValueChange={resetError}
                     />
 
                     {errors?.error && (
-                        <div className='text-status-danger text-[0.8rem] font-medium '>
+                        <div className='text-status-danger text-[0.8rem] font-medium'>
                             {errors.message}
                         </div>
                     )}
@@ -126,9 +81,9 @@ export default function LoginWithPassword({
 
                 <Button
                     className='w-full'
-                    variant="primary"
-                    disabled={loginWithPasswordMutation?.isPending || onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}
-                    isLoading={loginWithPasswordMutation?.isPending}
+                    variant='primary'
+                    disabled={loginMutation.isPending || sendOtpMutation.isPending || forgotPasswordMutation.isPending}
+                    isLoading={loginMutation.isPending}
                     type='submit'
                     loadingText=' '
                 >
@@ -139,39 +94,42 @@ export default function LoginWithPassword({
                     <Button
                         onClick={() => {
                             if (loginId && loginType !== '') {
-                                onChangeLoginWithOption.mutate({ loginId, loginType })
+                                sendOtpMutation.mutate({ loginId, loginType });
                             } else {
-                                //trigger error
                                 form.trigger('loginId');
                             }
                         }}
                         type='button'
-                        variant="none"
-                        size="sm"
-                        isLoading={onChangeLoginWithOption.isPending}
+                        variant='none'
+                        size='sm'
+                        isLoading={sendOtpMutation.isPending}
                         loadingText=' '
-                        disabled={onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}
-                        className="text-brand-primary hover:text-brand-primary-foreground font-semibold p-0"
+                        disabled={sendOtpMutation.isPending || forgotPasswordMutation.isPending}
+                        className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
                     >
-                        Sign in using {LOGIN_ID_MAP[loginType]} OTP
+                        Sign in using {loginIdDisplayMap[loginType]} OTP
                     </Button>
 
                     <Button
                         type='button'
-                        variant="none"
-                        size="sm"
+                        variant='none'
+                        size='sm'
                         onClick={() => {
                             if (loginId && loginType !== '') {
-                                forgotPasswordMutation.mutate(loginId)
+                                forgotPasswordMutation.mutate(loginId, {
+                                    onSuccess: () => {
+                                        toastSuccess(`Reset Password Link Send Successfully on ${loginId}`);
+                                    },
+                                    onError: (error) => setErrors({ error: true, message: formatError(error) }),
+                                });
                             } else {
-                                //trigger error
                                 form.trigger('loginId');
                             }
                         }}
                         loadingText=' '
                         isLoading={forgotPasswordMutation.isPending}
-                        disabled={onChangeLoginWithOption.isPending || forgotPasswordMutation.isPending}
-                        className="text-brand-primary hover:text-brand-primary-foreground font-semibold p-0"
+                        disabled={sendOtpMutation.isPending || forgotPasswordMutation.isPending}
+                        className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
                     >
                         Forgot Password?
                     </Button>

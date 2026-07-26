@@ -1,128 +1,136 @@
-import React, { useCallback, useState, memo, useEffect, useMemo } from 'react'
-import { LayoutGrid, List, Plus } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
-import { menuQueryKeyLoopUp } from './utils'
-import { queryKeyLoopUp } from '../Categories/utils'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { toastError } from '@/utils/toast-utils'
-import MenuCard from './MenuCard'
-import MenuTable from './MenuTable'
-import MenuItemForm from './MenuItemForm'
-import { getAllCategory } from '@/service/categories.service'
-import { getAllMenuItems } from '@/service/menuItems.service'
+import { memo, useCallback, useMemo, useState } from 'react';
+import { LayoutGrid, List, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
+import MenuCard from './MenuCard';
+import MenuItemsTable from './components/MenuItemsTable';
+import MenuItemForm from './components/MenuItemsForm';
+import { useCategoryOptions, useMenuItemList } from './hooks/useMenuItemsData';
 
-// Memoize the header component to prevent unnecessary re-renders
-const Header = memo(({ onAddClick }) => (
-  <div className="px-2 pb-2 flex flex-wrap justify-between items-center border-b">
-    <h2 className="text-2xl font-medium">Menu Items</h2>
-    <div className="flex flex-wrap items-center gap-2">
-      <Button
-        onClick={onAddClick}
-        size="sm"
-        className="text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500"
-      >
-        <div className="flex items-center gap-1">
-          <Plus size={18} />
-          <span className="text-sm whitespace-nowrap">Add Menu Items</span>
+const ViewToggleButton = memo(function ViewToggleButton({ active, onClick, children, label }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            aria-label={label}
+            aria-pressed={active}
+            className={cn('p-1.5 rounded', active ? 'bg-background shadow' : 'text-muted-foreground')}
+        >
+            {children}
+        </button>
+    );
+});
+
+const Header = memo(function Header({ onAddClick, activeView, onViewChange }) {
+    return (
+        <div className="px-2 pb-2 flex flex-wrap justify-between items-center border-b">
+            <h2 className="text-2xl font-medium">Menu Items</h2>
+            <div className="flex flex-wrap items-center gap-2">
+                <Button
+                    onClick={onAddClick}
+                    size="sm"
+                    className="text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500"
+                >
+                    <div className="flex items-center gap-1">
+                        <Plus size={18} />
+                        <span className="text-sm whitespace-nowrap">Add Menu Item</span>
+                    </div>
+                </Button>
+                <Separator orientation="vertical" className="h-8 bg-gray-300" />
+                <div className="bg-muted rounded-md p-1 flex items-center gap-1">
+                    <ViewToggleButton
+                        active={activeView === 'table-view'}
+                        onClick={() => onViewChange('table-view')}
+                        label="Table view"
+                    >
+                        <List size={20} />
+                    </ViewToggleButton>
+                    <ViewToggleButton
+                        active={activeView === 'card-view'}
+                        onClick={() => onViewChange('card-view')}
+                        label="Card view"
+                    >
+                        <LayoutGrid size={20} />
+                    </ViewToggleButton>
+                </div>
+            </div>
         </div>
-      </Button>
-      <Separator orientation="vertical" className="h-8 bg-gray-300" />
-      <TabsList className="bg-muted rounded-md p-1">
-        <TabsTrigger value="table-view" className="p-1.5">
-          <List size={20} />
-        </TabsTrigger>
-        <Separator orientation="vertical" className="h-6 bg-gray-300" />
-        <TabsTrigger value="card-view" className="p-1.5">
-          <LayoutGrid size={20} />
-        </TabsTrigger>
-      </TabsList>
-    </div>
-  </div>
-));
+    );
+});
 
-// Memoize the content components
-const MemoizedMenuTable = memo(MenuTable);
+const MemoizedMenuTable = memo(MenuItemsTable);
 const MemoizedMenuCard = memo(MenuCard);
 
 export default function MenuItemsIndex() {
-  const [isModalOpen, setIsModalOpen] = useState({ isOpen: false, isEdit: false, data: null, isDirect : false });
-  const [activeTab, setActiveTab] = useState("table-view");
+    const [formModal, setFormModal] = useState({ open: false, mode: null, data: null, isDirect: false });
+    const [activeView, setActiveView] = useState('table-view');
 
-  const handleModalClose = useCallback(() => {
-    setIsModalOpen((prv) => ({ ...prv, isOpen: false, isEdit: false, data: null , isDirect : false}));
-  }, []);
+    const { data, isLoading } = useMenuItemList();
+    const { data: categoryData, isLoading: categoryIsLoading } = useCategoryOptions();
 
-  const handleAddMenuItem = useCallback(() => {
-    setIsModalOpen((prv) => ({ ...prv, isOpen: true, isEdit: false, data: null , isDirect : false}));
-  }, []);
+    const handleAddMenuItem = useCallback(() => {
+        setFormModal({ open: true, mode: 'create', data: null, isDirect: false });
+    }, []);
 
-  const handleTabChange = useCallback((value) => {
-    setActiveTab(value);
-  }, []);
+    const closeForm = useCallback(() => {
+        setFormModal({ open: false, mode: null, data: null, isDirect: false });
+    }, []);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: [menuQueryKeyLoopUp['item']],
-    queryFn: getAllMenuItems,
-  });
+    const handleEdit = useCallback((row) => {
+        setFormModal({ open: true, mode: 'edit', data: row, isDirect: false });
+    }, []);
 
-  // Fetch categories
-  const { data: categoryData, isLoading: categoryIsLoading, error: categoryError } = useQuery({
-    queryKey: [queryKeyLoopUp['Category']],
-    queryFn: getAllCategory,
-  });
+    const handleViewChange = useCallback((view) => {
+        setActiveView(view);
+    }, []);
 
-  useEffect(() => {
-    if (error) {
-      toastError(`Error fetching Menu Item: ${error?.err?.message}`);
-    }
-    if (categoryError) {
-      toastError(`Error fetching Category: ${categoryError?.err?.message}`);
-    }
-  }, [error, categoryError]);
+    const categoryOptions = useMemo(
+        () =>
+            (categoryData?.categories || []).map((c) => ({
+                value: c?.name,
+                label: c?.name,
+            })),
+        [categoryData]
+    );
 
-    const categoryOptions = useMemo(() => {
-      if (categoryData) {
-        const categories = categoryData?.categories || [];
-        return categories?.map((category) => ({
-          value: category?.name,
-          label: category?.name,
-        }));
-      }
-      return [];
-    }, [categoryData]);
+    return (
+        <div className="w-full">
+            <MenuItemForm
+                open={formModal.open}
+                isEdit={formModal.mode === 'edit'}
+                selectedRow={formModal.data}
+                isDirect={formModal.isDirect}
+                onHide={closeForm}
+            />
 
-  return (
-    <div className="w-full">
-      <MenuItemForm
-        open={isModalOpen?.isOpen}
-        isEdit={isModalOpen?.isEdit}
-        selectedRow={isModalOpen?.data}
-        onHide={handleModalClose}
-        isDireact={isModalOpen?.isDirect}
-      />
+            <Tabs value={activeView} onValueChange={handleViewChange}>
+                <Header onAddClick={handleAddMenuItem} activeView={activeView} onViewChange={handleViewChange} />
 
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        defaultValue="table-view"
-      >
-        <Header onAddClick={handleAddMenuItem} />
+                {activeView === 'table-view' && (
+                    <TabsContent value="table-view" className="mt-0" forceMount>
+                        <MemoizedMenuTable
+                            data={data}
+                            isLoading={isLoading}
+                            categoryOptions={categoryOptions}
+                            categoryIsLoading={categoryIsLoading}
+                            onEdit={handleEdit}
+                        />
+                    </TabsContent>
+                )}
 
-        {/* Render content conditionally based on active tab */}
-        {activeTab === "table-view" && (
-          <TabsContent value="table-view" className='mt-0' forceMount>
-            <MemoizedMenuTable data={data || []} isLoading={isLoading} categoryOptions={categoryOptions} setIsModalOpen={setIsModalOpen} categoryIsLoading={categoryIsLoading}/>
-          </TabsContent>
-        )}
-
-        {activeTab === "card-view" && (
-          <TabsContent value="card-view" forceMount >
-            <MemoizedMenuCard data={data || []} isLoading={isLoading} categoryOptions={categoryOptions} setIsModalOpen={setIsModalOpen} categoryIsLoading={categoryIsLoading}/>
-          </TabsContent>
-        )}
-      </Tabs>
-    </div>
-  );
+                {activeView === 'card-view' && (
+                    <TabsContent value="card-view" forceMount>
+                        <MemoizedMenuCard
+                            data={data}
+                            isLoading={isLoading}
+                            categoryOptions={categoryOptions}
+                            setIsModalOpen={setFormModal}
+                        />
+                    </TabsContent>
+                )}
+            </Tabs>
+        </div>
+    );
 }

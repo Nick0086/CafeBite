@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { imageCache } from '@/services/ImageCacheService';
+import { imageCache } from '@/lib/ImageCacheService';
 
 export const useMenuImagePreloader = (menuItems, options = {}) => {
     const {
@@ -77,12 +77,14 @@ export const useMenuImagePreloader = (menuItems, options = {}) => {
         } else if (priority === 'all') {
             preloadMenuItemImages();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [preloadMenuItemImages, priority, preloadDelay]);
 
     // Cleanup on unmount
     useEffect(() => {
+        const ref = preloadedRef.current;
         return () => {
-            preloadedRef.current.clear();
+            ref.clear();
         };
     }, []);
 

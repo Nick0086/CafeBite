@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { imageCache } from '@/services/ImageCacheService';
+import { imageCache } from '@/lib/ImageCacheService';
 import { ImagePlaceholder } from './Iimage-placeholder';
 import { cn } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ const CachedImage = memo(({src,
     quality = 0.8,
     placeholder = true,
     lazy = true,
-    showCacheStatus = process.env.NODE_ENV === 'development',
+    showCacheStatus = import.meta.env.DEV,
     onLoad,
     onError,
     currentView,

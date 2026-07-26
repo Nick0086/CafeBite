@@ -1,4 +1,3 @@
-import React from 'react';
 import './sqaureLoader.css';
 import { cn } from '@/lib/utils';
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,7 +18,7 @@ import { TagInput } from '@/components/ui/tag/tag-input';
 import Combobox from '@/components/ui/combobox';
 
 
-const ReusableFormField = ({
+export const ReusableFormField = ({
     control,
     name,
     label,
@@ -40,10 +40,10 @@ const ReusableFormField = ({
     readonly = false,
     tooltipText = '',
     isencryptAES = false,
-    decryptAESFunction = {},
+    decryptAESFunction = (v) => v,
     radioLabelClassName,
     radioGroupBodyClassName,
-    coustomValue,
+    customValue,
     textAreaClassName = '',
     activeTagIndex,
     setActiveTagIndex
@@ -95,7 +95,7 @@ const ReusableFormField = ({
                         <FormControl className={cn("", inputClassName)}>
                             <SelectTrigger isLoading={isLoading}>
                                 {
-                                    coustomValue ?? <SelectValue placeholder={placeholder} />
+                                    customValue ?? <SelectValue placeholder={placeholder} />
                                 }
 
                             </SelectTrigger>
@@ -359,4 +359,3 @@ const ReusableFormField = ({
     );
 };
 
-export default ReusableFormField;

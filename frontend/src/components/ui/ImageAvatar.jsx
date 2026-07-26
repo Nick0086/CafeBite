@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, ZoomIn, ZoomOut, Save, Move, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'react-toastify';
 
@@ -13,11 +13,8 @@ const ImageAvatar = ({ s3ImageUrl, onImageUpload, onDeleteImage }) => {
     const fileInputRef = useRef(null);
     const containerRef = useRef(null); // Ref for the container div
     const dragStartRef = useRef({ x: 0, y: 0 }); // Store initial drag position
-    const MOVE_STEP = 10; // Pixels to move per button click
-
     // Handle image upload
     const handleImageUpload = (e) => {
-        console.log(e);
         const file = e.target.files[0];
         const maxSize = 5 * 1024 * 1024; // 5 MB
 
@@ -34,56 +31,6 @@ const ImageAvatar = ({ s3ImageUrl, onImageUpload, onDeleteImage }) => {
         } else if (file) {
             toast.warning("Please upload an image less than 5 MB.");
         }
-    };
-
-    // Zoom in function
-    const handleZoomIn = () => {
-        setZoomLevel((prev) => Math.min(prev + 0.2, 3));
-    };
-
-    // Zoom out function
-    const handleZoomOut = () => {
-        setZoomLevel((prev) => Math.max(prev - 0.2, 1));
-    };
-
-    // Toggle dragging mode
-    const toggleDragging = () => {
-        setIsDraggingEnabled((prev) => !prev);
-    };
-
-    // Move image functions
-    const moveImage = (direction) => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const imgWidth = container.offsetWidth * (zoomLevel / 2);
-        const imgHeight = container.offsetHeight * (zoomLevel / 2);
-        const maxX = (imgWidth - container.offsetWidth) / 2;
-        const maxY = (imgHeight - container.offsetHeight) / 2;
-
-        setPosition((prev) => {
-            let newX = prev.x;
-            let newY = prev.y;
-
-            switch (direction) {
-                case 'right':
-                    newX = Math.min(maxX, prev.x + MOVE_STEP);
-                    break;
-                case 'left':
-                    newX = Math.max(-maxX, prev.x - MOVE_STEP);
-                    break;
-                case 'up':
-                    newY = Math.max(-maxY, prev.y - MOVE_STEP);
-                    break;
-                case 'down':
-                    newY = Math.min(maxY, prev.y + MOVE_STEP);
-                    break;
-                default:
-                    break;
-            }
-
-            return { x: newX, y: newY };
-        });
     };
 
     // Trigger file input
@@ -147,7 +94,7 @@ const ImageAvatar = ({ s3ImageUrl, onImageUpload, onDeleteImage }) => {
     };
 
     // Handle click on container
-    const handleContainerClick = (e) => {
+    const handleContainerClick = () => {
         if (!isDragging && !isDraggingEnabled) {
             triggerFileInput();
         }

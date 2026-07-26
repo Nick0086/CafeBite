@@ -1,4 +1,3 @@
-import React from 'react'
 import './SlackLoader.css'
 
 const SlackLoader = () => {

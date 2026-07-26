@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import tailwindcssAnimate from 'tailwindcss-animate';
+
 export default {
 	darkMode: ["class"],
 	content: [
@@ -8,7 +10,8 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				'geist': ['Geist', 'serif'],
+				geist: ['"Geist Sans Variable"', 'sans-serif'],
+				'geist-mono': ['"Geist Mono Variable"', 'monospace'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -21,10 +24,6 @@ export default {
 				"surface-background": "hsl(var(--surface-background))",
 				background: "hsl(var(--background))",
 				foreground: "hsl(var(--foreground))",
-
-				/* Text Colors */
-				"primary": "hsl(var(--text-primary))",
-				"secondary": "hsl(var(--text-secondary))",
 
 				/* Brand / Primary Colors */
 				"brand-primary": "hsl(var(--brand-primary))",
@@ -56,10 +55,10 @@ export default {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
 				},
-				// secondary: {
-				// 	DEFAULT: 'hsl(var(--secondary))',
-				// 	foreground: 'hsl(var(--secondary-foreground))'
-				// },
+				secondary: {
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
+				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
 					foreground: 'hsl(var(--muted-foreground))'
@@ -71,19 +70,6 @@ export default {
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				boxShadow: {
-					'custom-bold': '0 0.46875rem 2.1875rem rgba(90,97,105,.1), 0 0.9375rem 1.40625rem rgba(90,97,105,.1), 0 0.25rem 0.53125rem rgba(90,97,105,.12), 0 0.125rem 0.1875rem rgba(90,97,105,.1)',
-					'custom': '0 0.375rem 1.75rem rgba(90,97,105,.03),0 0.75rem 1.125rem rgba(90,97,105,.03),0 0.1875rem 0.40625rem rgba(90,97,105,.1),0 0.0625rem 0.15625rem rgba(90,97,105,.03)',
-					'custom-medium': '0 0.375rem 1.75rem rgba(90,97,105,.03),0 0.75rem 1.125rem rgba(90,97,105,.03),0 0.1875rem 0.40625rem rgba(90,97,105,.1),0 0.0625rem 0.15625rem rgba(90,97,105,.03)',
-					'custom-blue': '0 2px 6px #82d3f8',
-					'custom-green': '0 2px 6px #8edc9c',
-					'custom-red': '0 2px 6px #fd9b96',
-					'custom-bark': '0 2px 6px #728394',
-					'custom-war': '0 2px 6px #ffc473',
-					'custom-pri': '0 2px 6px #acb5f6',
-					'custom-purpul': '0 2px 8px -3px #7b5295',
-					'custom-gray': '0 2px 6px #E9ECEF'
 				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -105,6 +91,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			boxShadow: {
+				'custom-bold': '0 0.46875rem 2.1875rem rgba(90,97,105,.1), 0 0.9375rem 1.40625rem rgba(90,97,105,.1), 0 0.25rem 0.53125rem rgba(90,97,105,.12), 0 0.125rem 0.1875rem rgba(90,97,105,.1)',
+				'custom': '0 0.375rem 1.75rem rgba(90,97,105,.03),0 0.75rem 1.125rem rgba(90,97,105,.03),0 0.1875rem 0.40625rem rgba(90,97,105,.1),0 0.0625rem 0.15625rem rgba(90,97,105,.03)',
+				'custom-medium': '0 0.375rem 1.75rem rgba(90,97,105,.03),0 0.75rem 1.125rem rgba(90,97,105,.03),0 0.1875rem 0.40625rem rgba(90,97,105,.1),0 0.0625rem 0.15625rem rgba(90,97,105,.03)',
+				'custom-blue': '0 2px 6px hsl(199 90% 74%)',
+				'custom-green': '0 2px 6px hsl(107 44% 71%)',
+				'custom-red': '0 2px 6px hsl(3 95% 80%)',
+				'custom-bark': '0 2px 6px hsl(213 17% 52%)',
+				'custom-war': '0 2px 6px hsl(37 100% 59%)',
+				'custom-pri': '0 2px 6px hsl(233 86% 84%)',
+				'custom-purpul': '0 2px 8px -3px hsl(271 52% 46%)',
+				'custom-gray': '0 2px 6px hsl(210 17% 93%)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -130,5 +129,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 }

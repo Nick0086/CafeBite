@@ -13,7 +13,7 @@ export const registerUser = async (userData) => {
     }
 }
 
-export const updateClinetProfile = async (userData) => {
+export const updateClientProfile = async (userData) => {
     try {
         const response = await api.put('/client/update-client-profile', userData, {
             headers: {

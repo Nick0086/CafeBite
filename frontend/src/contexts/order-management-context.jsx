@@ -1,15 +1,12 @@
-// First, add a function to send the order to the server in your order-management-context.js file
-import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import moment from "moment";
+import { createContext, useContext, useReducer, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { format } from "date-fns";
+import { authApi, handleApiError } from '@/utils/api';
+import { toastError, toastSuccess } from '@/utils/toast-utils';
 
+const OrderStateContext = createContext(null);
+const OrderDispatchContext = createContext(null);
+const OrderHistoryContext = createContext(null);
 
-// Order context for state management
-const OrderContext = createContext();
-const OrderHistoryContext = createContext();
-
-
-// Initial state
 const initialState = {
     orderItems: [],
     total: 0,
@@ -17,7 +14,17 @@ const initialState = {
     isSubmitting: false
 };
 
-// Order reducer
+function readPersistedOrder() {
+    if (typeof window === 'undefined') return [];
+    try {
+        const raw = localStorage.getItem('restaurantOrder');
+        const parsed = raw ? JSON.parse(raw) : null;
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
+
 function orderReducer(state, action) {
     switch (action.type) {
         case 'ADD_ITEM': {
@@ -26,7 +33,6 @@ function orderReducer(state, action) {
             );
 
             if (existingItemIndex > -1) {
-                // Item exists, update quantity
                 const updatedItems = [...state.orderItems];
                 updatedItems[existingItemIndex] = {
                     ...updatedItems[existingItemIndex],
@@ -39,7 +45,6 @@ function orderReducer(state, action) {
                     total: calculateTotal(updatedItems)
                 };
             } else {
-                // New item
                 const newItem = { ...action.payload, quantity: 1 };
 
                 return {
@@ -59,13 +64,11 @@ function orderReducer(state, action) {
                 const updatedItems = [...state.orderItems];
 
                 if (updatedItems[existingItemIndex].quantity > 1) {
-                    // Reduce quantity
                     updatedItems[existingItemIndex] = {
                         ...updatedItems[existingItemIndex],
                         quantity: updatedItems[existingItemIndex].quantity - 1
                     };
                 } else {
-                    // Remove item
                     updatedItems.splice(existingItemIndex, 1);
                 }
 
@@ -102,194 +105,179 @@ function orderReducer(state, action) {
     }
 }
 
-// Helper function to calculate total
 function calculateTotal(items) {
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 }
 
-// Order Provider component
-export const OrderProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(orderReducer, initialState);
+export const submitOrderRequest = async (payload, { signal } = {}) => {
+    try {
+        const response = await authApi.post('/orders', payload, { signal });
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+};
 
-    // Save order to localStorage
+export const OrderProvider = ({ children }) => {
+    const [state, dispatch] = useReducer(orderReducer, initialState, (init) => {
+        const restored = readPersistedOrder();
+        return { ...init, orderItems: restored, total: calculateTotal(restored) };
+    });
+    const abortRef = useRef(null);
+
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (typeof window === 'undefined') return;
+        try {
             localStorage.setItem('restaurantOrder', JSON.stringify(state.orderItems));
+        } catch (error) {
+            console.warn('Order persistence failed:', error);
         }
     }, [state.orderItems]);
 
-    // Load order from localStorage on mount
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedOrder = localStorage.getItem('restaurantOrder');
-            if (savedOrder) {
-                const parsedOrder = JSON.parse(savedOrder);
-                parsedOrder.forEach(item => {
-                    dispatch({ type: 'ADD_ITEM', payload: item });
-                });
-            }
-        }
+    useEffect(() => () => {
+        abortRef.current?.abort();
     }, []);
 
-    const addItem = (item) => {
+    const addItem = useCallback((item) => {
         dispatch({ type: 'ADD_ITEM', payload: item });
-        toast({
-            title: "Item added",
-            description: `${item.name} added to your order`,
-            duration: 2000,
-        });
-    };
+        toastSuccess(`${item.name} added to your order`);
+    }, []);
 
-    const removeItem = (item) => {
+    const removeItem = useCallback((item) => {
         dispatch({ type: 'REMOVE_ITEM', payload: item });
-    };
+    }, []);
 
-    const clearOrder = () => {
+    const clearOrder = useCallback(() => {
         dispatch({ type: 'CLEAR_ORDER' });
-    };
+    }, []);
 
-    const toggleOrderDrawer = () => {
+    const toggleOrderDrawer = useCallback(() => {
         dispatch({ type: 'TOGGLE_ORDER_DRAWER' });
-    };
+    }, []);
 
-    // New function to submit the order
-    const submitOrder = async (tableId, restaurantId) => {
-        // Don't submit if no items
+    const submitOrder = useCallback(async (tableId, restaurantId) => {
         if (state.orderItems.length === 0) {
-            toast({
-                title: "Error",
-                description: "Cannot place an empty order",
-                status: "error",
-                duration: 3000,
-            });
+            toastError('Cannot place an empty order');
             return;
         }
 
+        if (state.isSubmitting) return;
+
         dispatch({ type: 'SET_SUBMITTING', payload: true });
+        abortRef.current?.abort();
+        abortRef.current = new AbortController();
+
+        const orderData = {
+            restaurantId,
+            tableId,
+            items: state.orderItems.map(item => ({
+                itemId: item.id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                veg_status: item.veg_status
+            })),
+            total: state.total
+        };
 
         try {
-            // Format the order data
-            const orderData = {
-                restaurantId,
-                tableId,
-                items: state.orderItems.map(item => ({
-                    itemId: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    veg_status: item.veg_status
-                })),
-                total: state.total
-            };
-
-            // Make API call to submit order
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to place order');
-            }
-
-            const data = await response.json();
-
-            // Clear the order after successful submission
+            const data = await submitOrderRequest(orderData, { signal: abortRef.current.signal });
             clearOrder();
-
-            // Close the drawer
             toggleOrderDrawer();
-
-            // Show success message
-            toast({
-                title: "Order placed",
-                description: `Your order has been submitted successfully. Order ID: ${data.orderId}`,
-                status: "success",
-                duration: 5000,
-            });
-        } catch (error) {
-            console.error('Error placing order:', error);
-            toast({
-                title: "Error",
-                description: "Failed to place your order. Please try again.",
-                status: "error",
-                duration: 3000,
-            });
+            toastSuccess(`Order placed successfully. Order ID: ${data?.orderId ?? ''}`);
+        } catch (err) {
+            if (err?.name === 'CanceledError' || err?.name === 'AbortError') return;
+            toastError(err?.err?.message || 'Failed to place your order. Please try again.');
         } finally {
             dispatch({ type: 'SET_SUBMITTING', payload: false });
         }
-    };
+    }, [state.orderItems, state.total, state.isSubmitting, clearOrder, toggleOrderDrawer]);
+
+    const dispatchValue = useMemo(() => ({
+        addItem,
+        removeItem,
+        clearOrder,
+        toggleOrderDrawer,
+        submitOrder,
+    }), [addItem, removeItem, clearOrder, toggleOrderDrawer, submitOrder]);
 
     return (
-        <OrderContext.Provider
-            value={{
-                ...state,
-                addItem,
-                removeItem,
-                clearOrder,
-                toggleOrderDrawer,
-                submitOrder
-            }}
-        >
-            {children}
-        </OrderContext.Provider>
+        <OrderStateContext.Provider value={state}>
+            <OrderDispatchContext.Provider value={dispatchValue}>
+                {children}
+            </OrderDispatchContext.Provider>
+        </OrderStateContext.Provider>
     );
 };
 
-// Custom hook for using the order context
-export const useOrder = () => {
-    const context = useContext(OrderContext);
-    if (!context) {
-        throw new Error('useOrder must be used within an OrderProvider');
-    }
-    return context;
+export const useOrderState = () => {
+    const ctx = useContext(OrderStateContext);
+    if (!ctx) throw new Error('useOrderState must be used within an OrderProvider');
+    return ctx;
 };
 
+export const useOrderDispatch = () => {
+    const ctx = useContext(OrderDispatchContext);
+    if (!ctx) throw new Error('useOrderDispatch must be used within an OrderProvider');
+    return ctx;
+};
+
+export const useOrder = () => {
+    const state = useOrderState();
+    const dispatch = useOrderDispatch();
+    return useMemo(() => ({ ...state, ...dispatch }), [state, dispatch]);
+};
+
+function readOrderHistory(key) {
+    if (typeof window === 'undefined') return {};
+    try {
+        const raw = localStorage.getItem(key);
+        const parsed = raw ? JSON.parse(raw) : null;
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+        return {};
+    }
+}
+
 export const OrderHistoryProvider = ({ restaurantId, tableId, children }) => {
-
-    const [orderHistory, setOrderHistory] = useState({});
-
-    // Load order from local storage when restaurantId or tableId changes
-    useEffect(() => {
-        const savedOrder = localStorage.getItem(`order_${restaurantId}_${tableId}`);
-        console.log("OrderHistoryProvider",savedOrder)
-        if (savedOrder) {
-            setOrderHistory(JSON.parse(savedOrder));
-        } else {
-            setOrderHistory([]);
-        }
-    }, [restaurantId, tableId]);
+    const storageKey = `order_${restaurantId}_${tableId}`;
+    const [orderHistory, setOrderHistory] = useState(() => readOrderHistory(storageKey));
 
     useEffect(() => {
-        if(Object.keys(orderHistory || {})?.length > 0){
-            localStorage.setItem(`order_${restaurantId}_${tableId}`, JSON.stringify(orderHistory));
-        }
-    }, [orderHistory]);
+        setOrderHistory(readOrderHistory(storageKey));
+    }, [storageKey]);
 
-    // Context functions
-    const addItem = (item) => {
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        if (Object.keys(orderHistory).length > 0) {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(orderHistory));
+            } catch (error) {
+                console.warn('Order history persistence failed:', error);
+            }
+        }
+    }, [orderHistory, storageKey]);
+
+    const addItem = useCallback((item) => {
         setOrderHistory((prevItems) => ({
             ...prevItems,
-            [moment().format('DD-MM-YYYY HH:mm:ss')]: item
+            [format(new Date(), 'dd-MM-yyyy HH:mm:ss.SSS')]: item
         }));
-    };
+    }, []);
 
-    const clearOrder = () => {
-        setOrderHistory([]);
-    };
+    const clearOrder = useCallback(() => {
+        setOrderHistory({});
+    }, []);
 
+    const value = useMemo(() => ({ orderHistory, clearOrder, addItem }), [orderHistory, clearOrder, addItem]);
 
     return (
-        <OrderHistoryContext.Provider value={{ orderHistory, clearOrder, addItem }}>
+        <OrderHistoryContext.Provider value={value}>
             {children}
         </OrderHistoryContext.Provider>
     );
 };
 
-// Custom hook for using the order context
 export const useOrderHistory = () => {
     const context = useContext(OrderHistoryContext);
     if (!context) {

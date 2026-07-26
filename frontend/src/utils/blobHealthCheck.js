@@ -1,3 +1,5 @@
+import { imageCache } from '@/lib/ImageCacheService';
+
 export class BlobHealthChecker {
     static async checkBlobUrl(blobUrl) {
         if (!blobUrl || !blobUrl.startsWith('blob:')) {
@@ -70,6 +72,6 @@ export class BlobHealthChecker {
 }
 
 // Add to window for debugging
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
     window.blobHealthChecker = BlobHealthChecker;
 }

@@ -28,7 +28,7 @@ const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value
 
-const SelectTrigger = React.forwardRef(({ className, variant, children, disabled, isLoading = false, loadingText, iconSize, ...props }, ref) => (
+const SelectTrigger = React.forwardRef(({ className, variant, children, disabled, isLoading = false, iconSize, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
     disabled={disabled || isLoading}

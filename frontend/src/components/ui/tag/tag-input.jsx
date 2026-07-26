@@ -35,7 +35,6 @@ const TagInput = React.forwardRef((props, ref) => {
     sortTags,
     delimiterList,
     truncate,
-    autocompleteFilter,
     borderStyle,
     textCase,
     interaction,
@@ -86,6 +85,7 @@ const TagInput = React.forwardRef((props, ref) => {
     } else {
       setActiveTagIndex(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputValue]);
 
   // Click outside handler
@@ -99,6 +99,7 @@ const TagInput = React.forwardRef((props, ref) => {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredAutocompleteOptions = useMemo(() => {
@@ -106,7 +107,6 @@ const TagInput = React.forwardRef((props, ref) => {
       option.text.toLowerCase().includes(inputValue ? inputValue.toLowerCase() : ''),
     );
   }, [inputValue, autocompleteOptions]);
-
 
   if ((maxTags !== undefined && maxTags < 0) || (props.minTags !== undefined && props.minTags < 0)) {
     console.warn('maxTags and minTags cannot be less than 0');

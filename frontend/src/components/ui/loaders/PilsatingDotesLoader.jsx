@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { cva } from "class-variance-authority";
 
 const dotVariants = cva(

@@ -562,5 +562,6 @@ const Chip = React.forwardRef(({ children, className, variant, color, size, radi
         </span>
     );
 });
+Chip.displayName = 'Chip';
 
 export { Chip, chipVariants }

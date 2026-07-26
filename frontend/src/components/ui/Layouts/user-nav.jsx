@@ -20,7 +20,7 @@ import {
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
-import { logoutUser } from '@/service/auth.service';
+import { logoutUser, tokenStore } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 
@@ -36,15 +36,15 @@ export function UserNav() {
   const logOutMutation = useMutation({
     mutationFn: logoutUser,
     onSuccess: (res) => {
-      toastSuccess(res?.data?.message)
-      window.localStorage.removeItem('userData')
-      navigate('/login')
+      tokenStore.clear();
+      toastSuccess(res?.data?.message);
+      navigate('/login');
     },
     onError: (error) => {
-      toastError(`Error in Send OTP to ${loginId} : ${JSON.stringify(error)}`);
+      tokenStore.clear();
+      toastError(`Error in logout: ${JSON.stringify(error)}`);
     },
-
-  })
+  });
 
   const onlogout = async () => {
     try {

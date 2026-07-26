@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { components } from 'react-select';
 import { Check, X, ChevronDown } from 'lucide-react'
 import { cn } from '../../../lib/utils';

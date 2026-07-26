@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 const GoogleStyleLoader = ({ className }) => {
     // Google's brand colors for each dot

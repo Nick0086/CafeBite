@@ -1,13 +1,10 @@
 // src/contexts/TemplateContext.jsx
-import { DEFAULT_THEME } from '@/components/Menu/Templates/utils';
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import { DEFAULT_THEME } from '@/components/Menu/Templates/constants/template.constants';
+import { createContext, useContext, useState, useMemo, useCallback } from 'react';
 
 const TemplateContext = createContext(null);
 
-
-
 export function TemplateProvider({ children }) {
-    // Initialize all state with default values
     const [backgroundColor, setBackgroundColor] = useState(DEFAULT_THEME.backgroundColor);
     const [sectionBackgroundColor, setSectionBackgroundColor] = useState(DEFAULT_THEME.sectionBackgroundColor);
     const [titleColor, setTitleColor] = useState(DEFAULT_THEME.titleColor);
@@ -18,18 +15,15 @@ export function TemplateProvider({ children }) {
     const [buttonLabelColor, setButtonLabelColor] = useState(DEFAULT_THEME.buttonLabelColor);
     const [currentView, setCurrentView] = useState('list');
     const [selectedTab, setSelectedTab] = useState('Global');
-    const [currentSubItemTab, setCurrentSubItemTab] = useState('item')
-
-    const handleTabChange = (tab) => {
-        setSelectedTab(tab);
-    }
-
+    const [currentSubItemTab, setCurrentSubItemTab] = useState('item');
     const [currentSection, setCurrentSection] = useState(null);
+    const [nameError, setNameError] = useState(null);
 
-    const [nameError,setNameError] = useState(null);
+    const handleTabChange = useCallback((tab) => {
+        setSelectedTab(tab);
+    }, []);
 
-    // Reset handler that uses default values
-    const resetAllHandler = () => {
+    const resetAllHandler = useCallback(() => {
         setBackgroundColor(DEFAULT_THEME.backgroundColor);
         setSectionBackgroundColor(DEFAULT_THEME.sectionBackgroundColor);
         setTitleColor(DEFAULT_THEME.titleColor);
@@ -38,41 +32,42 @@ export function TemplateProvider({ children }) {
         setDescriptionColor(DEFAULT_THEME.descriptionColor);
         setButtonBackgroundColor(DEFAULT_THEME.buttonBackgroundColor);
         setButtonLabelColor(DEFAULT_THEME.buttonLabelColor);
-    };
+    }, []);
 
-    // Use memoized context value to prevent unnecessary re-renders
     const value = useMemo(() => ({
-        // Colors
         backgroundColor,
-        setBackgroundColor,
         sectionBackgroundColor,
-        setSectionBackgroundColor,
         titleColor,
-        setTitleColor,
         cardTitleColor,
-        setCardTitleColor,
         cardBackgroundColor,
-        setCardBackgroundColor,
         descriptionColor,
-        setDescriptionColor,
         buttonBackgroundColor,
-        setButtonBackgroundColor,
         buttonLabelColor,
-        setButtonLabelColor,
-        currentSection,
-        setCurrentSection,
-        nameError,
         currentView,
-        setCurrentView,
         selectedTab,
-        setSelectedTab,
-        setNameError,
         currentSubItemTab,
+        currentSection,
+        nameError,
+        setBackgroundColor,
+        setSectionBackgroundColor,
+        setTitleColor,
+        setCardTitleColor,
+        setCardBackgroundColor,
+        setDescriptionColor,
+        setButtonBackgroundColor,
+        setButtonLabelColor,
+        setCurrentView,
+        setSelectedTab,
         setCurrentSubItemTab,
-        // Methods
+        setCurrentSection,
+        setNameError,
         resetAllHandler,
-        handleTabChange
-    }), [backgroundColor,currentSubItemTab, selectedTab, sectionBackgroundColor, titleColor, cardTitleColor, cardBackgroundColor, descriptionColor, buttonBackgroundColor, buttonLabelColor,  currentSection, nameError, currentView]);
+        handleTabChange,
+    }), [
+        backgroundColor, sectionBackgroundColor, titleColor, cardTitleColor, cardBackgroundColor,
+        descriptionColor, buttonBackgroundColor, buttonLabelColor, currentView, selectedTab,
+        currentSubItemTab, currentSection, nameError, resetAllHandler, handleTabChange,
+    ]);
 
     return (
         <TemplateContext.Provider value={value}>

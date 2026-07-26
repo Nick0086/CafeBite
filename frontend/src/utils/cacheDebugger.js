@@ -1,4 +1,4 @@
-import { imageCache } from '@/services/ImageCacheService';
+import { imageCache } from '@/lib/ImageCacheService';
 
 export class CacheDebugger {
     static async getCacheStats() {
@@ -28,23 +28,16 @@ export class CacheDebugger {
     }
 
     static async clearAllCaches() {
-        // Clear memory cache
         imageCache.clearCache();
-        
-        // Clear IndexedDB cache
         await imageCache.clearIndexedDB();
-        
-        // Clear Service Worker cache
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-                type: 'CLEAR_IMAGE_CACHE'
-            });
+            navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_IMAGE_CACHE' });
         }
-        
-        console.log('All caches cleared');
+        if (import.meta.env.DEV) console.log('All caches cleared');
     }
 
     static logCacheStats() {
+        if (!import.meta.env.DEV) return;
         this.getCacheStats().then(stats => {
             console.group('🖼️ Image Cache Stats');
             console.log('Memory Cache:', stats.memory);
@@ -56,6 +49,6 @@ export class CacheDebugger {
 }
 
 // Add to window for debugging in development
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.DEV) {
     window.cacheDebugger = CacheDebugger;
 }

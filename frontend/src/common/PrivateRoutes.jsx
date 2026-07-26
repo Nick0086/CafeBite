@@ -1,49 +1,42 @@
 import PilsatingDotesLoader from "@/components/ui/loaders/PilsatingDotesLoader";
 import { PermissionsContext } from "@/contexts/PermissionsContext";
-import { checkUserSession  } from "@/service/auth.service";
+import { checkUserSession, tokenStore } from "@/service/auth.service";
 import { getClientData } from "@/service/user.service";
-import { useMutation } from "@tanstack/react-query";
-import { useState, useEffect, useContext } from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, useContext } from "react";
+import { Navigate, Outlet, useLocation } from "react-router";
+
+const SESSION_QUERY_KEY = ['session', 'check'];
 
 export function PrivateRoutes() {
     const location = useLocation();
-    const nav = useNavigate();
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
+    const { updatePermissions } = useContext(PermissionsContext);
+
+    const { isSuccess, isError, isLoading } = useQuery({
+        queryKey: SESSION_QUERY_KEY,
+        queryFn: checkUserSession,
+        retry: false,
+        staleTime: Infinity,
+    });
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const {updatePermissions} = useContext(PermissionsContext);
-
-    const userCheckMutation = useMutation({
-        mutationFn: checkUserSession ,
-        onSuccess: () => {
-            setIsAuthenticated(true);
-            setIsLoading(false);
-            clientDataGetMutation.mutate();
-        },
-        onError: (error) => {
-            window.localStorage.removeItem('userData')
-            nav('/login');
-            console.error("Error while checking user token", error);
-            setIsAuthenticated(false);
-            setIsLoading(false);
-        },
-    });
-
-    const clientDataGetMutation = useMutation({
-        mutationFn: getClientData ,
-        onSuccess: (res) => {
-            updatePermissions(res?.data);
-        },
-        onError: (error) => {
-            console.error("Error while getting user data", error);
-        },
-    });
 
     useEffect(() => {
-        userCheckMutation.mutate();
-    }, []);
+        if (isSuccess) {
+            setIsAuthenticated(true);
+            queryClient
+                .fetchQuery({ queryKey: ['client', 'data'], queryFn: getClientData })
+                .then((res) => { if (res?.data) updatePermissions(res.data); })
+                .catch(() => {});
+        }
+        if (isError) {
+            tokenStore.clear();
+            setIsAuthenticated(false);
+        }
+    }, [isSuccess, isError, queryClient, updatePermissions]);
 
-    if (isLoading || clientDataGetMutation?.isPending) {
+    if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <PilsatingDotesLoader />
@@ -51,7 +44,7 @@ export function PrivateRoutes() {
         );
     }
 
-    return (isAuthenticated ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />);
+    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
 }
 
 export default PrivateRoutes;

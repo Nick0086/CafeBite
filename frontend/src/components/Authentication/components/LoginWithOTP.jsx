@@ -1,78 +1,40 @@
-import React, { useState } from 'react';
-
-// Components
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import ReusableFormField from '@/common/Form/ReusableFormField';
+import { ReusableFormField } from '@/common/Form/ReusableFormField';
+import { useState } from 'react';
 import { useInterval } from 'usehooks-ts';
-import { verifyOneTimePassword } from '@/service/auth.service';
-import { useMutation } from '@tanstack/react-query';
-import { toastError, toastSuccess } from '@/utils/toast-utils';
-import { useNavigate } from 'react-router';
+import { useOtpLoginMutation, useSendOtpMutation } from '../hooks/useLoginMutations';
 
-// Constants
-const INITIAL_ERROR_STATE = {
-    error: false,
-    message: ''
-};
+const INITIAL_ERROR_STATE = { error: false, message: '' };
 
-export default function LoginWithOTP({
-    form,
-    sendOTPMutation,
-    onChangeLoginWithOption,
-    loginId,
-    loginType,
-}) {
+const RESEND_SECONDS = 60;
+
+export default function LoginWithOTP({ form, onChangeLoginWithOption, loginId, loginType }) {
     const [errors, setErrors] = useState(INITIAL_ERROR_STATE);
-    const [resendTimer, setresendTimer] = useState(10);
-    const navigate = useNavigate();
+    const [resendTimer, setResendTimer] = useState(RESEND_SECONDS);
 
-    const loginWithOTPMutation = useMutation({
-        mutationFn: verifyOneTimePassword,
-        onSuccess: (res) => {
-            window.localStorage.setItem('userData', JSON.stringify(res?.userData));
-            window.localStorage.setItem('accessToken', res?.sessionId?.accessToken);
-            window.localStorage.setItem('refreshToken', res?.sessionId?.refreshToken);
-            toastSuccess('Login Successful');
-            navigate(`/`);
-        },
-        onError: (error) => {
-            console.error("Error in verifying login id:", error);
-            toastError(`Error in verifying login id: ${JSON.stringify(error)}`);
-
-            const errorMessage =
-                error?.err?.status === 404 || error?.err?.status === 401
-                    ? error?.err?.message
-                    : error?.err?.error || error?.err?.message || 'Something went wrong';
-
-            setErrors(prev => ({
-                ...prev,
-                error: true,
-                message: errorMessage
-            }));
-        }
-    });
+    const loginMutation = useOtpLoginMutation();
+    const sendOtpMutation = useSendOtpMutation();
 
     const onSubmitForm = (data) => {
-        console.log("LoginWithOTP --> onSubmitForm", data);
-        loginWithOTPMutation.mutate(data);
+        loginMutation.mutate(data);
     };
 
-    const onResendOTPhandler = async () => {
-        await sendOTPMutation.mutateAsync({ loginId, loginType })
-        setresendTimer(60)
-        resetError()
-    }
-
-    const resetError = () => {
-        setErrors(INITIAL_ERROR_STATE);
+    const onResendOtpHandler = async () => {
+        try {
+            await sendOtpMutation.mutateAsync({ loginId, loginType });
+            setResendTimer(RESEND_SECONDS);
+            resetError();
+        } catch {
+            // error already toasted by mutation
+        }
     };
+
+    const resetError = () => setErrors(INITIAL_ERROR_STATE);
 
     useInterval(() => {
-        if (resendTimer > 0) {
-            setresendTimer(prev => prev - 1);
-        }
-    }, (resendTimer > 0) ? 1000 : null);
+        if (resendTimer > 0) setResendTimer((prev) => prev - 1);
+    }, resendTimer > 0 ? 1000 : null);
 
     return (
         <Form {...form}>
@@ -83,10 +45,10 @@ export default function LoginWithOTP({
                         name='OTP'
                         type='OTP'
                         label=''
-                        labelClassName='text-xs '
+                        labelClassName='text-xs'
                         className='w-full'
                         onValueChange={resetError}
-                        disabled={loginWithOTPMutation?.isPending || sendOTPMutation?.isPending}
+                        disabled={loginMutation.isPending || sendOtpMutation.isPending}
                     />
 
                     {errors?.error && (
@@ -97,13 +59,12 @@ export default function LoginWithOTP({
                 </div>
 
                 <Button
-
                     className='w-full'
-                    variant="primary"
+                    variant='primary'
                     type='submit'
                     loadingText=' '
-                    disabled={loginWithOTPMutation?.isPending || sendOTPMutation?.isPending}
-                    isLoading={loginWithOTPMutation?.isPending}
+                    disabled={loginMutation.isPending || sendOtpMutation.isPending}
+                    isLoading={loginMutation.isPending}
                 >
                     Verify
                 </Button>
@@ -112,36 +73,32 @@ export default function LoginWithOTP({
                     <Button
                         onClick={() => onChangeLoginWithOption(false)}
                         type='button'
-                        variant="none"
-                        size="sm"
-                        disabled={loginWithOTPMutation?.isPending || sendOTPMutation?.isPending}
-                        className="text-brand-primary hover:text-brand-primary-foreground font-semibold p-0"
+                        variant='none'
+                        size='sm'
+                        disabled={loginMutation.isPending || sendOtpMutation.isPending}
+                        className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
                     >
                         Sign in using password
                     </Button>
 
-                    {
-                        resendTimer > 0 ? (
-                            <span className='text-secondary text-sm font-semibold'>
-                                Resend in {resendTimer}s
-                            </span>
-                        ) : (
-                            <Button
-                                type='button'
-                                variant="none"
-                                size="sm"
-                                className="text-brand-primary hover:text-brand-primary-foreground font-semibold p-0"
-                                onClick={onResendOTPhandler}
-                                loadingText=' '
-                                disabled={loginWithOTPMutation?.isPending || sendOTPMutation?.isPending}
-                                isLoading={sendOTPMutation?.isPending}
-                            >
-                                Resend OTP
-                            </Button>
-                        )
-                    }
-
-
+                    {resendTimer > 0 ? (
+                        <span className='text-secondary text-sm font-semibold'>
+                            Resend in {resendTimer}s
+                        </span>
+                    ) : (
+                        <Button
+                            type='button'
+                            variant='none'
+                            size='sm'
+                            className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
+                            onClick={onResendOtpHandler}
+                            loadingText=' '
+                            disabled={loginMutation.isPending || sendOtpMutation.isPending}
+                            isLoading={sendOtpMutation.isPending}
+                        >
+                            Resend OTP
+                        </Button>
+                    )}
                 </div>
             </form>
         </Form>

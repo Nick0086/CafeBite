@@ -1,15 +1,12 @@
 import { Tag } from './tag';
 import { cn } from '@/lib/utils';
 
-
 export const TagList = ({
   tags,
   customTagRenderer,
   direction,
-  className,
   inlineTags,
   activeTagIndex,
-  setActiveTagIndex,
   classStyleProps,
   disabled,
   ...tagListProps

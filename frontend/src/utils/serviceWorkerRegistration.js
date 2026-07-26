@@ -6,20 +6,19 @@ const isLocalhost = Boolean(
     )
 );
 
-export function register(config) {
-    if ('serviceWorker' in navigator) {
-        const publicUrl = new URL('https://cafe-bite.vercel.app' || '', window.location.href);
-        if (publicUrl.origin !== window.location.origin) {
-            return;
-        }
+const devLog = (...args) => {
+    if (import.meta.env.DEV) console.log(...args);
+};
 
+export function register(config) {
+    if (import.meta.env.PROD && 'serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            const swUrl = `${'https://cafe-bite.vercel.app' || ''}/sw.js`;
+            const swUrl = `${window.location.origin}/sw.js`;
 
             if (isLocalhost) {
                 checkValidServiceWorker(swUrl, config);
                 navigator.serviceWorker.ready.then(() => {
-                    console.log('Service worker is ready for localhost');
+                    devLog('Service worker is ready for localhost');
                 });
             } else {
                 registerValidSW(swUrl, config);
@@ -32,23 +31,23 @@ function registerValidSW(swUrl, config) {
     navigator.serviceWorker
         .register(swUrl)
         .then((registration) => {
-            console.log('SW registered successfully:', registration);
-            
+            devLog('SW registered successfully:', registration);
+
             registration.onupdatefound = () => {
                 const installingWorker = registration.installing;
                 if (installingWorker == null) {
                     return;
                 }
-                
+
                 installingWorker.onstatechange = () => {
                     if (installingWorker.state === 'installed') {
                         if (navigator.serviceWorker.controller) {
-                            console.log('New content available; please refresh.');
+                            devLog('New content available; please refresh.');
                             if (config && config.onUpdate) {
                                 config.onUpdate(registration);
                             }
                         } else {
-                            console.log('Content is cached for offline use.');
+                            devLog('Content is cached for offline use.');
                             if (config && config.onSuccess) {
                                 config.onSuccess(registration);
                             }
@@ -58,7 +57,7 @@ function registerValidSW(swUrl, config) {
             };
         })
         .catch((error) => {
-            console.log('SW registration failed:', error);
+            console.error('SW registration failed:', error);
         });
 }
 
@@ -82,7 +81,7 @@ function checkValidServiceWorker(swUrl, config) {
             }
         })
         .catch(() => {
-            console.log('No internet connection found. App is running in offline mode.');
+            devLog('No internet connection found. App is running in offline mode.');
         });
 }
 
@@ -96,23 +95,4 @@ export function unregister() {
                 console.error(error.message);
             });
     }
-}
-
-// Get cache statistics
-export function getCacheStats() {
-    return new Promise((resolve) => {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            const messageChannel = new MessageChannel();
-            messageChannel.port1.onmessage = (event) => {
-                resolve(event.data);
-            };
-            
-            navigator.serviceWorker.controller.postMessage(
-                { type: 'GET_CACHE_STATS' },
-                [messageChannel.port2]
-            );
-        } else {
-            resolve({ error: 'Service Worker not available' });
-        }
-    });
 }
