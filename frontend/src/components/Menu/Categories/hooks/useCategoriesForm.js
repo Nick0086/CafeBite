@@ -13,8 +13,10 @@ export function useCategoryForm({ isEdit, selectedRow, open }) {
 
     useEffect(() => {
         if (isEdit && selectedRow) {
-            form.setValue('name', selectedRow?.name);
-            form.setValue('status', Number(selectedRow?.status ?? 1));
+            form.reset({
+                name: selectedRow?.name || '',
+                status: selectedRow?.status !== undefined && selectedRow?.status !== null ? Number(selectedRow?.status) : 1,
+            });
         } else if (open) {
             form.reset(defaultValues);
         }

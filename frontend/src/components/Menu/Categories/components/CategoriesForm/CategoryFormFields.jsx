@@ -18,6 +18,7 @@ export default function CategoryFormFields({ form, isEdit, isPending }) {
                     type="select"
                     name="status"
                     label="Status"
+                    placeholder="Select status"
                     options={CATEGORY_STATUS_OPTIONS}
                     disabled={isPending}
                 />

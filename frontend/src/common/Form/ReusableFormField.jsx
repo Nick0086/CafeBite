@@ -79,17 +79,19 @@ export const ReusableFormField = ({
 
 
         switch (type) {
-            case 'select':
+            case 'select': {
+                const selectVal = (field.value !== undefined && field.value !== null && field.value !== '')
+                    ? String(field.value)
+                    : '';
                 return (
                     <Select
                         onValueChange={(value) => {
-                            if (value === 0 || value || value === null) {
-                                field.onChange(value);
-                                onValueChange?.(value);
-                            }
-
+                            const matchingOption = options.find((opt) => String(opt.value) === String(value));
+                            const finalVal = matchingOption ? matchingOption.value : value;
+                            field.onChange(finalVal);
+                            onValueChange?.(finalVal);
                         }}
-                        value={field.value}
+                        value={selectVal}
                         disabled={disabled || isLoading || readonly}
                     >
                         <FormControl className={cn("", inputClassName)}>
@@ -123,6 +125,7 @@ export const ReusableFormField = ({
                         </SelectContent>
                     </Select>
                 );
+            }
             case 'combobox':
                 return (
                     <Combobox
@@ -156,19 +159,24 @@ export const ReusableFormField = ({
                         }}
                     />
                 );
-            case 'singleSelect':
+            case 'singleSelect': {
+                const currentSingleOption = (field.value !== undefined && field.value !== null && field.value !== '')
+                    ? options.find((option) => String(option?.value) === String(field.value)) || null
+                    : null;
                 return (
                     <ReactSelect
                         isClearable
                         options={options}
                         isDisabled={disabled || isLoading || readonly}
-                        value={field.value ? options.find((option) => option?.value === field.value) : []}
+                        value={currentSingleOption}
                         onChange={(value) => {
-                            field.onChange(value ? value.value : '')
-                            onValueChange?.(value);
+                            const finalVal = value ? value.value : '';
+                            field.onChange(finalVal);
+                            onValueChange?.(finalVal);
                         }}
                     />
                 );
+            }
             case 'tagInput':
                 return (
                     <TagInput
