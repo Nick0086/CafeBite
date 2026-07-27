@@ -7,12 +7,7 @@ import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/comp
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
-import {
-  getStepIcon,
-  getStepLabel,
-  registerFormDefaultValues,
-  stepFieldMap,
-} from './constants/registration.constants';
+import { getStepIcon, getStepLabel, registerFormDefaultValues, stepFieldMap } from './constants/registration.constants';
 import { fullProfileSchema } from '@/common/validation/profile.schemas';
 import OwnerInfo from './components/RegistrationForm/OwnerInfo';
 import CafeInfo from './components/RegistrationForm/CafeInfo';
@@ -47,14 +42,14 @@ export default function RegistrationIndex() {
     return <Navigate to="/" replace />;
   }
 
-  const validateCurrentStep = async () => {
-    const fields = stepFieldMap[step];
+  const validateStep = async (s) => {
+    const fields = stepFieldMap[s];
     if (!fields) return false;
     return form.trigger(fields);
   };
 
   const handleNext = async () => {
-    const isValid = await validateCurrentStep();
+    const isValid = await validateStep(step);
     if (!isValid) return;
 
     if (step < TOTAL_STEPS) {
@@ -105,8 +100,18 @@ export default function RegistrationIndex() {
                         if (stepNumber < step) {
                           setStep(stepNumber);
                         } else if (stepNumber > step) {
-                          const isValid = await validateCurrentStep();
-                          if (isValid) setStep(stepNumber);
+                          let currentValid = true;
+                          for (let s = step; s < stepNumber; s++) {
+                            const isValid = await validateStep(s);
+                            if (!isValid) {
+                              if (s !== step) setStep(s);
+                              currentValid = false;
+                              break;
+                            }
+                          }
+                          if (currentValid) {
+                            setStep(stepNumber);
+                          }
                         }
                       }}
                     >
@@ -133,14 +138,7 @@ export default function RegistrationIndex() {
             <form onSubmit={form.handleSubmit(onSubmitForm)}>
               <div className='px-4 pb-3'>
                 {step === 1 && <OwnerInfo form={form} isDisabled={registerMutation.isPending} />}
-                {step === 2 && (
-                  <CafeInfo
-                    form={form}
-                    logoPreview={logoPreview}
-                    setLogoPreview={setLogoPreview}
-                    isDisabled={registerMutation.isPending}
-                  />
-                )}
+                {step === 2 && (<CafeInfo form={form} logoPreview={logoPreview} setLogoPreview={setLogoPreview} isDisabled={registerMutation.isPending} />)}
                 {step === 3 && <Location form={form} isDisabled={registerMutation.isPending} />}
                 {step === 4 && <Contact form={form} isDisabled={registerMutation.isPending} />}
               </div>
