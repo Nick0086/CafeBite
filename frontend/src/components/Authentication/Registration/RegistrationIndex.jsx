@@ -12,18 +12,18 @@ import {
   getStepLabel,
   registerFormDefaultValues,
   stepFieldMap,
-} from '../../constants/auth.constants';
+} from './constants/registration.constants';
 import { fullProfileSchema } from '@/common/validation/profile.schemas';
-import OwnerInfo from './OwnerInfo';
-import CafeInfo from './CafeInfo';
-import Location from './Location';
-import Contact from './Contact';
-import { useAuthSession } from '../../hooks/useAuthSession';
-import { useRegisterMutation } from '../../hooks/useRegisterMutation';
+import OwnerInfo from './components/RegistrationForm/OwnerInfo';
+import CafeInfo from './components/RegistrationForm/CafeInfo';
+import Location from './components/RegistrationForm/Location';
+import Contact from './components/RegistrationForm/Contact';
+import { useAuthSession } from '../hooks/useAuthSession';
+import { useRegisterMutation } from './hooks/useRegistrationData';
 
 const TOTAL_STEPS = 4;
 
-export default function Registration() {
+export default function RegistrationIndex() {
   const { data: userData, isLoading, isError } = useAuthSession();
   const [step, setStep] = useState(1);
   const [logoPreview, setLogoPreview] = useState(null);

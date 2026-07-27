@@ -7,9 +7,9 @@ import { useMutation } from '@tanstack/react-query';
 import {
     usePasswordLoginMutation,
     useSendOtpMutation,
-} from '../hooks/useLoginMutations';
+} from '../hooks/useLoginData';
 import { requestPasswordReset } from '@/service/auth.service';
-import { loginIdDisplayMap } from '../constants/auth.constants';
+import { loginIdDisplayMap } from '../constants/login.constants';
 
 const INITIAL_ERROR_STATE = { error: false, message: '' };
 

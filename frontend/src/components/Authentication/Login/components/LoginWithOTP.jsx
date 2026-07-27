@@ -3,7 +3,7 @@ import { Form } from '@/components/ui/form';
 import { ReusableFormField } from '@/common/Form/ReusableFormField';
 import { useState } from 'react';
 import { useInterval } from 'usehooks-ts';
-import { useOtpLoginMutation, useSendOtpMutation } from '../hooks/useLoginMutations';
+import { useOtpLoginMutation, useSendOtpMutation } from '../hooks/useLoginData';
 
 const INITIAL_ERROR_STATE = { error: false, message: '' };
 

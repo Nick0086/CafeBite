@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useParams } from 'react-router';
-import { OrderProvider } from '@/contexts/order-management-context';
+import { OrderProvider } from '@/contexts/OrderManagementContext';
 import { ErrorState } from '@/components/ui/error';
 import SlackLoader from '@/components/ui/CustomLoaders/SlackLoader';
 import { DEFAULT_SECTION_THEME } from '@/components/Menu/Templates/constants/template.constants';

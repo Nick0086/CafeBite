@@ -34,7 +34,6 @@ const SelectTrigger = React.forwardRef(({ className, variant, children, disabled
     disabled={disabled || isLoading}
     className={cn(selectVariants({ variant }), className)}
     {...props}>
-    {/* {children} */}
     {isLoading ? <PulsatingDots className='size-1' /> : children}
     <SelectPrimitive.Icon asChild>
       <ChevronDown size={iconSize || 18} />

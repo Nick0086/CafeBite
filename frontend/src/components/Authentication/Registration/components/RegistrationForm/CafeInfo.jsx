@@ -4,9 +4,12 @@ import { useEffect, useRef } from 'react';
 
 export default function CafeInfo({ form, logoPreview, setLogoPreview, isDisabled }) {
   const fileInputRef = useRef(null);
-  const mountedRef = useRef(true);
+  const mountedRef = useRef(false);
 
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();

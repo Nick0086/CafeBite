@@ -7,9 +7,9 @@ import DashboardIndex from '@/components/Dashboard/DashboardIndex';
 import QrCodeIndex from '@/components/QrCode/QrCodeIndex';
 import ProfileManagementIndex from '@/components/ProfileManagement/ProfileManagementIndex';
 import CustomerMenuIndex from '@/components/CustomerMenu/CustomerMenuIndex';
-import AuthenticationIndex from '@/components/Authentication/AuthenticationIndex';
-import ResetPassword from '@/components/Authentication/ResetPassword';
-import Registration from '@/components/Authentication/components/Registration/Registration';
+import LoginIndex from '@/components/Authentication/Login/LoginIndex';
+import ResetPasswordIndex from '@/components/Authentication/ResetPassword/ResetPasswordIndex';
+import RegistrationIndex from '@/components/Authentication/Registration/RegistrationIndex';
 import MenuRoutes from '@/routes/MenuRoutes';
 import FeedbackRoutes from '@/routes/FeedbackRoutes';
 import { PermissionsProvider } from '@/contexts/PermissionsContext';
@@ -25,9 +25,9 @@ function App() {
         <Route path="/menu" element={<Navigate to="/login" replace />} />
         <Route path="/menu/:restaurantId/:tableId" element={<CustomerMenuIndex />} />
 
-        <Route path="/login" element={<AuthenticationIndex />} />
-        <Route path="/register-user" element={<Registration />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/login" element={<LoginIndex />} />
+        <Route path="/register-user" element={<RegistrationIndex />} />
+        <Route path="/reset-password" element={<ResetPasswordIndex />} />
 
         <Route element={<PermissionsProvider><PrivateRoutes /></PermissionsProvider>}>
           <Route element={<SidebarIndex />}>

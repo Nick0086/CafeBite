@@ -14,7 +14,7 @@ import { useTemplate } from '@/contexts/TemplateContext';
 import { Edit } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { VegStatusBadge } from '@/common/StatusBadge';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/useMobile';
 
 const OptimizedImage = memo(({ src, alt, currentView }) => {
 OptimizedImage.displayName = 'OptimizedImage';

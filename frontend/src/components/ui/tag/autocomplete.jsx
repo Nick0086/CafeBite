@@ -14,7 +14,6 @@ export const Autocomplete = ({
     children,
 }) => {
     const triggerRef = useRef(null);
-    // const inputRef = useRef<HTMLInputElement | null>(null);
     const [popoverWidth, setPopoverWidth] = useState(undefined);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 

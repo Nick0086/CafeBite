@@ -26,7 +26,7 @@ export const profileFormDefaultValues = {
     phoneNumber: '',
     cafeName: '',
     cafeDescription: '',
-    cafeLogo: null,
+    cafeLogo: undefined,
     cafeAddress: '',
     cafeCountry: '',
     cafeState: '',

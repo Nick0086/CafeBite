@@ -3,7 +3,7 @@ import { getAllCountry, getAllCurrency, getCityByState, getStateByCountry } from
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { MapPin } from 'lucide-react';
-import { authQueryKeys } from '../../constants/auth.constants';
+import { authQueryKeys } from '../../constants/registration.constants';
 
 export default function Location({ form, isDisabled }) {
   const country = form.watch('cafeCountry');

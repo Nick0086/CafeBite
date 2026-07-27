@@ -543,14 +543,6 @@ const chipVariants = cva(
     }
 )
 
-// function Chip({ children, className, variant, color, size, radius, border, ...props }) {
-//     return (
-//         <span className={cn(chipVariants({ variant, color, size, radius, border, className }))} {...props}>
-//             {children}
-//         </span>
-//     )
-// }
-
 const Chip = React.forwardRef(({ children, className, variant, color, size, radius, border, ...props }, ref) => {
     return (
         <span 

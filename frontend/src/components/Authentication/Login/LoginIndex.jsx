@@ -5,14 +5,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate } from 'react-router';
-import { loginSchemas } from './validation/auth.schema';
-import { loginDefaultValues } from './constants/auth.constants';
-import { useAuthSession } from './hooks/useAuthSession';
+import { loginSchemas } from './validation/login.schema';
+import { loginDefaultValues } from './constants/login.constants';
+import { useAuthSession } from '../hooks/useAuthSession';
 import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 import LoginWithPassword from './components/LoginWithPassword';
 import LoginWithOTP from './components/LoginWithOTP';
 
-export default function AuthenticationIndex() {
+export default function LoginIndex() {
     const { data: userData, isLoading } = useAuthSession();
     const [isLoginWithOTP, setIsLoginWithOTP] = useState(false);
 

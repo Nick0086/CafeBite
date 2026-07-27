@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useParams } from 'react-router';
-import { useOrder } from '@/contexts/order-management-context';
+import { useOrder } from '@/contexts/OrderManagementContext';
 import { VegStatusBadge } from '@/common/StatusBadge';
 
 const OrderItem = ({ item, currencySymbol, onAdd, onRemove }) => {

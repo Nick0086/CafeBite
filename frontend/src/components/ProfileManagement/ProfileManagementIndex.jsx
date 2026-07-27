@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { fullProfileSchema } from '@/common/validation/profile.schemas';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
+import { getClientData } from '@/service/user.service';
 import {
     permissionsToFormValues,
     profileFormDefaultValues,
@@ -25,7 +26,7 @@ import SubscriptionSection from './components/SubscriptionSection';
 
 export default function ProfileManagementIndex() {
     const queryClient = useQueryClient();
-    const { permissions } = useContext(PermissionsContext);
+    const { permissions, updatePermissions } = useContext(PermissionsContext);
     const fileInputRef = useRef(null);
     const [isEditing, setIsEditing] = useState(false);
     const [logoPreview, setLogoPreview] = useState(null);
@@ -44,6 +45,9 @@ export default function ProfileManagementIndex() {
             toastSuccess('Profile updated successfully');
             setIsEditing(false);
             queryClient.invalidateQueries({ queryKey: ['client', 'data'] });
+            queryClient.fetchQuery({ queryKey: ['client', 'data'], queryFn: getClientData })
+                .then((res) => { if (res?.data) updatePermissions(res.data); })
+                .catch(() => {});
         },
         onError: (error) => {
             toastError(`Error updating profile: ${error?.message || 'Unknown error'}`);

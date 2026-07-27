@@ -14,7 +14,6 @@ export default function OwnerInfo({ form, isDisabled }) {
           placeholder="First Name"
           isDisabled={isDisabled}
         />
-
         <ReusableFormField
           control={form.control}
           name='lastName'
@@ -24,7 +23,6 @@ export default function OwnerInfo({ form, isDisabled }) {
           placeholder="Last Name"
           isDisabled={isDisabled}
         />
-
         <ReusableFormField
           control={form.control}
           name='email'
@@ -36,7 +34,6 @@ export default function OwnerInfo({ form, isDisabled }) {
           placeholder="your@email.com"
           isDisabled={isDisabled}
         />
-
         <ReusableFormField
           control={form.control}
           name='phoneNumber'
@@ -47,7 +44,6 @@ export default function OwnerInfo({ form, isDisabled }) {
           labelClassName='text-xs'
           isDisabled={isDisabled}
         />
-
         <ReusableFormField
           control={form.control}
           name='password'
@@ -59,7 +55,6 @@ export default function OwnerInfo({ form, isDisabled }) {
           placeholder='*******'
           isDisabled={isDisabled}
         />
-
         <p className='md:col-span-2 text-xs text-gray-400 font-medium'>
           Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number.
         </p>

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { VegStatusBadge } from '@/common/StatusBadge';
 import { cn } from '@/lib/utils';
-import { useOrder } from '@/contexts/order-management-context';
+import { useOrder } from '@/contexts/OrderManagementContext';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 import { MapPin, Phone, Mail, Plus, Minus } from 'lucide-react';
 import { useMenuStyles } from './menuStyles';

@@ -28,15 +28,6 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, forwardedRef) =
                 "fixed inset-0 z-[999] bg-black/70 !duration-150 data-[state=open]:animate-backdrop-in data-[state=closed]:animate-backdrop-out overflow-y-auto max-h-screen grid place-items-center",
                 className
             )}
-            /* className={cn(
-                // base
-                "fixed inset-0 z-[99] overflow-y-auto",
-                // background color
-                "bg-black/70",
-                // transition
-                "data-[state=open]:animate-dialogOverlayShow",
-                className,
-            )} */
             {...props}
         />
     )
@@ -59,9 +50,7 @@ const DialogContent = React.forwardRef(({ className, overlayClassName, showClose
                     onInteractOutside={(e) => stopOutsideClick && handleInteractOutside(e)}
                     className={cn(
                         "z-[999] relative grid w-[95%] rounded max-w-md sm:max-w-lg gap-1 bg-background  shadow-lg ",
-                        // "data-[state=open]:animate-in data-[state=closed]:animate-out",
                         "!duration-300 data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out",
-                        /* "transition-all !duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-10 data-[state=open]:slide-in-from-top-10", */
                         "sm:rounded-lg md:w-full",
                         outsideClick && "!scale-[.98]",
                         className

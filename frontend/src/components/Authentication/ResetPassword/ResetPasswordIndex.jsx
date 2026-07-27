@@ -2,18 +2,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Navigate, useSearchParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { ReusableFormField } from '@/common/Form/ReusableFormField';
-import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 import { toastError } from '@/utils/toast-utils';
-import { validateResetToken } from '@/service/auth.service';
-import { authQueryKeys, passwordResetDefaultValues } from './constants/auth.constants';
-import { passwordResetSchema } from './validation/auth.schema';
-import { useAuthSession } from './hooks/useAuthSession';
-import { usePasswordResetMutation } from './hooks/usePasswordResetMutation';
+import { passwordResetDefaultValues } from './constants/resetPassword.constants';
+import { passwordResetSchema } from './validation/resetPassword.schema';
+import { useAuthSession } from '../hooks/useAuthSession';
+import { usePasswordResetMutation, useValidateResetToken } from './hooks/useResetPasswordData';
+import FullPageLoader from './components/FullPageLoader';
 
 const formatErrorMessage = (error) => {
     if (error?.err?.status === 404 || error?.err?.status === 401) {
@@ -27,12 +25,7 @@ export default function ResetPasswordIndex() {
     const token = searchParams.get('token');
 
     const { data: userData, isLoading: sessionLoading } = useAuthSession();
-    const { data: verifyData, isLoading: verifyLoading, error: verifyError } = useQuery({
-        queryKey: [authQueryKeys.PASSWORD_RESET, token],
-        queryFn: () => validateResetToken(token),
-        retry: false,
-        enabled: !!token,
-    });
+    const { data: verifyData, isLoading: verifyLoading, error: verifyError } = useValidateResetToken(token);
 
     const [errors, setErrors] = useState({ error: false, message: '' });
 
@@ -129,14 +122,6 @@ export default function ResetPasswordIndex() {
                     </Form>
                 </CardContent>
             </Card>
-        </div>
-    );
-}
-
-function FullPageLoader() {
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-surface-background lg:py-6">
-            <PilsatingDotesLoader />
         </div>
     );
 }
