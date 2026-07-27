@@ -32,8 +32,12 @@ export const api = axios.create({
 api.interceptors.request.use(async config => {
     try {
         const accessToken = await waitForToken();
+        const refreshToken = localStorage.getItem(TOKEN_KEYS.refreshToken);
         if (accessToken) {
             config.headers.Authorization = accessToken;
+        }
+        if (refreshToken) {
+            config.headers["user-data"] = refreshToken;
         }
     } catch (error) {
         console.error("Error retrieving token:", error);

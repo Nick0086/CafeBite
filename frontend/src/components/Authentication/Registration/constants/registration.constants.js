@@ -1,4 +1,4 @@
-import { Coffee, MapPin, Phone, User } from "lucide-react";
+import { CheckCircle2, Coffee, MapPin, Phone, User } from "lucide-react";
 
 export const authQueryKeys = {
     COUNTRY: 'all-country',
@@ -21,7 +21,7 @@ export const registerFormDefaultValues = {
     cafeState: '',
     cafeCountry: '',
     cafeZip: '',
-    cafeCurrency: '',
+    cafeCurrency: 'INR',
     cafePhone: '',
     cafeEmail: '',
     cafeWebsite: '',
@@ -33,7 +33,7 @@ export const registerFormDefaultValues = {
 export const stepFieldMap = {
     1: ['firstName', 'lastName', 'email', 'phoneNumber', 'password'],
     2: ['cafeName', 'cafeDescription', 'cafeLogo'],
-    3: ['cafeAddress', 'cafeCity', 'cafeCountry', 'cafeCurrency', 'cafeState', 'cafeZip'],
+    3: ['cafeAddress', 'cafeState', 'cafeCity', 'cafeZip'],
     4: ['cafePhone'],
 };
 
@@ -41,23 +41,29 @@ export const getStepIcon = (stepNumber, currentStep) => {
     const isActive = stepNumber === currentStep;
     const isCompleted = stepNumber < currentStep;
 
-    const bgColor = isActive
-        ? "bg-indigo-500"
-        : isCompleted
-            ? "bg-indigo-100"
-            : "bg-gray-200";
-    const textColor = isActive || isCompleted
-        ? "text-indigo-500"
-        : "text-gray-500";
+    let iconClass;
+    let textClass;
 
-    const iconClass = `w-10 h-10 rounded-full flex items-center justify-center ${bgColor} ${isActive ? 'text-white' : textColor}`;
-    const textClass = `text-sm mt-1 font-medium ${textColor}`;
+    if (isActive) {
+        iconClass = `w-10 h-10 rounded-full flex items-center justify-center bg-indigo-600 text-white`;
+        textClass = `text-[11px] mt-1.5 font-semibold text-indigo-600`;
+    } else if (isCompleted) {
+        iconClass = `w-10 h-10 rounded-full flex items-center justify-center bg-indigo-100 text-indigo-600`;
+        textClass = `text-[11px] mt-1.5 font-semibold text-indigo-500`;
+    } else {
+        iconClass = `w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 text-gray-400`;
+        textClass = `text-[11px] mt-1.5 font-semibold text-gray-400`;
+    }
 
     const icons = { 1: User, 2: Coffee, 3: MapPin, 4: Phone };
-    return { Icon: icons[stepNumber], iconClass, textClass };
+    // For completed steps, show a checkmark overlay via the completed icon
+    const CompletedIcon = CheckCircle2;
+    const Icon = isCompleted ? CompletedIcon : icons[stepNumber];
+
+    return { Icon, iconClass, textClass };
 };
 
 export const getStepLabel = (stepNumber) => {
-    const labels = { 1: 'Account', 2: 'Basic Info', 3: 'Location', 4: 'Contact' };
+    const labels = { 1: 'Account', 2: 'Cafe Info', 3: 'Location', 4: 'Contact' };
     return labels[stepNumber];
 };

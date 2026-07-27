@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import 'dotenv/config';
 import promisePool from '../config/db.js';
 import fs from 'fs/promises';
 import path from 'path';

@@ -5,8 +5,7 @@ CREATE TABLE IF NOT EXISTS otps (
     otp VARCHAR(6) NOT NULL,
     login_type VARCHAR(45) NOT NULL,
     login_id VARCHAR(45) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (session_id) REFERENCES client_sessions(session_id)
+    expires_at TIMESTAMP NOT NULL
 ); 
 
 -- @down

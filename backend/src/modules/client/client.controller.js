@@ -14,30 +14,24 @@ const upload = multer({
     }
 });
 
-const handleUpload = (req, res) => {
-    return new Promise((resolve, reject) => {
-        upload.single('cafeLogo')(req, res, (err) => {
-            if (err) {
-                if (err.code === 'LIMIT_FILE_SIZE') {
-                    return reject(new HttpError("File size exceeds 5MB limit", 400, 'FILE_TOO_LARGE'));
-                }
-                return reject(new HttpError(err.message, 400, 'FILE_UPLOAD_ERROR'));
+export const uploadLogo = (req, res, next) => {
+    upload.single('cafeLogo')(req, res, (err) => {
+        if (err) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return next(new HttpError("File size exceeds 5MB limit", 400, 'FILE_TOO_LARGE'));
             }
-            resolve();
-        });
+            return next(new HttpError(err.message, 400, 'FILE_UPLOAD_ERROR'));
+        }
+        next();
     });
 };
 
 export const createClient = asyncHandler(async (req, res) => {
-    await handleUpload(req, res);
-
     const result = await clientService.createClient(req.file, req.body);
     return res.status(201).json(result);
 });
 
 export const updateClientProfile = asyncHandler(async (req, res) => {
-    await handleUpload(req, res);
-
     const clientId = req.user?.unique_id;
     const result = await clientService.updateClientProfile(clientId, req.file, req.body);
     return res.status(200).json(result);

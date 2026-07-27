@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { toastError, toastSuccess } from "@/utils/toast-utils";
 import {
@@ -11,6 +11,7 @@ import {
 
 export function usePasswordLoginMutation() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: verifyUserPassword,
@@ -19,6 +20,10 @@ export function usePasswordLoginMutation() {
                 accessToken: res?.sessionId?.accessToken,
                 refreshToken: res?.sessionId?.refreshToken,
             });
+            // Clear cached authentication errors
+            queryClient.invalidateQueries({ queryKey: ['session', 'check'] });
+            queryClient.invalidateQueries({ queryKey: ['login'] });
+            
             toastSuccess('Login Successful');
             navigate('/');
         },
@@ -31,6 +36,7 @@ export function usePasswordLoginMutation() {
 
 export function useOtpLoginMutation() {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: verifyOneTimePassword,
@@ -40,6 +46,10 @@ export function useOtpLoginMutation() {
                 refreshToken: res?.sessionId?.refreshToken,
                 userData: res?.userData,
             });
+            // Clear cached authentication errors
+            queryClient.invalidateQueries({ queryKey: ['session', 'check'] });
+            queryClient.invalidateQueries({ queryKey: ['login'] });
+
             toastSuccess('Login Successful');
             navigate('/');
         },

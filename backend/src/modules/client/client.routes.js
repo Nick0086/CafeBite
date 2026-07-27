@@ -6,8 +6,8 @@ import { registerClientValidator, updateClientProfileValidator } from "./client.
 
 const router = Router();
 
-router.post('/register', registerClientValidator, validate, clientController.createClient);
+router.post('/register', clientController.uploadLogo, registerClientValidator, validate, clientController.createClient);
 router.get('/', authMiddleware, clientController.fetchClientDataById);
-router.put('/update-client-profile', authMiddleware, updateClientProfileValidator, validate, clientController.updateClientProfile);
+router.put('/update-client-profile', authMiddleware, clientController.uploadLogo, updateClientProfileValidator, validate, clientController.updateClientProfile);
 
 export default router;

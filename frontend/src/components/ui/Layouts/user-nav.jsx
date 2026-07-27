@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { logoutUser, tokenStore } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
@@ -30,19 +30,22 @@ const getInitials = (name) => {
 
 export function UserNav() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const {permissions} = React.useContext(PermissionsContext);
-
 
   const logOutMutation = useMutation({
     mutationFn: logoutUser,
     onSuccess: (res) => {
       tokenStore.clear();
-      toastSuccess(res?.data?.message);
-      navigate('/login');
+      queryClient.clear();
+      toastSuccess(res?.data?.message || res?.message || 'Logged out successfully');
+      navigate('/login', { replace: true });
     },
     onError: (error) => {
       tokenStore.clear();
-      toastError(`Error in logout: ${JSON.stringify(error)}`);
+      queryClient.clear();
+      toastError(`Error in logout: ${error?.err?.message || 'Failed to logout'}`);
+      navigate('/login', { replace: true });
     },
   });
 
