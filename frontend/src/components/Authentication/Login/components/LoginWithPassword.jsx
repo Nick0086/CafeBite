@@ -43,7 +43,7 @@ export default function LoginWithPassword({ form, onChangeLoginWithOption, login
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmitForm)} className='flex flex-col gap-2'>
+            <form onSubmit={form.handleSubmit(onSubmitForm)} className='flex flex-col gap-4'>
                 <div>
                     <ReusableFormField
                         control={form.control}
@@ -80,7 +80,7 @@ export default function LoginWithPassword({ form, onChangeLoginWithOption, login
                 </div>
 
                 <Button
-                    className='w-full'
+                    className='h-12 w-full rounded-xl'
                     variant='primary'
                     disabled={loginMutation.isPending || sendOtpMutation.isPending || forgotPasswordMutation.isPending}
                     isLoading={loginMutation.isPending}
@@ -90,7 +90,7 @@ export default function LoginWithPassword({ form, onChangeLoginWithOption, login
                     Sign In
                 </Button>
 
-                <div className='flex flex-row gap-2 items-center justify-between w-full'>
+                <div className='flex w-full items-center justify-between gap-2'>
                     <Button
                         onClick={() => {
                             if (loginId && loginType !== '') {
@@ -105,7 +105,7 @@ export default function LoginWithPassword({ form, onChangeLoginWithOption, login
                         isLoading={sendOtpMutation.isPending}
                         loadingText=' '
                         disabled={sendOtpMutation.isPending || forgotPasswordMutation.isPending}
-                        className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
+                        className='min-w-0 whitespace-nowrap p-0 text-[11px] font-semibold text-brand-primary hover:text-brand-primary-foreground sm:text-xs'
                     >
                         Sign in using {loginIdDisplayMap[loginType]} OTP
                     </Button>
@@ -129,7 +129,7 @@ export default function LoginWithPassword({ form, onChangeLoginWithOption, login
                         loadingText=' '
                         isLoading={forgotPasswordMutation.isPending}
                         disabled={sendOtpMutation.isPending || forgotPasswordMutation.isPending}
-                        className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
+                        className='whitespace-nowrap p-0 text-[11px] font-semibold text-brand-primary hover:text-brand-primary-foreground sm:text-xs'
                     >
                         Forgot Password?
                     </Button>

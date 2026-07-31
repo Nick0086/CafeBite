@@ -59,7 +59,7 @@ export default function LoginWithOTP({ form, onChangeLoginWithOption, loginId, l
                 </div>
 
                 <Button
-                    className='w-full'
+                    className='h-12 w-full rounded-xl'
                     variant='primary'
                     type='submit'
                     loadingText=' '
@@ -69,14 +69,14 @@ export default function LoginWithOTP({ form, onChangeLoginWithOption, loginId, l
                     Verify
                 </Button>
 
-                <div className='flex flex-row gap-2 items-center justify-between w-full'>
+                <div className='flex w-full items-center justify-between gap-2'>
                     <Button
                         onClick={() => onChangeLoginWithOption(false)}
                         type='button'
                         variant='none'
                         size='sm'
                         disabled={loginMutation.isPending || sendOtpMutation.isPending}
-                        className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
+                        className='whitespace-nowrap p-0 text-[11px] font-semibold text-brand-primary hover:text-brand-primary-foreground sm:text-xs'
                     >
                         Sign in using password
                     </Button>
@@ -90,7 +90,7 @@ export default function LoginWithOTP({ form, onChangeLoginWithOption, loginId, l
                             type='button'
                             variant='none'
                             size='sm'
-                            className='text-brand-primary hover:text-brand-primary-foreground font-semibold p-0'
+                            className='whitespace-nowrap p-0 text-[11px] font-semibold text-brand-primary hover:text-brand-primary-foreground sm:text-xs'
                             onClick={onResendOtpHandler}
                             loadingText=' '
                             disabled={loginMutation.isPending || sendOtpMutation.isPending}
