@@ -5,7 +5,7 @@ import { ReusableFormField } from '@/common/Form/ReusableFormField';
 export default function ContactSection({ form, isDisabled }) {
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="md:px-6 px-4">
                 <CardTitle className="flex items-center gap-2">
                     <Phone size={20} className="text-orange-600" />
                     Contact Information
@@ -14,7 +14,7 @@ export default function ContactSection({ form, isDisabled }) {
                     How customers can reach your cafe
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="md:px-6 px-4 space-y-4">
                 <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
                     <ReusableFormField
                         control={form.control}

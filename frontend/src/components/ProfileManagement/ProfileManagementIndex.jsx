@@ -104,7 +104,7 @@ export default function ProfileManagementIndex() {
     const cityLabel = cityOptions?.find((v) => v.value === city)?.label;
 
     return (
-        <Card className="p-6 shadow-none">
+        <Card className="md:p-6 p-4 shadow-none">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div>
@@ -113,7 +113,7 @@ export default function ProfileManagementIndex() {
                                 <h1 className="text-3xl font-bold text-gray-900">Profile Management</h1>
                                 <p className="text-gray-600 mt-1">Manage your personal and cafe information</p>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center md:mt-0 mt-2 md:translate-y-0 translate-y-2 ml-auto justify-end gap-2">
                                 {!isEditing ? (
                                     <Button onClick={() => setIsEditing(true)} variant="add" type="button">
                                         <Edit size={16} /> Edit Profile
@@ -155,7 +155,7 @@ export default function ProfileManagementIndex() {
                                 </div>
                             </div>
                         )}
-                        <CardContent className="p-6 flex flex-col gap-y-4 lg:flex-row lg:justify-between">
+                        <CardContent className="md:p-6 p-3 flex flex-col gap-y-4 lg:flex-row lg:justify-between">
                             <div className="flex flex-col md:flex-row items-center md:space-x-6 space-x-0">
                                 <div className="flex-shrink-0">
                                     <div
@@ -204,7 +204,7 @@ export default function ProfileManagementIndex() {
                                 </div>
                             </div>
 
-                            <Separator orientation="vertical" className="h-20 lg:block hidden" />
+                            {/* <Separator orientation="vertical" className="h-28 lg:block hidden" /> */}
 
                             <SubscriptionSection permissions={permissions} />
                         </CardContent>

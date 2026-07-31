@@ -23,7 +23,11 @@ export default function SidebarIndex() {
 
     return (
         <SidebarProvider>
-            <SidebarComponent className={cn('!bg-sidebar')} collapsible="icon" style={{ fontFamily: 'Nunito, "Segoe UI", arial' }}>
+            <SidebarComponent
+                className={cn('border-r border-slate-200 bg-white')}
+                collapsible="icon"
+                style={{ fontFamily: 'Nunito, "Segoe UI", arial' }}
+            >
                 <SidebarHeaderSlot>
                     <SidebarHeader />
                 </SidebarHeaderSlot>
@@ -33,7 +37,7 @@ export default function SidebarIndex() {
             </SidebarComponent>
             <SidebarInset className={cn('h-full w-full min-w-0')}>
                 <SidebarTopBar />
-                <main className="flex-1 overflow-auto md:p-2 lg:p-4 bg-surface-background">
+                <main className="flex-1 overflow-auto bg-surface-background md:p-2 lg:p-4">
                     <Outlet />
                 </main>
             </SidebarInset>

@@ -5,7 +5,7 @@ import { ReusableFormField } from '@/common/Form/ReusableFormField';
 export default function CafeInfoSection({ form, isDisabled }) {
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="md:px-6 px-4">
                 <CardTitle className="flex items-center gap-2">
                     <Building2 size={20} className="text-green-600" />
                     Cafe Information
@@ -14,7 +14,7 @@ export default function CafeInfoSection({ form, isDisabled }) {
                     Your cafe details and branding
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="md:px-6 px-4 space-y-4">
                 <ReusableFormField
                     control={form.control}
                     name='cafeName'

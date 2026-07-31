@@ -1,22 +1,30 @@
+import { useLocation } from 'react-router';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/ui/Layouts/user-nav';
-import { cn } from '@/lib/utils';
+
+const PAGE_TITLES = [
+    { match: '/', title: 'Overview' },
+    { match: '/menu-management', title: 'Menu management' },
+    { match: '/qr-management', title: 'QR code management' },
+    { match: '/profile-management', title: 'Profile' },
+    { match: '/ticket-management', title: 'Customer feedback' },
+];
 
 export default function SidebarTopBar() {
+    const { pathname } = useLocation();
+    const currentPage = PAGE_TITLES.find((page) => page.match === '/' ? pathname === '/' : pathname.startsWith(page.match));
+
     return (
-        <header className={cn(
-            'sticky flex h-12 shrink-0 top-0 z-10 w-full bg-background/95 border-b backdrop-blur',
-            'supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary px-4'
-        )}>
-            <div className="flex items-center gap-2">
+        <header className="sticky top-0 z-10 flex h-12 shrink-0 w-full items-center justify-between border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:px-4">
+            <div className="flex min-w-0 items-center gap-2">
                 <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 h-4" />
+                <Separator orientation="vertical" className="mr-1 h-4" />
+                <span className="truncate text-sm font-semibold text-slate-700 sm:text-base">
+                    {currentPage?.title || 'CafeBite'}
+                </span>
             </div>
-            <div className="flex gap-2 flex-1 items-center justify-end">
-                <Separator orientation="vertical" className="h-6" />
-                <UserNav />
-            </div>
+            <UserNav />
         </header>
     );
 }

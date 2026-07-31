@@ -25,7 +25,7 @@ export default function LocationSection({ form, isDisabled }) {
 
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="md:px-6 px-4">
                 <CardTitle className="flex items-center gap-2">
                     <MapPin size={20} className="text-purple-600" />
                     Location Information
@@ -34,7 +34,7 @@ export default function LocationSection({ form, isDisabled }) {
                     Your cafe&apos;s physical location and address details
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="md:px-6 px-4 space-y-4">
                 <ReusableFormField
                     control={form.control}
                     name='cafeAddress'

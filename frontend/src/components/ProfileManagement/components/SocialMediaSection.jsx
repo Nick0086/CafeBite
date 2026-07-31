@@ -14,7 +14,7 @@ const socialLabel = (Icon, color, label) => (
 export default function SocialMediaSection({ form, isDisabled }) {
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="md:px-6 px-4">
                 <CardTitle className="flex items-center gap-2">
                     <Hash size={20} className="text-pink-600" />
                     Social Media
@@ -23,7 +23,7 @@ export default function SocialMediaSection({ form, isDisabled }) {
                     Connect with customers on social platforms
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="md:px-6 px-4 space-y-4">
                 <div className="grid md:grid-cols-1 gap-4">
                     <ReusableFormField
                         control={form.control}

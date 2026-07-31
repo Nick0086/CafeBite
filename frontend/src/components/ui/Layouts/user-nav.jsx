@@ -24,8 +24,8 @@ import { logoutUser, tokenStore } from '@/service/auth.service';
 import { toastError, toastSuccess } from '@/utils/toast-utils';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 
-const getInitials = (name) => {
-  return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
+const getInitials = (name = '') => {
+  return name.trim().split(' ').filter(Boolean).map(word => word.charAt(0)).join('').toUpperCase() || 'U';
 };
 
 export function UserNav() {
@@ -73,7 +73,7 @@ export function UserNav() {
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={permissions?.logo_signed_url} alt="Avatar"  />
                     <AvatarFallback className="bg-transparent">
-                      {getInitials(permissions?.first_name + ' ' + permissions?.last_name) || 'U'}
+                      {getInitials(`${permissions?.first_name || ''} ${permissions?.last_name || ''}`)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -95,9 +95,9 @@ export function UserNav() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem className="hover:cursor-pointer" asChild>
-              <Link to="/dashboard" className="flex items-center text-gray-700 no-underline">
+              <Link to="/" className="flex items-center text-gray-700 no-underline">
                 <LayoutGrid className="size-5 mr-3 text-muted-foreground" />
-                Dashboard*
+                Overview
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="hover:cursor-pointer" asChild>
