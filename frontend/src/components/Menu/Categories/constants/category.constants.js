@@ -10,7 +10,7 @@ export const CATEGORY_STATUS_OPTIONS = [
 export const CATEGORY_COLUMNS_MAPPING = {
     id: 'Sr No',
     name: 'Category',
-    menu_item_count: 'Count',
+    menu_item_count: 'Menu items',
     status: 'Status',
     actions: 'Actions',
 };

@@ -9,7 +9,6 @@ export function CommonTableToolbar({
     searchPlaceholder,
     statusOptions,
     extraFilters = [],
-    customFilters,
     onResetCustomFilters,
 }) {
     const isFiltered = table.getState().columnFilters.length > 0;
@@ -49,8 +48,6 @@ export function CommonTableToolbar({
                             />
                         );
                     })}
-
-                    {customFilters}
 
                     {isFiltered && (
                         <Button

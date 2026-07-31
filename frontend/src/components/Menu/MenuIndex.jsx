@@ -49,13 +49,13 @@ export default function MenuIndex() {
                         <div className="w-full mx-auto px-0">
                             <Tabs value={selectedTab} className='border-none w-full' onValueChange={handleTabChange}>
                                 <TabsList className="flex flex-wrap w-full border-b border-gray-300">
-                                    <TabsTrigger value="template" variant="team" className="text-blue-500 border-blue-500 data-[state=active]:bg-blue-200 data-[state=active]:text-blue-700">
+                                    <TabsTrigger value="template" variant="team" className="text-blue-500 border-blue-500 data-[state=active]:bg-blue-200 data-[state=active]:text-blue-700 text-xs px-2">
                                         Templates
                                     </TabsTrigger>
-                                    <TabsTrigger value="categories" variant="team" className="text-red-500 border-red-500 data-[state=active]:bg-red-200 data-[state=active]:text-red-700">
+                                    <TabsTrigger value="categories" variant="team" className="text-red-500 border-red-500 data-[state=active]:bg-red-200 data-[state=active]:text-red-700 text-xs px-2">
                                         Categories
                                     </TabsTrigger>
-                                    <TabsTrigger value="menu-items" variant="team" className="text-yellow-500 border-yellow-500 data-[state=active]:bg-yellow-200 data-[state=active]:text-yellow-700">
+                                    <TabsTrigger value="menu-items" variant="team" className="text-yellow-500 border-yellow-500 data-[state=active]:bg-yellow-200 data-[state=active]:text-yellow-700 text-xs px-2">
                                         Menu Items
                                     </TabsTrigger>
                                 </TabsList>

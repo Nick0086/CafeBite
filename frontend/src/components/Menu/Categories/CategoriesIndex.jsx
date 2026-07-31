@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { RowDetailsModal } from '@/common/Modal/RowDetailsModal';
-import CategoriesTable from './components/CategoriesTable';
+import CategoriesCardGrid from './components/CategoriesCardGrid';
 import CategoriesForm from './components/CategoriesForm';
 import { useCategoryList } from './hooks/useCategoriesData';
 
@@ -33,27 +31,12 @@ export default function CategoriesIndex() {
             />
 
             <div className="w-full">
-                <div className="px-2 my-2 flex flex-row flex-wrap justify-between items-center gap-2">
-                    <h2 className="text-2xl font-medium">Menu Categories</h2>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            onClick={openCreate}
-                            size="sm"
-                            className="text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500"
-                        >
-                            <div className="flex items-center gap-1">
-                                <Plus size={18} />
-                                <span className="text-sm">Add Category</span>
-                            </div>
-                        </Button>
-                    </div>
-                </div>
-
-                <CategoriesTable
+                <CategoriesCardGrid
                     data={data}
                     isLoading={isLoading}
                     onView={setSelectedRow}
                     onEdit={openEdit}
+                    onCreate={openCreate}
                 />
             </div>
         </>

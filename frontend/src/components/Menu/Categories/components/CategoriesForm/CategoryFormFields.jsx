@@ -3,13 +3,13 @@ import { CATEGORY_STATUS_OPTIONS } from '../../constants/category.constants';
 
 export default function CategoryFormFields({ form, isEdit, isPending }) {
     return (
-        <div className="space-y-4 mx-auto">
+        <div className="space-y-5">
             <ReusableFormField
                 control={form.control}
                 name="name"
                 required
                 label="Category Name"
-                placeholder="Add Category"
+                placeholder="e.g. Breakfast, Main dishes, Desserts"
                 disabled={isPending}
             />
             {isEdit && (
@@ -18,7 +18,7 @@ export default function CategoryFormFields({ form, isEdit, isPending }) {
                     type="select"
                     name="status"
                     label="Status"
-                    placeholder="Select status"
+                    placeholder="Choose a status"
                     options={CATEGORY_STATUS_OPTIONS}
                     disabled={isPending}
                 />
