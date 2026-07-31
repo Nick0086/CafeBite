@@ -65,7 +65,7 @@ export const sendOneTimePassword = async (userData) => {
 
 export const checkUserSession = async () => {
     try {
-        const response = await api.get('/auth/session/active');
+        const response = await api.get('/auth/session/active', { skipAuthRedirect: true });
         return response.data;
     } catch (error) {
         throw handleApiError(error);

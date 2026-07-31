@@ -19,6 +19,7 @@ import Location from './components/RegistrationForm/Location';
 import Contact from './components/RegistrationForm/Contact';
 import { useAuthSession } from '../hooks/useAuthSession';
 import { useRegisterMutation } from './hooks/useRegistrationData';
+import CafeIcon from '@/assets/SVG/coffee-cup-coffee.svg?react';
 
 const TOTAL_STEPS = 4;
 
@@ -68,6 +69,25 @@ export default function RegistrationIndex() {
     if (step > 1) setStep(step - 1);
   };
 
+  const handleStepClick = async (stepNumber) => {
+    if (stepNumber < step) {
+      setStep(stepNumber);
+      return;
+    }
+
+    if (stepNumber > step) {
+      for (let currentStep = step; currentStep < stepNumber; currentStep += 1) {
+        const valid = await validateStep(currentStep);
+        if (!valid) {
+          setStep(currentStep);
+          return;
+        }
+        setCompletedSteps((prev) => new Set([...prev, currentStep]));
+      }
+      setStep(stepNumber);
+    }
+  };
+
   const onSubmitForm = (data) => {
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
@@ -79,36 +99,31 @@ export default function RegistrationIndex() {
   };
 
   return (
-    /*
-     * Full-viewport layout — the card fills the screen.
-     * No page-level scroll. Only the form body scrolls internally.
-     */
-    <div
-      className="h-[100dvh] w-full flex flex-col items-center justify-center px-4 py-4"
-      style={{ background: 'hsl(231 100% 99%)' }}
-    >
-      <div className="w-full max-w-[560px] h-full max-h-[820px] flex flex-col">
-
-        {/* ── Card ─────────────────────────────────────────── */}
-        <div
-          className="flex-1 min-h-0 flex flex-col rounded-2xl bg-white overflow-hidden"
-          style={{ boxShadow: '0 8px 40px rgba(79,107,237,0.10)', border: '1px solid rgba(99,102,241,0.10)' }}
-        >
-
-          {/* ── Card Header ── */}
-          <div className="flex-shrink-0 border-b border-indigo-50 px-6 pt-5 pb-4">
-            <div className="text-center space-y-0.5">
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight text-primary leading-tight">
-                Join Our Digital Menu Platform
-              </h1>
-              <p className="text-xs text-secondary leading-relaxed">
-                Create your cafe profile and start showcasing your menu online
-              </p>
+    <div className="min-h-[100dvh] w-full bg-[#f7f8fc] px-3 py-4 sm:px-6 sm:py-8">
+      <div className="mx-auto flex min-h-[calc(100dvh-2rem)] w-full max-w-[620px] flex-col sm:min-h-0">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_18px_60px_rgba(30,41,59,0.08)] sm:min-h-[720px]">
+          <div className="flex-shrink-0 border-b border-slate-100 px-4 pb-3 pt-4 sm:px-8 sm:pb-5 sm:pt-8">
+            <div className="mb-2 flex items-center justify-between sm:mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 shadow-sm shadow-indigo-100 sm:h-9 sm:w-9 sm:rounded-xl">
+                  <CafeIcon className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
+                </div>
+                <span className="text-sm font-bold tracking-tight text-slate-900">CafeBite</span>
+              </div>
+              <span className="text-xs font-semibold text-slate-400">Step {step} of {TOTAL_STEPS}</span>
             </div>
+            <h1 className="text-xl font-bold leading-tight tracking-[-0.03em] text-slate-950 sm:text-3xl">
+              Set up your cafe
+            </h1>
+            <p className="mt-1 hidden max-w-md text-sm leading-6 text-slate-500 sm:block sm:mt-2">
+              Create your profile and put your menu in front of more customers.
+            </p>
           </div>
 
-          {/* ── Step Indicator ── */}
-          <div className="flex-shrink-0 px-8 pt-5 pb-4 border-b border-gray-50">
+          <div className="flex-shrink-0 border-b border-slate-100 px-4 py-3 sm:px-8 sm:py-5">
+            <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-slate-100 sm:mb-4">
+              <div className="h-full rounded-full bg-indigo-600 transition-all duration-300" style={{ width: `${(completedSteps.size / TOTAL_STEPS) * 100}%` }} />
+            </div>
             <div className="flex items-start w-full">
               {[1, 2, 3, 4].map((stepNumber, idx) => {
                 const { Icon, iconClass, textClass } = getStepIcon(stepNumber, step);
@@ -117,39 +132,24 @@ export default function RegistrationIndex() {
                   <Fragment key={stepNumber}>
                     {/* Step Node (Circle + Label) */}
                     <div className="flex flex-col items-center flex-shrink-0 relative">
-                      <div
+                      <button
+                        type="button"
                         className={[
                           iconClass,
                           'transition-all duration-300 ease-out cursor-pointer',
-                          'hover:scale-105 active:scale-95 z-10',
+                          'scale-90 hover:scale-95 active:scale-90 sm:scale-100 sm:hover:scale-105 sm:active:scale-95 z-10',
                           stepNumber === step
                             ? 'shadow-[0_0_0_4px_rgba(99,102,241,0.15)]'
                             : '',
                         ].join(' ')}
-                        title={getStepLabel(stepNumber)}
-                        onClick={async () => {
-                          if (stepNumber < step) {
-                            setStep(stepNumber);
-                          } else if (stepNumber > step) {
-                            let ok = true;
-                            for (let s = step; s < stepNumber; s++) {
-                              const valid = await validateStep(s);
-                              if (!valid) {
-                                if (s !== step) setStep(s);
-                                ok = false;
-                                break;
-                              }
-                              setCompletedSteps((prev) => new Set([...prev, s]));
-                            }
-                            if (ok) setStep(stepNumber);
-                          }
-                        }}
+                        aria-label={`Go to ${getStepLabel(stepNumber)}`}
+                        onClick={() => handleStepClick(stepNumber)}
                       >
                         <Icon size={16} strokeWidth={stepNumber === step ? 2.5 : 2} />
-                      </div>
+                      </button>
                       <span className={[
                         textClass,
-                        'text-[10px] font-semibold mt-1.5 whitespace-nowrap text-center transition-colors duration-300',
+                        'hidden text-[10px] font-semibold mt-1.5 whitespace-nowrap text-center transition-colors duration-300 sm:block',
                       ].join(' ')}>
                         {getStepLabel(stepNumber)}
                       </span>
@@ -157,12 +157,12 @@ export default function RegistrationIndex() {
 
                     {/* Connector line segment */}
                     {idx < 3 && (
-                      <div className="flex-1 h-[2px] mx-2 bg-gray-100 rounded-full overflow-hidden self-start mt-5 flex-shrink-0">
+                      <div className="flex-1 h-0.5 mx-1 bg-slate-100 rounded-full overflow-hidden self-start mt-4 sm:mx-2 sm:mt-5 flex-shrink-0">
                         <div
                           className="h-full rounded-full transition-all duration-500 ease-out"
                           style={{
                             width: isCompleted ? '100%' : '0%',
-                            background: 'linear-gradient(90deg,#6366f1,#4f6bed)',
+                           background: '#4f46e5',
                           }}
                         />
                       </div>
@@ -173,14 +173,12 @@ export default function RegistrationIndex() {
             </div>
           </div>
 
-          {/* ── Scrollable Form Body ── */}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmitForm)}
               className="flex-1 min-h-0 flex flex-col"
             >
-              {/* Scrollable content — only THIS area scrolls */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-1">
+              <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-8 sm:py-7">
                 {step === 1 && (
                   <OwnerInfo form={form} isDisabled={registerMutation.isPending} />
                 )}
@@ -200,38 +198,34 @@ export default function RegistrationIndex() {
                 )}
               </div>
 
-              {/* ── Pinned Footer ── */}
-              <div className="flex-shrink-0 border-t border-indigo-50 bg-gray-50/60 px-6 py-3">
-                {/* Sign-in link */}
-                <p className="text-center text-xs text-secondary mb-3">
+              <div className="flex-shrink-0 border-t border-slate-100 bg-white/95 px-4 py-3 backdrop-blur sm:px-8 sm:py-4">
+                <p className="mb-2 text-center text-xs text-slate-500 sm:mb-3">
                   Already have an account?{' '}
                   <Link
                     to="/login"
-                    className="text-brand-primary font-semibold hover:text-brand-primary-foreground transition-colors hover:underline underline-offset-2"
+                    className="font-semibold text-indigo-600 underline-offset-2 transition-colors hover:text-indigo-800 hover:underline"
                   >
                     Sign in
                   </Link>
                 </p>
 
-                {/* Nav buttons */}
-                <div className="flex justify-between gap-4">
+                <div className="flex gap-3">
                   <Button
                     variant="outline"
                     type="button"
                     disabled={step === 1 || registerMutation.isPending}
-                    className="shadow-none border-gray-200 text-secondary hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all gap-1 rounded-lg px-4"
+                    className="h-12 w-12 flex-shrink-0 rounded-xl border-slate-200 p-0 text-slate-600 shadow-none hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 sm:w-auto sm:px-5"
                     onClick={handleBack}
                   >
-                    <ChevronLeft size={15} />
-                    Back
+                    <ChevronLeft size={18} />
+                    <span className="hidden sm:inline">Back</span>
                   </Button>
 
                   {step < TOTAL_STEPS ? (
                     <Button
                       type="button"
                       onClick={handleNext}
-                      className="gap-1 rounded-lg px-6 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-                      style={{ background: 'linear-gradient(135deg,#4f6bed 0%,#6366f1 100%)' }}
+                      className="h-12 flex-1 gap-1 rounded-xl bg-indigo-600 px-6 font-semibold text-white shadow-sm shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-[0.99]"
                     >
                       Next
                       <ChevronRight size={15} />
@@ -241,8 +235,7 @@ export default function RegistrationIndex() {
                       type="button"
                       disabled={registerMutation.isPending}
                       onClick={handleNext}
-                      className="gap-2 rounded-lg px-6 font-semibold text-white shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:scale-100"
-                      style={{ background: 'linear-gradient(135deg,#4f6bed 0%,#6366f1 100%)' }}
+                      className="h-12 flex-1 gap-2 rounded-xl bg-indigo-600 px-6 font-semibold text-white shadow-sm shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-[0.99] disabled:opacity-70"
                     >
                       {registerMutation.isPending ? (
                         <>
@@ -260,8 +253,7 @@ export default function RegistrationIndex() {
           </Form>
         </div>
 
-        {/* ── Bottom legal ── */}
-        <p className="text-center text-[10px] text-gray-400 mt-2 flex-shrink-0">
+        <p className="mt-3 flex-shrink-0 text-center text-[11px] leading-5 text-slate-400">
           By creating an account you agree to our{' '}
           <span className="text-indigo-500 cursor-pointer hover:underline">Terms of Service</span>
           {' '}·{' '}

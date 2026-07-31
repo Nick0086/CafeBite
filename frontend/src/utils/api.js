@@ -51,7 +51,7 @@ api.interceptors.request.use(async config => {
 api.interceptors.response.use(
     response => response,
     (error) => {
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
             localStorage.removeItem(TOKEN_KEYS.accessToken);
             localStorage.removeItem(TOKEN_KEYS.refreshToken);
             localStorage.removeItem(TOKEN_KEYS.userData);

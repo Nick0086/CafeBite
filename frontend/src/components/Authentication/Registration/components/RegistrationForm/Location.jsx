@@ -12,6 +12,7 @@ export default function Location({ form, isDisabled }) {
   const { data: countryData } = useQuery({
     queryKey: [authQueryKeys.COUNTRY],
     queryFn: getAllCountry,
+    staleTime: Infinity,
   });
 
   // Find India's ID from the fetched country list (handles 1 vs 101 dynamically)
@@ -28,6 +29,7 @@ export default function Location({ form, isDisabled }) {
     queryKey: [authQueryKeys.STATE, indiaCountryId],
     queryFn: () => getStateByCountry(indiaCountryId),
     enabled: !!indiaCountryId,
+    staleTime: Infinity,
   });
 
   // ── 3. Fetch Cities based on selected State ──────────────────────────────
@@ -35,6 +37,7 @@ export default function Location({ form, isDisabled }) {
     queryKey: [authQueryKeys.CITY, state],
     queryFn: () => getCityByState(state),
     enabled: !!state,
+    staleTime: Infinity,
   });
 
   // ── 4. Set Country and Currency in the background ────────────────────────
