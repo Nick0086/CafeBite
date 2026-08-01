@@ -1,9 +1,9 @@
-import { FolderOpen, Inbox, SearchX, Sparkles } from 'lucide-react';
+import { FolderOpen, FolderPlus, SearchX, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const config = {
     allEmpty: {
-        icon: Inbox,
+        icon: FolderPlus,
         title: 'No categories yet',
         description: 'Get started by creating your first menu category.',
         showCreate: true,

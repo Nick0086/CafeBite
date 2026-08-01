@@ -51,15 +51,17 @@ export default function CategoriesCardGrid({ data, isLoading, onView, onEdit, on
                         Create and organize the sections of your menu.
                     </p>
                 </div>
-                <Button
-                    onClick={onCreate}
-                    variant="gradient"
-                    size="xss"
-                    className="p-1.5 md:text-sm text-xs ml-auto"
-                >
-                    <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                    Add category
-                </Button>
+                {visible.length > 0 && (
+                    <Button
+                        onClick={onCreate}
+                        variant="gradient"
+                        size="xss"
+                        className="p-1.5 md:text-sm text-xs ml-auto"
+                    >
+                        <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                        Add category
+                    </Button>
+                )}
             </div>
 
             <div className="border-b border-slate-100 px-2 sm:px-3 py-3">

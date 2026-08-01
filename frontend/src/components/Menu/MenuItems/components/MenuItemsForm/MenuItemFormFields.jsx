@@ -1,30 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { ReusableFormField } from '@/common/Form/ReusableFormField';
 import ImageAvatar from '@/components/ui/ImageAvatar';
-import {
-    MENU_ITEM_FOOD_OPTIONS,
-    MENU_ITEM_STATUS_OPTIONS,
-    MENU_ITEM_STOCK_OPTIONS,
-} from '../../constants/menuItem.constants';
+import { MENU_ITEM_FOOD_OPTIONS, MENU_ITEM_STATUS_OPTIONS, MENU_ITEM_STOCK_OPTIONS } from '../../constants/menuItem.constants';
 import { categoryQueryKeys } from '../../../Categories/constants/category.constants';
 import { getAllCategory } from '@/service/categories.service';
 
-export default function MenuItemFormFields({ form, isDirect, isPending, selectedRow }) {
+export default function MenuItemFormFields({ form, isEdit, isDirect, isPending, selectedRow }) {
     const { data: categoryData, isLoading: categoryIsLoading } = useQuery({
         queryKey: [categoryQueryKeys.ALL],
         queryFn: getAllCategory,
     });
 
-    const categoryOptions = (categoryData?.categories || []).map((c) => ({
-        value: c?.unique_id,
-        label: c?.name,
-    }));
+    const categoryOptions = (categoryData?.categories || []).map((c) => ({ value: c?.unique_id, label: c?.name }));
 
-    const coverImage = form.watch('cover_image');
-    const imageWarning = !coverImage;
+    const coverImageError = form.formState.errors.cover_image;
 
     return (
-        <div className="mx-auto grid grid-cols-12 gap-4 px-4 pt-2 mb-2">
+        <div className="grid grid-cols-12 gap-5 max-h-[68dvh] overflow-auto px-4">
             <ReusableFormField
                 control={form.control}
                 name="name"
@@ -88,7 +80,7 @@ export default function MenuItemFormFields({ form, isDirect, isPending, selected
                 className="md:col-span-6 col-span-12"
                 disabled={isPending}
             />
-            {form.watch('name') && (
+            {isEdit && (
                 <ReusableFormField
                     control={form.control}
                     type="select"
@@ -102,7 +94,9 @@ export default function MenuItemFormFields({ form, isDirect, isPending, selected
             )}
 
             <div className="col-span-12">
-                <label className="block text-sm font-medium mb-2">Cover Image</label>
+                <label className="block text-sm font-medium mb-2">
+                    Cover Image <span className="text-red-500">*</span>
+                </label>
                 <ImageAvatar
                     s3ImageUrl={selectedRow?.cover_image_url || selectedRow?.cover_image || ''}
                     onImageUpload={(image) => {
@@ -112,9 +106,9 @@ export default function MenuItemFormFields({ form, isDirect, isPending, selected
                         form.setValue('cover_image', null);
                     }}
                 />
-                {imageWarning && (
-                    <p className="text-orange-500 text-sm mt-2">
-                        Warning: Uploading a cover image is optional but recommended for better visibility.
+                {coverImageError && (
+                    <p className="text-red-500 text-sm mt-2">
+                        {coverImageError.message}
                     </p>
                 )}
             </div>

@@ -10,7 +10,7 @@ const defaultValues = {
     cover_image: '',
     category_id: null,
     availability: 'in_stock',
-    veg_status: 'veg',
+    veg_status: '',
     status: 1,
 };
 
@@ -26,10 +26,10 @@ export function useMenuItemForm({ isEdit, selectedRow, isDirect, open }) {
                 name: selectedRow?.name || '',
                 description: selectedRow?.description || '',
                 price: selectedRow?.price != null ? parseFloat(selectedRow.price) : null,
-                cover_image: selectedRow?.cover_image || null,
+                cover_image: selectedRow?.cover_image_url || selectedRow?.cover_image || null,
                 category_id: selectedRow?.category_id || null,
                 availability: selectedRow?.availability || null,
-                veg_status: selectedRow?.veg_status || 'veg',
+                veg_status: selectedRow?.veg_status || '',
                 status: Number(selectedRow?.status ?? 1),
             });
         } else if (open) {
