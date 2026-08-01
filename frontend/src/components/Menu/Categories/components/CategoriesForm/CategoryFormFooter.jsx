@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 
 export default function CategoryFormFooter({ onCancel, isPending }) {
     return (
-        <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+        <div className="flex gap-2 border-t border-slate-100 pt-5 flex-row justify-end">
             <Button type="button" variant="outline" className="h-10" onClick={onCancel} disabled={isPending}>
                 Cancel
             </Button>

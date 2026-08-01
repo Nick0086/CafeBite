@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GoogleStyleLoader from '@/components/ui/loaders/GoogleStyleLoader';
 import CategoryCard from './CategoryCard';
+import CategoryEmptyState from './CategoryEmptyState';
 
 const TABS = [
     { label: 'All', value: 'all' },
@@ -17,7 +18,7 @@ export default function CategoriesCardGrid({ data, isLoading, onView, onEdit, on
     const [search, setSearch] = useState('');
     const [tab, setTab] = useState('active');
 
-    const { counts, filtered } = useMemo(() => {
+    const { counts, visible, filtered } = useMemo(() => {
         const categories = data?.categories || [];
         const q = search.trim().toLowerCase();
         const matchesSearch = (cat) => !q || cat.name?.toLowerCase().includes(q);
@@ -28,6 +29,7 @@ export default function CategoriesCardGrid({ data, isLoading, onView, onEdit, on
 
         return {
             counts: { all: visible.length, active: active.length, inactive: inactive.length },
+            visible,
             filtered: tab === 'all' ? visible : tab === 'active' ? active : inactive,
         };
     }, [data, search, tab]);
@@ -85,21 +87,16 @@ export default function CategoriesCardGrid({ data, isLoading, onView, onEdit, on
 
             <div className="p-3 sm:p-4">
                 {filtered.length === 0 ? (
-                    <div className="flex min-h-[40dvh] flex-col items-center justify-center text-slate-500">
-                        <p className="text-sm font-medium">No categories found.</p>
-                        {(search || tab !== 'all') && (
-                            <Button
-                                variant="link"
-                                className="mt-1 h-auto p-0 text-xs"
-                                onClick={() => {
-                                    setSearch('');
-                                    setTab('all');
-                                }}
-                            >
-                                Clear filters
-                            </Button>
-                        )}
-                    </div>
+                    <CategoryEmptyState
+                        hasCategories={visible.length > 0}
+                        hasSearch={!!search.trim()}
+                        tab={tab}
+                        onCreate={onCreate}
+                        onClear={() => {
+                            setSearch('');
+                            setTab('all');
+                        }}
+                    />
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {filtered.map((category) => (
