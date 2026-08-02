@@ -52,6 +52,7 @@ export default function MenuItemFormFields({ form, isEdit, isDirect, isPending, 
             <ReusableFormField
                 control={form.control}
                 name="price"
+                type="number"
                 required
                 label="Price"
                 placeholder="Enter the price (e.g., 9.99)"

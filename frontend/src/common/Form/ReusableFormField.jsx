@@ -59,11 +59,11 @@ export const ReusableFormField = ({
             disabled: disabled || isLoading,
             readOnly: readonly,
             placeholder,
-            onChange: (e) => {
-                const value = e.target.value;
-                field.onChange(value);
-                onValueChange?.(value);
-            },
+                    onChange: (e) => {
+                        const value = type === 'number' ? e.target.valueAsNumber : e.target.value;
+                        field.onChange(value);
+                        onValueChange?.(value);
+                    },
 
         };
 
