@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,9 +8,14 @@ import { PRICE_OPERATORS } from '../constants/menuItem.constants';
 
 const DEFAULT_OPERATOR = 'equals';
 
-export default function MenuItemsPriceFilter({ onChange }) {
-    const [operator, setOperator] = useState(DEFAULT_OPERATOR);
-    const [amount, setAmount] = useState('');
+export default function MenuItemsPriceFilter({ value, onChange }) {
+    const [operator, setOperator] = useState(value?.operator || DEFAULT_OPERATOR);
+    const [amount, setAmount] = useState(value?.value != null ? String(value.value) : '');
+
+    useEffect(() => {
+        setOperator(value?.operator || DEFAULT_OPERATOR);
+        setAmount(value?.value != null ? String(value.value) : '');
+    }, [value?.operator, value?.value]);
 
     const apply = (nextAmount, nextOperator) => {
         const parsed = parseFloat(nextAmount);
