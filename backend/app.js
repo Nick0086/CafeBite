@@ -13,8 +13,24 @@ const limiter = rateLimit({
 
 const app = express();
 
+const allowedOrigins = [
+    process.env.FRONTEND_DOMAIN_PROD,
+    process.env.FRONTEND_DOMAIN_LOCAL,
+    process.env.FRONTEND_DOMAIN,
+    'https://smartmenu.company',
+    'https://www.smartmenu.company',
+    'http://localhost:5173',
+    'http://192.168.1.4:5173'
+].filter(Boolean);
+
 app.use(cors({
-    origin: [process.env.FRONTEND_DOMAIN],
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(null, true);
+        }
+    },
     credentials: true
 }));
 

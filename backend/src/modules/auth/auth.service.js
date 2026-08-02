@@ -7,10 +7,12 @@ import jwt from 'jsonwebtoken';
 
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
+const isProd = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'PROD';
+
 export const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'DEV' ? false : true,
-    sameSite: process.env.NODE_ENV === 'DEV' ? true : 'None',
+    secure: isProd,
+    sameSite: isProd ? 'None' : true,
     path: '/',
 };
 

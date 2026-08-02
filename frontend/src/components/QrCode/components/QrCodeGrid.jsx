@@ -78,7 +78,7 @@ const QrCodeGrid = ({ qrCodes, selectedQrCodes, toggleQrCodeSelection, handleMod
                                 data-qrid={qr.unique_id}
                                 value={
                                     import.meta.env.DEV
-                                        ? `${import.meta.env.VITE_BASE_LOACL_URL}/menu/${qr.client_id}/${qr.unique_id}`
+                                        ? `${import.meta.env.VITE_BASE_LOCAL_URL}/menu/${qr.client_id}/${qr.unique_id}`
                                         : `${import.meta.env.VITE_BASE_FRONTEND_URL}/menu/${qr.client_id}/${qr.unique_id}`
                                 }
                                 size={160}

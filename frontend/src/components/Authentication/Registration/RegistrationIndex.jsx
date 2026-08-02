@@ -13,21 +13,6 @@ import {
   stepFieldMap,
 } from './constants/registration.constants';
 import { fullProfileSchema } from '@/common/validation/profile.schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, Fragment } from 'react';
-import { useForm } from 'react-hook-form';
-import { Navigate, Link } from 'react-router';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
-import {
-  getStepIcon,
-  getStepLabel,
-  registerFormDefaultValues,
-  stepFieldMap,
-} from './constants/registration.constants';
-import { fullProfileSchema } from '@/common/validation/profile.schemas';
 import OwnerInfo from './components/RegistrationForm/OwnerInfo';
 import CafeInfo from './components/RegistrationForm/CafeInfo';
 import Location from './components/RegistrationForm/Location';

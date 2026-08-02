@@ -1,10 +1,12 @@
 import jwt from 'jsonwebtoken';
 import query from '../utils/query.utils.js';
 
+const isProd = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'PROD';
+
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'DEV' ? false : true,               // Required for cross-site cookies
-    sameSite: process.env.NODE_ENV === 'DEV' ? true : 'None',           // Required for cross-site cookies
+    secure: isProd,
+    sameSite: isProd ? 'None' : true,
     path: '/',
 };
 
