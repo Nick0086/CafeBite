@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/useMobile';
+import { cn } from '@/lib/utils';
 import {
     MENU_ITEM_FOOD_OPTIONS,
     MENU_ITEM_STATUS_OPTIONS,
@@ -44,27 +45,42 @@ export default function MenuItemsFilters({
 
     return (
         <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-slate-100 px-2 sm:px-3 py-2 sm:py-3">
-            <div className={isMobile ? 'flex gap-2 items-stretch' : 'flex flex-wrap gap-2 items-center'}>
+            <div className={isMobile ? 'flex gap-2 items-center' : 'flex flex-wrap gap-2 items-center'}>
                 <div className={isMobile ? 'relative flex-1' : 'relative w-full sm:w-[200px] lg:w-[320px]'}>
-                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                     <Input
                         placeholder="Filter By Menu..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className={isMobile ? 'h-11 pl-9 rounded-lg bg-muted/40 border-slate-200' : 'h-9 pl-8'}
+                        className={isMobile ? 'h-11 pl-9 pr-8 rounded-lg bg-slate-50 border-slate-200 focus-visible:ring-primary text-sm placeholder:text-slate-400 font-medium' : 'h-9 pl-8'}
                     />
+                    {search && isMobile && (
+                        <button
+                            type="button"
+                            onClick={() => setSearch('')}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
 
                 {isMobile ? (
                     <Button
+                        type="button"
                         onClick={() => setDrawerOpen(true)}
-                        className="h-11 px-4 gap-1.5 rounded-lg shadow-sm shrink-0"
+                        className={cn(
+                            "h-11 px-4 gap-2 rounded-lg font-semibold text-sm shadow-xs transition-all shrink-0 flex items-center justify-center",
+                            totalSelected > 0
+                                ? "bg-primary text-white hover:bg-primary/90"
+                                : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                        )}
                         aria-label="Open filters"
                     >
                         <SlidersHorizontal className="h-4 w-4" />
-                        <span className="text-sm font-semibold">Filters</span>
+                        <span>Filters</span>
                         {totalSelected > 0 && (
-                            <span className="ml-0.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary-foreground text-primary px-1.5 text-[10px] font-bold">
+                            <span className="ml-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-slate-900 text-xs font-bold shadow-xs">
                                 {totalSelected}
                             </span>
                         )}

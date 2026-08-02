@@ -1,90 +1,108 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
+import { Separator } from '@/components/ui/separator';
+import { CachedImage } from '@/components/ui/CachedImage';
 import { VegStatusBadge } from '@/common/StatusBadge';
 import { cn } from '@/lib/utils';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
-import { MapPin, Phone, Mail, Plus, Minus } from 'lucide-react';
+import { MapPin, Phone, Mail, Plus, Minus, Search } from 'lucide-react';
 import { useMenuStyles } from './menuStyles';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { useMenuItemImageUrl } from '@/components/Menu/MenuItems/hooks/useMenuItemsData';
+import CustomerMenuFilterBar from './CustomerMenuFilterBar';
 import {
     DEFAULT_INITIAL_RENDER_BATCH,
     RENDER_BATCH_INCREMENT,
     RENDER_BATCH_MAX,
 } from '../constants/customerMenu.constants';
 
-const MenuItem = memo(({ item, styles, currencySymbol }) => {
+const OptimizedImage = memo(({ item, alt, currentView }) => {
     const { ref, inView } = useInView({
         threshold: 0.1,
+        rootMargin: '150px',
         triggerOnce: true,
-        rootMargin: '300px 0px',
     });
-
     const hasImage = !!(item?.image_details?.path);
-    const { data: imageData } = useMenuItemImageUrl(item?.unique_id, { enabled: hasImage && inView });
+    const { data: imageData, isLoading } = useMenuItemImageUrl(item?.unique_id, { enabled: hasImage && inView });
     const imageUrl = imageData?.imageUrl;
 
-    const { isInStock, price } = useMemo(() => ({
-        isInStock: item.availability === 'in_stock',
-        price: parseFloat(item.price),
-    }), [item.availability, item.price]);
+    return (
+        <div ref={ref} className={cn("rounded-lg overflow-hidden shrink-0 relative", currentView ? 'w-[124px] min-w-[124px] h-[100px]' : 'w-full h-64')}>
+            <div className="absolute top-1.5 right-1.5 z-10 bg-white/95 backdrop-blur-xs rounded-md shadow-sm p-0.5">
+                <VegStatusBadge type={item?.veg_status} />
+            </div>
+            {!hasImage ? (
+                <div className={cn("bg-gray-200 rounded-lg flex items-center justify-center", currentView ? 'w-[124px] h-[100px]' : 'w-full h-64')}>
+                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            ) : isLoading || !imageUrl ? (
+                <div className="bg-gray-200 rounded-lg flex items-center justify-center animate-pulse" style={{ width: currentView ? '124px' : '100%', height: currentView ? '100px' : '256px' }}>
+                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            ) : (
+                <CachedImage
+                    src={imageUrl}
+                    alt={alt || 'Menu item'}
+                    className="object-cover"
+                    currentView={currentView}
+                    quality={0.8}
+                    lazy={false}
+                    placeholder={true}
+                    showCacheStatus={false}
+                />
+            )}
+        </div>
+    );
+});
+OptimizedImage.displayName = 'OptimizedImage';
 
-    const itemInStock = item.availability !== 'out_of_stock';
+const MenuItem = memo(({ item, styles, currencySymbol, currentView }) => {
+    MenuItem.displayName = 'MenuItem';
+    const [hasBeenVisible, setHasBeenVisible] = useState(false);
+    const { ref, inView } = useInView({
+        threshold: 0.1,
+        triggerOnce: false,
+        rootMargin: '100px 0px',
+    });
+
+    useEffect(() => {
+        if (inView && !hasBeenVisible) setHasBeenVisible(true);
+    }, [inView, hasBeenVisible]);
+
+    const cardStyle = styles?.cardStyle || {};
+    const titleStyle = styles?.titleStyle || {};
+    const descriptionStyle = styles?.descriptionStyle || {};
 
     return (
-        <div ref={ref} className="px-2 pb-0.5">
-            {inView ? (
-                <Card className="overflow-hidden border border-border">
-                    <CardContent className="p-0">
-                        <div className="flex flex-row items-start gap-3 p-3">
-                            {hasImage && (
-                                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                                    {imageUrl ? (
-                                        <LazyLoadImage
-                                            alt={item?.name}
-                                            height={90}
-                                            src={imageUrl}
-                                            width={90}
-                                            className="rounded-lg size-[90px] object-cover"
-                                        />
-                                    ) : (
-                                        <div className="size-[90px] bg-gray-200 animate-pulse rounded-lg" />
-                                    )}
-                                </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-1.5">
-                                            <VegStatusBadge type={item?.veg_status} />
-                                            <h4 className="font-medium text-sm leading-tight truncate">
-                                                {item.name}
-                                            </h4>
-                                        </div>
-                                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                                            {item.description}
-                                        </p>
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                                        <span className="font-semibold text-sm whitespace-nowrap">
-                                            {currencySymbol} {price.toFixed(2)}
-                                        </span>
-                                        {!itemInStock && (
-                                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                                                Out of stock
-                                            </Badge>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+        <div ref={ref} className="h-full">
+            {(inView || hasBeenVisible) ? (
+                <Card style={cardStyle} className={cn("flex flex-col justify-between overflow-hidden h-full relative", currentView === 'list' && 'flex-row p-3 gap-4')}>
+                    <OptimizedImage item={item} alt={item?.name} currentView={currentView === 'list'} />
+                    <CardContent className={cn("flex flex-col flex-auto justify-between p-4 px-2", currentView === 'list' && 'p-0 min-w-0')}>
+                        <div className="flex flex-col gap-1">
+                            <CardTitle style={titleStyle} className="md:text-lg text-base text-primary flex items-center gap-2">
+                                {item?.name}
+                            </CardTitle>
+                            <CardDescription style={descriptionStyle} className="text-secondary md:text-sm text-xs">
+                                {item?.description}
+                            </CardDescription>
+                        </div>
+                        <div className="flex flex-row flex-wrap justify-between items-center mt-2 gap-2">
+                            <span style={titleStyle} className="text-base font-bold whitespace-nowrap">
+                                {currencySymbol} {item?.price}
+                            </span>
                         </div>
                     </CardContent>
                 </Card>
             ) : (
-                <div className="w-full h-96 bg-gray-100 rounded-lg animate-pulse" />
+                <div className="w-full h-64 bg-gray-100 rounded-lg animate-pulse" />
             )}
         </div>
     );
@@ -213,12 +231,52 @@ export default function CustomerMenuViewer({ menuConfig, options = {}, clinetInf
         globalFromConfig.button_background_color,
     ]);
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedFoodTypes, setSelectedFoodTypes] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+
     const visibleCategories = useMemo(
         () => categories.filter(
             (category) => category?.visible && category?.items?.filter((item) => item?.visible)?.length > 0,
         ),
         [categories],
     );
+
+    const filteredCategories = useMemo(() => {
+        return visibleCategories
+            .filter((category) => {
+                const catId = category.id || category.unique_id;
+                if (selectedCategories.length > 0) {
+                    return selectedCategories.includes(catId);
+                }
+                return true;
+            })
+            .map((category) => {
+                const filteredItems = (category?.items || []).filter((item) => {
+                    if (!item?.visible) return false;
+
+                    if (searchQuery.trim() !== '') {
+                        const q = searchQuery.toLowerCase().trim();
+                        const matchesName = item?.name?.toLowerCase().includes(q);
+                        const matchesDesc = item?.description?.toLowerCase().includes(q);
+                        if (!matchesName && !matchesDesc) return false;
+                    }
+
+                    if (selectedFoodTypes.length > 0) {
+                        const status = item?.veg_status || 'veg';
+                        if (!selectedFoodTypes.includes(status)) return false;
+                    }
+
+                    return true;
+                });
+
+                return {
+                    ...category,
+                    items: filteredItems,
+                };
+            })
+            .filter((category) => category.items.length > 0);
+    }, [visibleCategories, selectedCategories, searchQuery, selectedFoodTypes]);
 
     const containerStyle = useMemo(
         () => globalConfig?.background_color ? { backgroundColor: globalConfig.background_color } : {},
@@ -282,7 +340,20 @@ export default function CustomerMenuViewer({ menuConfig, options = {}, clinetInf
                 </CardContent>
             </Card>
 
-            {visibleCategories.map((category) => (
+            {visibleCategories.length > 0 && (
+                <CustomerMenuFilterBar
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    selectedFoodTypes={selectedFoodTypes}
+                    onFoodTypeChange={setSelectedFoodTypes}
+                    selectedCategories={selectedCategories}
+                    onCategoryChange={setSelectedCategories}
+                    categories={visibleCategories}
+                    styles={styles}
+                />
+            )}
+
+            {filteredCategories.map((category) => (
                 <CategoryAccordion
                     key={category.id || category.unique_id || category.name}
                     globalConfig={globalConfig}
@@ -291,6 +362,30 @@ export default function CustomerMenuViewer({ menuConfig, options = {}, clinetInf
                     currentView={menuConfig?.view || 'grid'}
                 />
             ))}
+
+            {visibleCategories.length > 0 && filteredCategories.length === 0 && (
+                <div className="flex flex-col items-center justify-center p-8 text-center bg-card rounded-xl border border-slate-200 shadow-xs my-6">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                        <Search size={24} />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-800">No food items match your filter</h3>
+                    <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                        Try clearing your search query or removing dietary and category filters.
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setSearchQuery('');
+                            setSelectedFoodTypes([]);
+                            setSelectedCategories([]);
+                        }}
+                        style={styles?.buttonBackgroundStyle}
+                        className="mt-4 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl text-xs shadow-xs transition-all"
+                    >
+                        Reset All Filters
+                    </button>
+                </div>
+            )}
 
             {visibleCategories.length === 0 && (
                 <div className="flex items-center justify-center h-64">

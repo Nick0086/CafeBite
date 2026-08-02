@@ -27,7 +27,10 @@ const OptimizedImage = memo(({ item, alt, currentView }) => {
     const imageUrl = imageData?.imageUrl;
 
     return (
-        <div ref={ref} className={cn("rounded-lg overflow-hidden", currentView ? 'w-[124px] min-w-[124px] h-[100px]' : 'w-full h-64')}>
+        <div ref={ref} className={cn("rounded-lg overflow-hidden shrink-0 relative", currentView ? 'w-[124px] min-w-[124px] h-[100px]' : 'w-full h-64')}>
+            <div className="absolute top-1.5 right-1.5 z-10 bg-white/95 backdrop-blur-xs rounded-md shadow-sm p-0.5">
+                <VegStatusBadge type={item?.veg_status} />
+            </div>
             {!hasImage ? (
                 <div className={cn("bg-gray-200 rounded-lg flex items-center justify-center", currentView ? 'w-[124px] h-[100px]' : 'w-full h-64')}>
                     <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +52,7 @@ const OptimizedImage = memo(({ item, alt, currentView }) => {
                     quality={0.8}
                     lazy={false}
                     placeholder={true}
-                    showCacheStatus={import.meta.env.DEV}
+                    showCacheStatus={false}
                 />
             )}
         </div>
@@ -115,9 +118,6 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, curr
             {/* Always render if it has been visible once to prevent blob URL issues */}
             {(inView || hasBeenVisible) ? (
                 <Card style={cardStyle} className={cn("flex flex-col justify-between overflow-hidden h-full relative", currentView === 'list' && 'flex-row p-3 gap-4')}>
-                    {currentView === 'list' ? "" : <div className='absolute top-2 right-2 z-[1]' >
-                        <VegStatusBadge type={item?.veg_status} />
-                    </div>}
                     <OptimizedImage item={item} alt={item?.name} currentView={currentView === 'list'} />
                     <CardContent className={cn("flex flex-col flex-auto justify-between p-4 px-2", currentView === 'list' && 'p-0')}>
                         <div className="flex flex-col gap-1">
@@ -132,15 +132,6 @@ const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, curr
                             <span style={titleStyle} className="text-base font-bold whitespace-nowrap">
                                 {currencySymbol} {item?.price}
                             </span>
-                            <div className='flex flex-row flex-wrap items-center gap-2' >
-                                {currentView === 'list' &&
-                                    <>
-                                        <VegStatusBadge type={item?.veg_status} />
-                                        <Separator orientation='vertical' className='bg-gray-400 h-4' />
-                                    </>
-                                }
-                                <Chip variant="light" color={isInStock ? "green" : "red"} radius="md" size="xs">{isInStock ? "In Stock" : "Out Of Stock"}</Chip>
-                            </div>
                         </div>
                     </CardContent>
                 </Card>
