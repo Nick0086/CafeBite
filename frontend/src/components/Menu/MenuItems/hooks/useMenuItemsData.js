@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createMenuItem, getAllMenuItems, updateMenuItem } from '@/service/menuItems.service';
+import { createMenuItem, getAllMenuItems, getMenuItemImageUrl, updateMenuItem } from '@/service/menuItems.service';
 import { getAllCategory } from '@/service/categories.service';
 import { categoryQueryKeys } from '../../Categories/constants/category.constants';
 import { menuItemQueryKeys } from '../constants/menuItem.constants';
@@ -8,6 +8,15 @@ export function useMenuItemList() {
     return useQuery({
         queryKey: [menuItemQueryKeys.ALL],
         queryFn: getAllMenuItems,
+    });
+}
+
+export function useMenuItemImageUrl(menuItemId, { enabled } = {}) {
+    return useQuery({
+        queryKey: menuItemQueryKeys.IMAGE_URL(menuItemId),
+        queryFn: () => getMenuItemImageUrl(menuItemId),
+        staleTime: 23 * 60 * 60 * 1000,
+        enabled: enabled ?? !!menuItemId,
     });
 }
 
@@ -31,7 +40,7 @@ export function useCreateMenuItemMutation() {
 export function useUpdateMenuItemMutation() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: updateMenuItem,
+        mutationFn: ({ menuItemId, ...data }) => updateMenuItem(menuItemId, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [menuItemQueryKeys.ALL] });
         },

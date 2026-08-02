@@ -20,6 +20,15 @@ export const getSignedUrl = async (key, expiresIn = 86400) => {
     return presignUrl(minioClient, command, { expiresIn });
 };
 
+export const getUploadSignedUrl = async (key, expiresIn = 300) => {
+    const command = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        ContentType: 'image/webp',
+    });
+    return presignUrl(minioClient, command, { expiresIn });
+};
+
 export const deleteObject = async (key) => {
     const command = new DeleteObjectCommand({ Bucket: bucketName, Key: key });
     return minioClient.send(command);

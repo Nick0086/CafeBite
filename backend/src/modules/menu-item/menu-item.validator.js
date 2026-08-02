@@ -7,6 +7,7 @@ export const createMenuItemValidator = [
     body("price").notEmpty().withMessage("Price is required").isFloat({ min: 0 }).withMessage("Price must be >= 0"),
     body("availability").optional().isIn(["in_stock", "out_of_stock"]).withMessage("Invalid availability"),
     body("veg_status").optional().isIn(["veg", "non_veg", "egg"]).withMessage("Invalid veg status"),
+    body("image_details").isObject().notEmpty().withMessage("Image details is required"),
 ];
 
 export const updateMenuItemValidator = [
@@ -18,4 +19,5 @@ export const updateMenuItemValidator = [
     body("availability").optional().isIn(["in_stock", "out_of_stock"]).withMessage("Invalid availability"),
     body("status").optional().isInt({ min: 0, max: 1 }).withMessage("Status must be 0 or 1"),
     body("veg_status").optional().isIn(["veg", "non_veg", "egg"]).withMessage("Invalid veg status"),
+    body("image_details").optional(),
 ];

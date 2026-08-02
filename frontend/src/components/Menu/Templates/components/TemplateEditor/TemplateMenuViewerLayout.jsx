@@ -8,27 +8,41 @@ import { DEFAULT_SECTION_THEME } from '../../constants/template.constants';
 import { Button } from '@/components/ui/button';
 import { CachedImage } from '@/components/ui/CachedImage';
 import { Separator } from '@/components/ui/separator';
-import { imageCache } from '@/lib/ImageCacheService';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 import { useTemplate } from '@/contexts/TemplateContext';
 import { Edit } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { VegStatusBadge } from '@/common/StatusBadge';
 import { useIsMobile } from '@/hooks/useMobile';
+import { useMenuItemImageUrl } from '@/components/Menu/MenuItems/hooks/useMenuItemsData';
 
-const OptimizedImage = memo(({ src, alt, currentView }) => {
-OptimizedImage.displayName = 'OptimizedImage';
+const OptimizedImage = memo(({ item, alt, currentView }) => {
     const { ref, inView } = useInView({
         threshold: 0.1,
         rootMargin: '150px',
         triggerOnce: true,
     });
+    const hasImage = !!(item?.image_details?.path);
+    const { data: imageData, isLoading } = useMenuItemImageUrl(item?.unique_id, { enabled: hasImage && inView });
+    const imageUrl = imageData?.imageUrl;
 
     return (
         <div ref={ref} className={cn("rounded-lg overflow-hidden", currentView ? 'w-[124px] min-w-[124px] h-[100px]' : 'w-full h-64')}>
-            {inView ? (
+            {!hasImage ? (
+                <div className={cn("bg-gray-200 rounded-lg flex items-center justify-center", currentView ? 'w-[124px] h-[100px]' : 'w-full h-64')}>
+                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            ) : isLoading || !imageUrl ? (
+                <div className={cn("bg-gray-200 rounded-lg flex items-center justify-center animate-pulse", currentView ? 'w-[124px] h-[100px]' : 'w-full h-64')}>
+                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            ) : (
                 <CachedImage
-                    src={src}
+                    src={imageUrl}
                     alt={alt || 'Menu item'}
                     className="object-cover"
                     currentView={currentView}
@@ -37,21 +51,11 @@ OptimizedImage.displayName = 'OptimizedImage';
                     placeholder={true}
                     showCacheStatus={import.meta.env.DEV}
                 />
-            ) : (
-                <div className={cn("bg-gray-200 rounded-lg flex items-center justify-center animate-pulse", currentView ? 'w-[124px] h-[100px]' : 'w-full h-64')}>
-                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                    </svg>
-                </div>
             )}
         </div>
     );
 });
+OptimizedImage.displayName = 'OptimizedImage';
 
 const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, currentView }) => {
 MenuItem.displayName = 'MenuItem';
@@ -59,25 +63,13 @@ MenuItem.displayName = 'MenuItem';
     const isInStock = item.availability === 'in_stock';
     const { ref, inView } = useInView({
         threshold: 0.1,
-        triggerOnce: false, // Allow re-triggering for better scroll handling
+        triggerOnce: false,
         rootMargin: '100px 0px',
     });
 
-    // Preload image when first visible
     useEffect(() => {
-        if (inView && !hasBeenVisible && item?.image_details?.url) {
-            setHasBeenVisible(true);
-
-            // Preload image in background
-            imageCache.preloadImage(item.image_details.url, {
-                width: 400,
-                height: 256,
-                quality: 0.8
-            }).catch(error => {
-                console.warn('Failed to preload template image:', item.image_details.url, error);
-            });
-        }
-    }, [inView, hasBeenVisible, item?.image_details?.url]);
+        if (inView && !hasBeenVisible) setHasBeenVisible(true);
+    }, [inView, hasBeenVisible]);
 
     const cardStyle = useMemo(() => {
         if (
@@ -126,7 +118,7 @@ MenuItem.displayName = 'MenuItem';
                     {currentView === 'list' ? "" : <div className='absolute top-2 right-2 z-[1]' >
                         <VegStatusBadge type={item?.veg_status} />
                     </div>}
-                    <OptimizedImage src={item?.image_details?.url} alt={item?.name} currentView={currentView === 'list'} />
+                    <OptimizedImage item={item} alt={item?.name} currentView={currentView === 'list'} />
                     <CardContent className={cn("flex flex-col flex-auto justify-between p-4 px-2", currentView === 'list' && 'p-0')}>
                         <div className="flex flex-col gap-1">
                             <CardTitle style={titleStyle} className="md:text-lg text-base text-primary flex items-center gap-2">
@@ -163,8 +155,6 @@ const CategoryAccordion = memo(({ category, globalConfig, itemEditHander, curren
 CategoryAccordion.displayName = 'CategoryAccordion';
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
-    const [hasBeenVisible, setHasBeenVisible] = useState(false);
-
     const { ref, inView } = useInView({
         threshold: 0.1,
         rootMargin: '300px 0px',
@@ -176,47 +166,8 @@ CategoryAccordion.displayName = 'CategoryAccordion';
     useEffect(() => {
         if (inView && !isLoaded) {
             setIsLoaded(true);
-            setHasBeenVisible(true);
         }
     }, [inView, isLoaded]);
-
-    // Preload category images when visible
-    useEffect(() => {
-        if (!inView || hasBeenVisible || !category?.items) return;
-        const imageUrls = category.items
-            .filter(item => item?.visible && item?.image_details?.url)
-            .map(item => item.image_details.url);
-
-        if (imageUrls.length > 0) {
-            const batchSize = 3;
-            let cancelled = false;
-            let timerId = null;
-            const preloadBatch = async (urls, startIndex = 0) => {
-                if (cancelled) return;
-                const batch = urls.slice(startIndex, startIndex + batchSize);
-                if (batch.length === 0) return;
-                try {
-                    await imageCache.preloadImages(batch, {
-                        width: 400,
-                        height: 256,
-                        quality: 0.8
-                    });
-                    if (cancelled) return;
-                    if (startIndex + batchSize < urls.length) {
-                        timerId = setTimeout(() => preloadBatch(urls, startIndex + batchSize), 200);
-                    }
-                } catch (error) {
-                    console.warn('Category image preload batch failed:', error);
-                }
-            };
-            preloadBatch(imageUrls);
-            setHasBeenVisible(true);
-            return () => {
-                cancelled = true;
-                if (timerId) clearTimeout(timerId);
-            };
-        }
-    }, [inView, hasBeenVisible, category?.items, category?.name]);
 
     const sectionStyle = useMemo(() => {
         if (

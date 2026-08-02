@@ -116,7 +116,7 @@ export default function MenuItemsCardGrid({ items, isLoading, categoryOptions, f
                                             className="!text-xs text-indigo-500 gap-2 border bg-white hover:text-white border-indigo-500 hover:bg-indigo-500"
                                             size="xs"
                                         >
-                                            <Plus size={14} /> Add to {category}
+                                            <Plus size={14} /> Add Item
                                         </Button>
                                     </div>
 

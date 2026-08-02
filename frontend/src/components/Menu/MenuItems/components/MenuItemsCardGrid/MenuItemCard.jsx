@@ -3,19 +3,47 @@ import { useInView } from 'react-intersection-observer';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Button } from '@/components/ui/button';
-import { SquarePen } from 'lucide-react';
+import { SquarePen, Loader2, ImageIcon } from 'lucide-react';
 import { CachedImage } from '@/components/ui/CachedImage';
 import { imageCache } from '@/lib/ImageCacheService';
 import { VegStatusBadge } from '@/common/StatusBadge';
+import { useMenuItemImageUrl } from '../../hooks/useMenuItemsData';
 
-const OptimizedImage = ({ src, alt }) => {
-    const { ref, inView } = useInView({ threshold: 0.1, rootMargin: '150px' });
+const ImageThumb = ({ item }) => {
+    const { ref: imageRef, inView: imageInView } = useInView({ threshold: 0.1, rootMargin: '150px' });
+    const hasImage = !!(item?.image_details?.path);
+    const { data: imageData, isLoading } = useMenuItemImageUrl(item?.unique_id, { enabled: hasImage && imageInView });
+    const imageUrl = imageData?.imageUrl;
+
+    const mountedRef = useRef(true);
+    useEffect(() => () => { mountedRef.current = false; }, []);
+
+    useEffect(() => {
+        if (imageUrl) {
+            imageCache
+                .preloadImage(imageUrl, { width: 400, height: 224, quality: 0.8 })
+                .catch(() => { if (mountedRef.current) console.warn('Failed to preload image:', imageUrl); });
+        }
+    }, [imageUrl]);
+
     return (
-        <div ref={ref} className="w-full h-56 rounded-lg overflow-hidden">
-            {inView ? (
+        <div ref={imageRef} className="w-full h-56 rounded-lg overflow-hidden">
+            {!hasImage ? (
+                <div className="w-full h-full bg-gray-100 rounded-lg flex flex-col items-center justify-center gap-2">
+                    <ImageIcon className="w-8 h-8 text-gray-300" />
+                    <span className="text-xs text-gray-400">No image</span>
+                </div>
+            ) : !imageInView || isLoading || !imageUrl ? (
+                <div className="w-full h-full bg-gray-100 rounded-lg flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+                    <span className="text-xs text-gray-400">
+                        {!imageInView ? 'Scroll to load' : !imageUrl ? 'Fetching...' : 'Loading...'}
+                    </span>
+                </div>
+            ) : (
                 <CachedImage
-                    src={src}
-                    alt={alt || 'Menu Items'}
+                    src={imageUrl}
+                    alt={item?.name || 'Menu Items'}
                     className="w-full h-full object-cover"
                     width={400}
                     height={224}
@@ -23,12 +51,6 @@ const OptimizedImage = ({ src, alt }) => {
                     lazy={false}
                     placeholder={true}
                 />
-            ) : (
-                <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center animate-pulse">
-                    <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
             )}
         </div>
     );
@@ -36,17 +58,6 @@ const OptimizedImage = ({ src, alt }) => {
 
 export default function MenuItemCard({ item, onEdit, currencySymbol }) {
     const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true, rootMargin: '100px 0px' });
-    const mountedRef = useRef(true);
-
-    useEffect(() => () => { mountedRef.current = false; }, []);
-
-    useEffect(() => {
-        if (inView && item?.image_details?.url) {
-            imageCache
-                .preloadImage(item.image_details.url, { width: 400, height: 224, quality: 0.8 })
-                .catch((err) => { if (mountedRef.current) console.warn('Failed to preload image:', item.image_details.url, err); });
-        }
-    }, [inView, item?.image_details?.url]);
 
     return (
         <div ref={ref} className="h-full">
@@ -64,7 +75,7 @@ export default function MenuItemCard({ item, onEdit, currencySymbol }) {
                         <SquarePen size={16} />
                     </Button>
 
-                    <OptimizedImage src={item?.image_details?.url} alt={item?.name} />
+                    <ImageThumb item={item} />
 
                     <CardContent className="flex flex-col flex-auto justify-between p-4 px-2">
                         <div className="flex flex-col gap-1">

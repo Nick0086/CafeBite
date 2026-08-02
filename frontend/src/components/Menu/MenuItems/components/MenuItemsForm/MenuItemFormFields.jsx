@@ -4,12 +4,17 @@ import ImageAvatar from '@/components/ui/ImageAvatar';
 import { MENU_ITEM_FOOD_OPTIONS, MENU_ITEM_STATUS_OPTIONS, MENU_ITEM_STOCK_OPTIONS } from '../../constants/menuItem.constants';
 import { categoryQueryKeys } from '../../../Categories/constants/category.constants';
 import { getAllCategory } from '@/service/categories.service';
+import { useMenuItemImageUrl } from '../../hooks/useMenuItemsData';
 
 export default function MenuItemFormFields({ form, isEdit, isDirect, isPending, selectedRow }) {
     const { data: categoryData, isLoading: categoryIsLoading } = useQuery({
         queryKey: [categoryQueryKeys.ALL],
         queryFn: getAllCategory,
     });
+
+    const hasImageForEdit = isEdit && !!(selectedRow?.image_details?.path);
+    const { data: imageData } = useMenuItemImageUrl(selectedRow?.unique_id, { enabled: hasImageForEdit });
+    const existingImageUrl = imageData?.imageUrl;
 
     const categoryOptions = (categoryData?.categories || []).map((c) => ({ value: c?.unique_id, label: c?.name }));
 
@@ -99,7 +104,7 @@ export default function MenuItemFormFields({ form, isEdit, isDirect, isPending, 
                     Cover Image <span className="text-red-500">*</span>
                 </label>
                 <ImageAvatar
-                    s3ImageUrl={selectedRow?.cover_image_url || selectedRow?.cover_image || ''}
+                    s3ImageUrl={existingImageUrl || ''}
                     onImageUpload={(image) => {
                         form.setValue('cover_image', image);
                     }}

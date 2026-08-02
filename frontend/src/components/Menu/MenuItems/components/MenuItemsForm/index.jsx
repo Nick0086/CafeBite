@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { PencilLine, UtensilsCrossed } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/tremor-dialog';
 import { Form } from '@/components/ui/form';
@@ -6,38 +7,73 @@ import { useMenuItemForm } from '../../hooks/useMenuItemsForm';
 import { useCreateMenuItemMutation, useUpdateMenuItemMutation } from '../../hooks/useMenuItemsData';
 import MenuItemFormFields from './MenuItemFormFields';
 import MenuItemFormFooter from './MenuItemFormFooter';
+import { getUploadUrl } from '@/service/menuItems.service';
+import { processImageToWebp } from '@/lib/imageProcessor';
 
 export default function MenuItemForm({ open, onHide, isEdit, selectedRow, isDirect }) {
     const form = useMenuItemForm({ isEdit, selectedRow, isDirect, open });
     const createMutation = useCreateMenuItemMutation();
     const updateMutation = useUpdateMenuItemMutation();
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleModalClose = () => {
         form.reset();
         onHide();
     };
 
-    const handleFormSubmit = (data) => {
-        const formData = new FormData();
-        for (const [key, value] of Object.entries(data)) {
-            if (value === null || value === undefined || value === '') continue;
-            if (key === 'cover_image' && !(value instanceof File)) continue;
-            formData.append(key, value);
+    const uploadImage = async (file) => {
+        const { uploadUrl, key } = await getUploadUrl();
+        const processedBlob = await processImageToWebp(file);
+        const res = await fetch(uploadUrl, { method: 'PUT', body: processedBlob, headers: { 'Content-Type': 'image/webp' } });
+        if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+        const timestamp = Date.now();
+        return {
+            fileName: file.name,
+            public_id: `upload_${timestamp}_${file.name}`,
+            fileMimeType: 'image/webp',
+            path: key,
+        };
+    };
+
+    const handleFormSubmit = async (data) => {
+        const coverFile = data.cover_image;
+
+        let imageDetails = null;
+        if (coverFile instanceof File) {
+            setIsUploading(true);
+            try {
+                imageDetails = await uploadImage(coverFile);
+            } catch {
+                toastError('Failed to upload image. Please try again.');
+                return;
+            } finally {
+                setIsUploading(false);
+            }
         }
+
+        const payload = {
+            category_id: data.category_id,
+            name: data.name,
+            description: data.description,
+            price: data.price,
+            availability: data.availability,
+            veg_status: data.veg_status,
+            image_details: imageDetails,
+        };
 
         if (isEdit && !isDirect) {
             updateMutation.mutate(
-                { menuData: formData, menuItemId: selectedRow?.unique_id },
+                { menuItemId: selectedRow?.unique_id, ...payload },
                 {
                     onSuccess: (res) => {
                         toastSuccess(res?.message || `Menu Item ${data.name} updated successfully`);
                         handleModalClose();
                     },
-                    onError: (error) => toastError(`Error updating Menu Item: ${error?.err?.error}`),
+                    onError: (error) => toastError(`Error updating Menu Item: ${error?.err?.error || error?.message}`),
                 }
             );
         } else {
-            createMutation.mutate(formData, {
+            createMutation.mutate(payload, {
                 onSuccess: (res) => {
                     toastSuccess(res?.message || `Menu Item ${data.name} added successfully`);
                     handleModalClose();
@@ -47,7 +83,7 @@ export default function MenuItemForm({ open, onHide, isEdit, selectedRow, isDire
         }
     };
 
-    const isPending = createMutation.isPending || updateMutation.isPending;
+    const isPending = createMutation.isPending || updateMutation.isPending || isUploading;
 
     return (
         <Dialog className="p-0" open={open} onOpenChange={handleModalClose}>

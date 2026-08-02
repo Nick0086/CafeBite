@@ -8,6 +8,8 @@ import { createMenuItemValidator, updateMenuItemValidator } from "./menu-item.va
 const router = Router();
 
 router.get('/', authMiddleware, subscriptionMiddleware, menuItemController.fetchAllMenuItems);
+router.get('/:menuItemId/image-url', authMiddleware, subscriptionMiddleware, menuItemController.getMenuItemImageUrl);
+router.post('/upload-url', authMiddleware, subscriptionMiddleware, menuItemController.generateUploadUrl);
 router.post('/', authMiddleware, subscriptionMiddleware, createMenuItemValidator, validate, menuItemController.createMenuItem);
 router.put('/:menuItemId', authMiddleware, subscriptionMiddleware, updateMenuItemValidator, validate, menuItemController.updateMenuItem);
 

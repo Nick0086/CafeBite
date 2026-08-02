@@ -1,5 +1,6 @@
 export const menuItemQueryKeys = {
     ALL: 'menu-item',
+    IMAGE_URL: (id) => ['menu-item', 'image-url', id],
 };
 
 export const MENU_ITEM_STATUS_OPTIONS = [

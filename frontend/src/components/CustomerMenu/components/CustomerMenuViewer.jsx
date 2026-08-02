@@ -10,6 +10,7 @@ import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 import { MapPin, Phone, Mail, Plus, Minus } from 'lucide-react';
 import { useMenuStyles } from './menuStyles';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { useMenuItemImageUrl } from '@/components/Menu/MenuItems/hooks/useMenuItemsData';
 import {
     DEFAULT_INITIAL_RENDER_BATCH,
     RENDER_BATCH_INCREMENT,
@@ -24,6 +25,9 @@ const MenuItem = memo(({ item, styles, currencySymbol }) => {
     });
 
     const { addItem, removeItem, orderItems } = useOrder();
+    const hasImage = !!(item?.image_details?.path);
+    const { data: imageData } = useMenuItemImageUrl(item?.unique_id, { enabled: hasImage && inView });
+    const imageUrl = imageData?.imageUrl;
 
     const { isInStock, itemInOrder, price } = useMemo(() => ({
         isInStock: item.availability === 'in_stock',
@@ -58,15 +62,19 @@ const MenuItem = memo(({ item, styles, currencySymbol }) => {
                 <Card className="overflow-hidden border border-border">
                     <CardContent className="p-0">
                         <div className="flex flex-row items-start gap-3 p-3">
-                            {item.image_details?.url && (
+                            {hasImage && (
                                 <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                                    {imageUrl ? (
                                         <LazyLoadImage
                                             alt={item?.name}
-                                            height={item?.image_url ? 90 : 48}
-                                            src={item?.image_url || '/placeholder.svg'}
-                                            width={item?.image_url ? 90 : 48}
-                                            className={`rounded-lg ${item?.image_url ? 'size-[90px] object-cover' : 'size-12'}`}
+                                            height={90}
+                                            src={imageUrl}
+                                            width={90}
+                                            className="rounded-lg size-[90px] object-cover"
                                         />
+                                    ) : (
+                                        <div className="size-[90px] bg-gray-200 animate-pulse rounded-lg" />
+                                    )}
                                 </div>
                             )}
                             <div className="flex-1 min-w-0">
