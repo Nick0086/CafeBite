@@ -58,7 +58,7 @@ const OptimizedImage = memo(({ item, alt, currentView }) => {
 OptimizedImage.displayName = 'OptimizedImage';
 
 const MenuItem = memo(({ item, globalConfig, categoryStyle, currencySymbol, currentView }) => {
-MenuItem.displayName = 'MenuItem';
+    MenuItem.displayName = 'MenuItem';
     const [hasBeenVisible, setHasBeenVisible] = useState(false);
     const isInStock = item.availability === 'in_stock';
     const { ref, inView } = useInView({
@@ -128,19 +128,19 @@ MenuItem.displayName = 'MenuItem';
                                 {item?.description}
                             </CardDescription>
                         </div>
-                        <div className="flex sm:flex-row-reverse flex-col justify-between mt-2 gap-1">
-                            <div className='flex items-center gap-2' >
+                        <div className="flex flex-row flex-wrap justify-between items-center mt-2 gap-2">
+                            <span style={titleStyle} className="text-base font-bold whitespace-nowrap">
+                                {currencySymbol} {item?.price}
+                            </span>
+                            <div className='flex flex-row flex-wrap items-center gap-2' >
                                 {currentView === 'list' &&
                                     <>
                                         <VegStatusBadge type={item?.veg_status} />
-                                        <Separator orientation='vertical' className='bg-gray-400' />
+                                        <Separator orientation='vertical' className='bg-gray-400 h-4' />
                                     </>
                                 }
                                 <Chip variant="light" color={isInStock ? "green" : "red"} radius="md" size="xs">{isInStock ? "In Stock" : "Out Of Stock"}</Chip>
                             </div>
-                            <span style={titleStyle} className="text-base font-bold">
-                                {currencySymbol} {item?.price}
-                            </span>
                         </div>
                     </CardContent>
                 </Card>
@@ -152,7 +152,7 @@ MenuItem.displayName = 'MenuItem';
 });
 
 const CategoryAccordion = memo(({ category, globalConfig, itemEditHander, currencySymbol, currentView }) => {
-CategoryAccordion.displayName = 'CategoryAccordion';
+    CategoryAccordion.displayName = 'CategoryAccordion';
     const categoryId = category.id || category.unique_id || category.name;
     const categoryStyle = category?.style || {};
     const { ref, inView } = useInView({
