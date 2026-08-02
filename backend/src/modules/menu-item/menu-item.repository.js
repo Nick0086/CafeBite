@@ -54,6 +54,11 @@ export const findMenuItemById = async (menuItemId, clientId, connection = null) 
     return await query(sql, [menuItemId, clientId], connection);
 };
 
+export const findMenuItemByUniqueId = async (menuItemId, connection = null) => {
+    const sql = 'SELECT * FROM menu_items WHERE unique_id = ?';
+    return await query(sql, [menuItemId], connection);
+};
+
 export const countMenuItems = async (clientId, categoryId, connection = null) => {
     const sql = 'SELECT COUNT(*) AS total FROM menu_items WHERE client_id = ? AND category_id = ?';
     return await query(sql, [clientId, categoryId], connection);

@@ -8,6 +8,8 @@ export const getMenuItemSchema = ({ isEdit } = {}) => z.object({
         .number({ invalid_type_error: 'Price must be a valid number' })
         .min(0.01, 'Price is required'),
     veg_status: z.string().min(1, 'Please select a food type'),
+    status: z.union([z.string(), z.number()]).optional(),
+    availability: z.string().optional(),
     cover_image: isEdit
         ? z.any().optional()
         : z.any().refine((value) => value !== null && value !== undefined && value !== '', {

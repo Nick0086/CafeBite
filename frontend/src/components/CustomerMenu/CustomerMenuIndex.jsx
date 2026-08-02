@@ -39,7 +39,7 @@ export default function CustomerMenuIndex() {
 
         const allItemsByCategory = menuItemsData.menuItems.reduce((acc, item) => {
             const categoryId = item.category_id || 'Uncategorized';
-            if (item.status) {
+            if (item.status == 1 && item.availability !== 'out_of_stock') {
                 if (!acc[categoryId]) acc[categoryId] = [];
                 acc[categoryId].push({ ...item, visible: true });
             }
@@ -132,15 +132,12 @@ export default function CustomerMenuIndex() {
     }
 
     return (
-        <OrderProvider>
-            <div className="relative">
-                <CustomerMenuViewer
-                    menuConfig={derivedTemplateConfig}
-                    options={DEFAULT_MENU_OPTIONS}
-                    clinetInfo={clinetInfo}
-                />
-                <OrderDrawer currencySymbol={clinetInfo?.currency_symbol || ''} />
-            </div>
-        </OrderProvider>
+        <div className="relative">
+            <CustomerMenuViewer
+                menuConfig={derivedTemplateConfig}
+                options={DEFAULT_MENU_OPTIONS}
+                clinetInfo={clinetInfo}
+            />
+        </div>
     );
 }

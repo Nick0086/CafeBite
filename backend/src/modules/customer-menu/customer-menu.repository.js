@@ -31,6 +31,6 @@ export const findCategoriesByClientId = async (clientId, connection = null) => {
 };
 
 export const findMenuItemsByClientId = async (clientId, connection = null) => {
-    const sql = `SELECT menu_items.*, categories.name AS category_name FROM menu_items JOIN categories ON menu_items.category_id = categories.unique_id WHERE menu_items.client_id = ?`;
+    const sql = `SELECT menu_items.*, categories.name AS category_name FROM menu_items JOIN categories ON menu_items.category_id = categories.unique_id WHERE menu_items.client_id = ? AND menu_items.status = 1 AND menu_items.availability != 'out_of_stock'`;
     return await query(sql, [clientId], connection);
 };

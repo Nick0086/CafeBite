@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { VegStatusBadge } from '@/common/StatusBadge';
 import { cn } from '@/lib/utils';
-import { useOrder } from '@/contexts/OrderManagementContext';
 import { useMenuPreloader } from '@/hooks/useMenuPreloader';
 import { MapPin, Phone, Mail, Plus, Minus } from 'lucide-react';
 import { useMenuStyles } from './menuStyles';
@@ -24,37 +23,16 @@ const MenuItem = memo(({ item, styles, currencySymbol }) => {
         rootMargin: '300px 0px',
     });
 
-    const { addItem, removeItem, orderItems } = useOrder();
     const hasImage = !!(item?.image_details?.path);
     const { data: imageData } = useMenuItemImageUrl(item?.unique_id, { enabled: hasImage && inView });
     const imageUrl = imageData?.imageUrl;
 
-    const { isInStock, itemInOrder, price } = useMemo(() => ({
+    const { isInStock, price } = useMemo(() => ({
         isInStock: item.availability === 'in_stock',
-        itemInOrder: orderItems.find(
-            (orderItem) => orderItem.id === item.id || orderItem.unique_id === item.unique_id,
-        ),
         price: parseFloat(item.price),
-    }), [item.availability, item.id, item.unique_id, item.price, orderItems]);
-
-    const handleAdd = () => {
-        if (!isInStock) return;
-        addItem({
-            id: item.id,
-            unique_id: item.unique_id,
-            name: item.name,
-            price: item.price,
-            category_id: item.category_id,
-            image_details: item.image_details,
-        });
-    };
-
-    const handleRemove = () => {
-        removeItem(item.id || item.unique_id);
-    };
+    }), [item.availability, item.price]);
 
     const itemInStock = item.availability !== 'out_of_stock';
-    const quantity = itemInOrder?.quantity || 0;
 
     return (
         <div ref={ref} className="px-2 pb-0.5">
@@ -81,7 +59,7 @@ const MenuItem = memo(({ item, styles, currencySymbol }) => {
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-1.5">
-                                            <VegStatusBadge type={item?.is_veg} />
+                                            <VegStatusBadge type={item?.veg_status} />
                                             <h4 className="font-medium text-sm leading-tight truncate">
                                                 {item.name}
                                             </h4>
@@ -94,41 +72,10 @@ const MenuItem = memo(({ item, styles, currencySymbol }) => {
                                         <span className="font-semibold text-sm whitespace-nowrap">
                                             {currencySymbol} {price.toFixed(2)}
                                         </span>
-                                        {!itemInStock ? (
+                                        {!itemInStock && (
                                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                                                 Out of stock
                                             </Badge>
-                                        ) : quantity > 0 ? (
-                                            <div className="flex items-center gap-1.5">
-                                                <Button
-                                                    size="icon"
-                                                    variant="destructive"
-                                                    className="h-7 w-7"
-                                                    onClick={handleRemove}
-                                                >
-                                                    <Minus size={12} />
-                                                </Button>
-                                                <span className="text-sm font-medium w-5 text-center">
-                                                    {quantity}
-                                                </span>
-                                                <Button
-                                                    size="icon"
-                                                    className="h-7 w-7"
-                                                    onClick={handleAdd}
-                                                >
-                                                    <Plus size={12} />
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <Button
-                                                disabled={!isInStock}
-                                                style={styles?.buttonBackgroundStyle}
-                                                variant="primary"
-                                                size="icon"
-                                                onClick={handleAdd}
-                                            >
-                                                <Plus size={14} style={styles?.buttonLabelStyle} />
-                                            </Button>
                                         )}
                                     </div>
                                 </div>

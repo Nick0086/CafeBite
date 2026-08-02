@@ -58,7 +58,10 @@ export const fetchAllMenuItems = async (clientId) => {
 };
 
 export const getMenuItemImageUrl = async (clientId, menuItemId) => {
-    const [menuItem] = await menuItemRepository.findMenuItemById(menuItemId, clientId);
+    const [menuItem] = clientId 
+        ? await menuItemRepository.findMenuItemById(menuItemId, clientId)
+        : await menuItemRepository.findMenuItemByUniqueId(menuItemId);
+        
     if (!menuItem) {
         throw new HttpError("Menu Item not found", 404);
     }

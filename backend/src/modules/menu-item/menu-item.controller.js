@@ -29,7 +29,7 @@ export const updateMenuItem = asyncHandler(async (req, res) => {
 });
 
 export const getMenuItemImageUrl = asyncHandler(async (req, res) => {
-    const { unique_id: clientId } = req.user;
+    const clientId = req.user?.unique_id;
     const { menuItemId } = req.params;
     const response = await menuItemService.getMenuItemImageUrl(clientId, menuItemId);
     return res.status(200).json(response);

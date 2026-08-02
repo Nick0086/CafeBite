@@ -1,4 +1,4 @@
-import { api, handleApiError } from "@/utils/api";
+import { api, authApi, handleApiError } from "@/utils/api";
 
 export const getAllMenuItems = async () => {
     try {
@@ -11,8 +11,8 @@ export const getAllMenuItems = async () => {
 
 export const getMenuItemImageUrl = async (menuItemId) => {
     try {
-        const response = await api.get(`/menu/${menuItemId}/image-url`);
-        return response.data
+        const response = await authApi.get(`/menu/${menuItemId}/image-url`);
+        return response.data;
     } catch (error) {
         throw handleApiError(error);
     }

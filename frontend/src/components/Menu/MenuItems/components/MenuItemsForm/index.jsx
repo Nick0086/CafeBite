@@ -58,6 +58,7 @@ export default function MenuItemForm({ open, onHide, isEdit, selectedRow, isDire
             price: data.price,
             availability: data.availability,
             veg_status: data.veg_status,
+            status: data.status !== undefined ? Number(data.status) : undefined,
             image_details: imageDetails,
         };
 
