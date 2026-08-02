@@ -105,6 +105,7 @@ export default function MenuItemFormFields({ form, isEdit, isDirect, isPending, 
                 </label>
                 <ImageAvatar
                     s3ImageUrl={existingImageUrl || ''}
+                    disabled={isPending}
                     onImageUpload={(image) => {
                         form.setValue('cover_image', image);
                     }}

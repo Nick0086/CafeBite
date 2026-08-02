@@ -3,7 +3,7 @@ import { useInView } from 'react-intersection-observer';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Button } from '@/components/ui/button';
-import { SquarePen, Loader2, ImageIcon } from 'lucide-react';
+import { SquarePen, ImageIcon } from 'lucide-react';
 import { CachedImage } from '@/components/ui/CachedImage';
 import { imageCache } from '@/lib/ImageCacheService';
 import { VegStatusBadge } from '@/common/StatusBadge';
@@ -34,11 +34,16 @@ const ImageThumb = ({ item }) => {
                     <span className="text-xs text-gray-400">No image</span>
                 </div>
             ) : !imageInView || isLoading || !imageUrl ? (
-                <div className="w-full h-full bg-gray-100 rounded-lg flex flex-col items-center justify-center gap-2">
-                    <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
-                    <span className="text-xs text-gray-400">
-                        {!imageInView ? 'Scroll to load' : !imageUrl ? 'Fetching...' : 'Loading...'}
-                    </span>
+                <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden flex flex-col items-center justify-center gap-2 relative animate-pulse">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-200/50 to-gray-100" />
+                    <div className="relative z-10 flex flex-col items-center justify-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-white/70 shadow-sm flex items-center justify-center">
+                            <ImageIcon className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <span className="text-xs text-gray-500 font-medium">
+                            {!imageInView ? 'Scroll to load' : 'Image loading'}
+                        </span>
+                    </div>
                 </div>
             ) : (
                 <CachedImage

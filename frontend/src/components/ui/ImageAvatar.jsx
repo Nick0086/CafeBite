@@ -1,161 +1,188 @@
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useEffect, useRef, useState } from 'react';
+import { ReactPhotoEditor } from 'react-photo-editor';
+import { Pencil, Trash2, Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { cn } from '@/lib/utils';
 
-const ImageAvatar = ({ s3ImageUrl, onImageUpload, onDeleteImage }) => {
+const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
+const ActionButton = ({ onClick, disabled, children, label, className }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        title={label}
+        className={cn(
+            'flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 disabled:pointer-events-none disabled:opacity-50',
+            className
+        )}
+    >
+        {children}
+    </button>
+);
+
+const ImageAvatar = ({ s3ImageUrl = '', onImageUpload, onDeleteImage, disabled = false }) => {
     const [uploadedImage, setUploadedImage] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(1); // Default zoom level is 1 (100%)
-    const [position, setPosition] = useState({ x: 0, y: 0 }); // Image position
-    const [isDraggingEnabled, setIsDraggingEnabled] = useState(false); // Toggle dragging
-    const [isDragging, setIsDragging] = useState(false); // Track active dragging
+    const [previewUrl, setPreviewUrl] = useState(null);
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [isFetchingFile, setIsFetchingFile] = useState(false);
     const fileInputRef = useRef(null);
-    const containerRef = useRef(null); // Ref for the container div
-    const dragStartRef = useRef({ x: 0, y: 0 }); // Store initial drag position
-    // Handle image upload
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        const maxSize = 5 * 1024 * 1024; // 5 MB
 
-        if (file && file.size <= maxSize) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setUploadedImage(reader.result);
-                setZoomLevel(1);
-                setPosition({ x: 0, y: 0 });
-                setIsDraggingEnabled(false);
-                onImageUpload(file);
-            };
-            reader.readAsDataURL(file);
-        } else if (file) {
-            toast.warning("Please upload an image less than 5 MB.");
+    useEffect(() => () => previewUrl && URL.revokeObjectURL(previewUrl), [previewUrl]);
+
+    useEffect(() => {
+        if (!editorOpen) return;
+        if (uploadedImage || !s3ImageUrl) return;
+        let cancelled = false;
+        setIsFetchingFile(true);
+        fetch(s3ImageUrl)
+            .then((res) => res.blob())
+            .then((blob) => {
+                if (cancelled) return;
+                const name = s3ImageUrl.split('/').pop()?.split('?')[0] || 'cover.jpg';
+                const file = new File([blob], name, { type: blob.type || 'image/jpeg' });
+                setUploadedImage(file);
+            })
+            .catch(() => {
+                if (!cancelled) toast.error('Failed to load image for editing');
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setIsFetchingFile(false);
+                    setEditorOpen(false);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [editorOpen, uploadedImage, s3ImageUrl]);
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        if (file.size > MAX_SIZE_BYTES) {
+            toast.warning('Please upload an image less than 5 MB.');
+            return;
         }
+        setUploadedImage(file);
+        setEditorOpen(true);
     };
 
-    // Trigger file input
-    const triggerFileInput = () => {
-        fileInputRef.current.click();
+    const handleSaveImage = (file) => {
+        setUploadedImage(file);
+        setPreviewUrl(URL.createObjectURL(file));
+        setEditorOpen(false);
+        onImageUpload?.(file);
     };
 
-       // Handle image deletion
-       const handleDeleteImage = (e) => {
-        e.stopPropagation();
-        // Reset the file input
-        if (fileInputRef.current) {
-            fileInputRef.current.value = "";
-        }
+    const handleDeleteImage = () => {
         setUploadedImage(null);
-        setZoomLevel(1);
-        setPosition({ x: 0, y: 0 });
-        setIsDraggingEnabled(false);
-        onDeleteImage();
+        setPreviewUrl(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        onDeleteImage?.();
     };
 
-    // Start dragging
-    const handleMouseDown = (e) => {
-        if (isDraggingEnabled && zoomLevel > 1) {
-            setIsDragging(true);
-            dragStartRef.current = {
-                x: e.clientX - position.x,
-                y: e.clientY - position.y,
-            };
-            e.preventDefault();
-            e.stopPropagation();
-        }
+    const handleChangeClick = () => {
+        if (disabled) return;
+        fileInputRef.current?.click();
     };
 
-    // Handle dragging
-    const handleMouseMove = (e) => {
-        if (isDragging && isDraggingEnabled) {
-            const newX = e.clientX - dragStartRef.current.x;
-            const newY = e.clientY - dragStartRef.current.y;
-
-            const container = containerRef.current;
-            if (container) {
-                const imgWidth = container.offsetWidth * zoomLevel;
-                const imgHeight = container.offsetHeight * zoomLevel;
-                const maxX = (imgWidth - container.offsetWidth) / 2;
-                const maxY = (imgHeight - container.offsetHeight) / 2;
-
-                setPosition({
-                    x: Math.max(-maxX, Math.min(maxX, newX)),
-                    y: Math.max(-maxY, Math.min(maxY, newY)),
-                });
-            }
-            e.stopPropagation();
-        }
+    const handleEditClick = () => {
+        if (disabled) return;
+        if (uploadedImage || s3ImageUrl) setEditorOpen(true);
     };
 
-    // Stop dragging
-    const handleMouseUp = (e) => {
-        setIsDragging(false);
-        e.stopPropagation();
-    };
-
-    // Handle click on container
-    const handleContainerClick = () => {
-        if (!isDragging && !isDraggingEnabled) {
-            triggerFileInput();
-        }
-    };
+    const hasImage = !!(previewUrl || s3ImageUrl);
+    const imageUrl = previewUrl || s3ImageUrl;
+    const canEdit = hasImage && !disabled;
 
     return (
-        <div className={cn("relative rounded-lg border-2 border-dashed border-gray-200 p-4 flex items-center justify-center ", (uploadedImage || s3ImageUrl) && "")}>
-            {/* Image Container */}
-            <div
-                ref={containerRef}
-                className="w-[320px] h-[240px] border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center"
-                onClick={handleContainerClick}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-                style={{ cursor: isDraggingEnabled && zoomLevel > 1 ? 'grab' : 'pointer' }}
-            >
-                {(uploadedImage || s3ImageUrl) ? (
-                    <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-lg ">
-                        <img
-                            src={uploadedImage || s3ImageUrl}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                            style={{
-                                transform: `scale(${zoomLevel}) translate(${position.x}px, ${position.y}px)`,
-                                transition: isDragging ? 'none' : 'transform 0.1s ease',
-                            }}
-                            draggable={false}
-                        />
-                    </div>
-                ) : (
-                    <span className="text-secondary">No Image</span>
+        <div className="flex w-full flex-col items-center gap-2">
+            <div className={cn('flex items-center justify-center gap-1.5', !hasImage && 'invisible h-0 overflow-hidden')}>
+                {canEdit && (
+                    <ActionButton onClick={handleEditClick} disabled={isFetchingFile} label="Edit image">
+                        <Pencil className="h-4 w-4" />
+                    </ActionButton>
+                )}
+                {hasImage && (
+                    <ActionButton onClick={handleChangeClick} label="Change image">
+                        <Upload className="h-4 w-4" />
+                    </ActionButton>
+                )}
+                {hasImage && (
+                    <ActionButton
+                        onClick={handleDeleteImage}
+                        label="Remove image"
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </ActionButton>
                 )}
             </div>
 
-            {/* Hidden File Input */}
+            <div
+                className={cn(
+                    'group relative aspect-video w-full max-w-xs overflow-hidden rounded-lg border-2 border-dashed bg-gradient-to-br from-slate-50 to-slate-100 transition-all duration-200',
+                    hasImage
+                        ? 'border-slate-200 hover:border-indigo-300'
+                        : 'border-slate-300 hover:border-indigo-400 hover:from-indigo-50/50 hover:to-slate-50',
+                    disabled && 'pointer-events-none opacity-60',
+                    !disabled && 'cursor-pointer'
+                )}
+                onClick={!hasImage ? handleChangeClick : undefined}
+                role={!hasImage ? 'button' : undefined}
+                tabIndex={!hasImage ? 0 : undefined}
+                onKeyDown={(e) => {
+                    if (!hasImage && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        handleChangeClick();
+                    }
+                }}
+            >
+                {hasImage ? (
+                    <img
+                        src={imageUrl}
+                        alt="Cover"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        draggable={false}
+                    />
+                ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-3 text-center">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-200 transition group-hover:bg-indigo-50 group-hover:ring-indigo-200">
+                            <Upload className="h-4 w-4 text-slate-400 transition group-hover:text-indigo-500" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">Click to upload cover</p>
+                            <p className="text-[10px] text-slate-400">PNG, JPG, WEBP up to 5MB</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="hidden"
+                disabled={disabled}
             />
 
-            {/* Controls */}
-            {(uploadedImage || s3ImageUrl) && (
-                <div className="absolute top-2 right-2 flex gap-2 flex-wrap">
-                    {uploadedImage && (
-                        <Button
-                            type="button"
-                            variant="danger"
-                            size="xs"
-                            onClick={handleDeleteImage}
-
-                        >
-                            <Trash2 size={12} />
-                        </Button>
-                    )}
-                </div>
-            )}
+            <ReactPhotoEditor
+                open={editorOpen}
+                file={uploadedImage}
+                onClose={() => setEditorOpen(false)}
+                onSaveImage={handleSaveImage}
+                allowColorEditing={false}
+                allowDrawing={false}
+                modalWidth="min(40rem, calc(100vw - 1rem))"
+                modalHeight="min(90vh, calc(100dvh - 1rem))"
+                canvasWidth="100%"
+                canvasHeight="auto"
+                maxCanvasWidth="calc(100vw - 2rem)"
+                maxCanvasHeight="min(50vh, 60vw)"
+            />
         </div>
     );
 };

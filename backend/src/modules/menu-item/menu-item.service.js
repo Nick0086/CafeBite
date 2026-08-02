@@ -73,13 +73,13 @@ export const getMenuItemImageUrl = async (clientId, menuItemId) => {
     if (!signedUrlCache[menuItemId]) signedUrlCache[menuItemId] = {};
 
     const cached = signedUrlCache[menuItemId];
-    if (cached?.url && cached?.expiresAt > now) {
+    if (cached?.url && cached?.expiresAt > now && cached.path === imageDetails.path) {
         return { success: true, imageUrl: cached.url, expiresAt: cached.expiresAt };
     }
 
     const signedUrl = await getSignedUrl(imageDetails.path, 86400);
     const expiresAt = now + 86400 * 1000;
-    signedUrlCache[menuItemId] = { url: signedUrl, expiresAt };
+    signedUrlCache[menuItemId] = { url: signedUrl, expiresAt, path: imageDetails.path };
 
     return { success: true, imageUrl: signedUrl, expiresAt };
 };

@@ -41,8 +41,9 @@ export function useUpdateMenuItemMutation() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ menuItemId, ...data }) => updateMenuItem(menuItemId, data),
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: [menuItemQueryKeys.ALL] });
+            queryClient.invalidateQueries({ queryKey: menuItemQueryKeys.IMAGE_URL(variables.menuItemId) });
         },
     });
 }
