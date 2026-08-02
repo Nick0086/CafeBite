@@ -134,7 +134,7 @@ export const deletePasswordResetToken = async (token, connection = null) => {
 };
 
 export const findActiveSession = async (userId, userAgent, refreshToken, connection = null) => {
-    const sql = `SELECT * FROM client_sessions WHERE is_revoke = 0 AND client_id = ? AND user_agent = ? AND refresh_token = ?`;
-    const params = [userId, userAgent, refreshToken];
+    const sql = `SELECT * FROM client_sessions WHERE is_revoke = 0 AND client_id = ? AND refresh_token = ? AND expires_at > NOW()`;
+    const params = [userId, refreshToken];
     return await query(sql, params, connection);
 };

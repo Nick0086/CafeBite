@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import app from './app.js';
 import db from './src/config/db.js';
 import { ensureBucketExists } from './src/config/minioConfig.js';

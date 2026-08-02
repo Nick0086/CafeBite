@@ -1,4 +1,4 @@
-import { S3Client, HeadBucketCommand, CreateBucketCommand } from '@aws-sdk/client-s3';
+import { S3Client, HeadBucketCommand, CreateBucketCommand, PutBucketPolicyCommand } from '@aws-sdk/client-s3';
 
 const minioClient = new S3Client({
     region: 'us-east-1',
@@ -11,13 +11,32 @@ const minioClient = new S3Client({
 });
 
 export const ensureBucketExists = async () => {
+    const bucket = process.env.MINIO_BUCKET_NAME || 'cafebite';
     try {
-        await minioClient.send(new HeadBucketCommand({ Bucket: process.env.MINIO_BUCKET_NAME }));
-        console.log(`MinIO bucket '${process.env.MINIO_BUCKET_NAME}' exists`);
+        await minioClient.send(new HeadBucketCommand({ Bucket: bucket }));
+        console.log(`MinIO bucket '${bucket}' exists`);
     } catch {
-        console.log(`Creating MinIO bucket '${process.env.MINIO_BUCKET_NAME}'...`);
-        await minioClient.send(new CreateBucketCommand({ Bucket: process.env.MINIO_BUCKET_NAME }));
-        console.log(`MinIO bucket '${process.env.MINIO_BUCKET_NAME}' created`);
+        console.log(`Creating MinIO bucket '${bucket}'...`);
+        await minioClient.send(new CreateBucketCommand({ Bucket: bucket }));
+        console.log(`MinIO bucket '${bucket}' created`);
+    }
+
+    try {
+        const policy = JSON.stringify({
+            Version: '2012-10-17',
+            Statement: [
+                {
+                    Effect: 'Allow',
+                    Principal: '*',
+                    Action: ['s3:GetObject'],
+                    Resource: [`arn:aws:s3:::${bucket}/*`],
+                },
+            ],
+        });
+        await minioClient.send(new PutBucketPolicyCommand({ Bucket: bucket, Policy: policy }));
+        console.log(`Public read policy applied to MinIO bucket '${bucket}'`);
+    } catch (err) {
+        console.warn('Could not set MinIO bucket public policy:', err.message);
     }
 };
 

@@ -137,11 +137,21 @@ export const checkPasswordResetToken = asyncHandler(async (req, res) => {
 export const fetchActiveSession = asyncHandler(async (req, res) => {
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const refreshToken = req.headers['user-data'];
-    const decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
-    const unique_id = decodedRefresh?.userDetails?.unique_id;
 
-    if (!refreshToken || !unique_id) {
-        return res.status(402).json({ code: 'UNAUTHORIZED', message: 'Missing authentication tokens or user identifier.' });
+    if (!refreshToken) {
+        return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing authentication token.' });
+    }
+
+    let decodedRefresh;
+    try {
+        decodedRefresh = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    } catch (err) {
+        return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Session token has expired or is invalid.' });
+    }
+
+    const unique_id = decodedRefresh?.userDetails?.unique_id;
+    if (!unique_id) {
+        return res.status(401).json({ code: 'UNAUTHORIZED', message: 'Missing user identifier in session token.' });
     }
 
     await authService.fetchActiveSession(unique_id, userAgent, refreshToken);

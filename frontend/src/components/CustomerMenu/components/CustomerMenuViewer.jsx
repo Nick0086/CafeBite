@@ -295,43 +295,64 @@ export default function CustomerMenuViewer({ menuConfig, options = {}, clinetInf
                 value="clinet_info"
                 style={styles?.sectionStyle}
                 id="clinet_info"
-                className="bg-card md:rounded-md rounded overflow-hidden border-none md:px-3 px-1"
+                className="bg-card md:rounded-md rounded-xl overflow-hidden border-none shadow-xs"
             >
-                <CardContent className="p-6 md:py-4 py-2">
-                    <div className="flex flex-col md:flex-row items-center justify-center md:space-x-6 space-x-0">
-                        <div className="flex-shrink-0">
-                            <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-lg flex flex-col items-center justify-center overflow-hidden cursor-default">
-                                <img
-                                    src={clinetInfo?.logo_signed_url}
-                                    alt="Cafe logo"
-                                    className="w-full h-full object-cover"
-                                />
+                <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col md:flex-row items-center justify-center md:justify-start text-center md:text-left gap-4 md:gap-6">
+                        {clinetInfo?.logo_signed_url && (
+                            <div className="shrink-0">
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white border-4 border-white shadow-md flex items-center justify-center overflow-hidden cursor-default">
+                                    <img
+                                        src={clinetInfo?.logo_signed_url}
+                                        alt={clinetInfo?.cafe_name || 'Cafe logo'}
+                                        className="w-full h-full object-contain p-1"
+                                    />
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-bold md:text-left text-center" style={styles?.titleBarStyle}>
+                        )}
+                        <div className="flex-1 min-w-0">
+                            <h2
+                                className="text-xl sm:text-2xl font-extrabold tracking-tight text-center md:text-left"
+                                style={styles?.titleTextStyle}
+                            >
                                 {clinetInfo?.cafe_name || 'Your Cafe Name'}
                             </h2>
-                            <p className="mt-1 md:text-left text-center" style={styles?.titleTextStyle}>
-                                Owned by {clinetInfo?.first_name} {clinetInfo?.last_name}
-                            </p>
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 text-sm text-gray-500">
+                            
+                            {(clinetInfo?.first_name || clinetInfo?.last_name) && (
+                                <p
+                                    className="mt-1 text-xs sm:text-sm font-medium opacity-85 text-center md:text-left"
+                                    style={styles?.descriptionStyle}
+                                >
+                                    Owned by {[clinetInfo?.first_name, clinetInfo?.last_name].filter(Boolean).join(' ')}
+                                </p>
+                            )}
+
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 mt-3 text-xs sm:text-sm">
                                 {clinetInfo?.cityName && (
-                                    <div className="flex items-center gap-1">
-                                        <MapPin size={14} />
-                                        <span>{clinetInfo?.cityName}</span>
+                                    <div
+                                        style={styles?.descriptionStyle}
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100/70 dark:bg-slate-800/50 md:bg-transparent md:px-0 md:py-0 max-w-full"
+                                    >
+                                        <MapPin size={14} className="shrink-0 opacity-80" />
+                                        <span className="truncate">{clinetInfo?.cityName}</span>
                                     </div>
                                 )}
                                 {clinetInfo?.cafe_phone && (
-                                    <div style={styles.descriptionStyle} className="flex items-center gap-1">
-                                        <Phone size={14} />
-                                        <span>{clinetInfo?.cafe_phone}</span>
+                                    <div
+                                        style={styles?.descriptionStyle}
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100/70 dark:bg-slate-800/50 md:bg-transparent md:px-0 md:py-0 max-w-full"
+                                    >
+                                        <Phone size={14} className="shrink-0 opacity-80" />
+                                        <span className="break-all">{clinetInfo?.cafe_phone}</span>
                                     </div>
                                 )}
                                 {clinetInfo?.cafe_email && (
-                                    <div style={styles.descriptionStyle} className="flex items-center gap-1">
-                                        <Mail size={14} />
-                                        <span>{clinetInfo?.cafe_email}</span>
+                                    <div
+                                        style={styles?.descriptionStyle}
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100/70 dark:bg-slate-800/50 md:bg-transparent md:px-0 md:py-0 max-w-full"
+                                    >
+                                        <Mail size={14} className="shrink-0 opacity-80" />
+                                        <span className="break-all">{clinetInfo?.cafe_email}</span>
                                     </div>
                                 )}
                             </div>

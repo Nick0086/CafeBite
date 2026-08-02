@@ -165,7 +165,7 @@ export const checkPasswordResetToken = async (token) => {
 export const fetchActiveSession = async (userId, userAgent, refreshToken) => {
     const sessions = await authRepository.findActiveSession(userId, userAgent, refreshToken);
     if (sessions?.length === 0) {
-        throw new HttpError("Session is not active or has expired.", 402, "UNAUTHORIZED");
+        throw new HttpError("Session is not active or has expired.", 401, "UNAUTHORIZED");
     }
     return sessions;
 };
