@@ -3,6 +3,7 @@ import { ReactPhotoEditor } from 'react-photo-editor';
 import { Pencil, Trash2, Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { cn } from '@/lib/utils';
+import { prepareCoverForEditor } from '@/lib/imageProcessor';
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -31,42 +32,20 @@ const ImageAvatar = ({ s3ImageUrl = '', onImageUpload, onDeleteImage, disabled =
 
     useEffect(() => () => previewUrl && URL.revokeObjectURL(previewUrl), [previewUrl]);
 
-    useEffect(() => {
-        if (!editorOpen) return;
-        if (uploadedImage || !s3ImageUrl) return;
-        let cancelled = false;
-        setIsFetchingFile(true);
-        fetch(s3ImageUrl)
-            .then((res) => res.blob())
-            .then((blob) => {
-                if (cancelled) return;
-                const name = s3ImageUrl.split('/').pop()?.split('?')[0] || 'cover.jpg';
-                const file = new File([blob], name, { type: blob.type || 'image/jpeg' });
-                setUploadedImage(file);
-            })
-            .catch(() => {
-                if (!cancelled) toast.error('Failed to load image for editing');
-            })
-            .finally(() => {
-                if (!cancelled) {
-                    setIsFetchingFile(false);
-                    setEditorOpen(false);
-                }
-            });
-        return () => {
-            cancelled = true;
-        };
-    }, [editorOpen, uploadedImage, s3ImageUrl]);
-
-    const handleImageUpload = (event) => {
+    const handleImageUpload = async (event) => {
         const file = event.target.files?.[0];
         if (!file) return;
         if (file.size > MAX_SIZE_BYTES) {
             toast.warning('Please upload an image less than 5 MB.');
             return;
         }
-        setUploadedImage(file);
-        setEditorOpen(true);
+        try {
+            const prepared = await prepareCoverForEditor(file);
+            setUploadedImage(prepared);
+            setEditorOpen(true);
+        } catch {
+            toast.error('Failed to load image.');
+        }
     };
 
     const handleSaveImage = (file) => {
@@ -88,9 +67,27 @@ const ImageAvatar = ({ s3ImageUrl = '', onImageUpload, onDeleteImage, disabled =
         fileInputRef.current?.click();
     };
 
-    const handleEditClick = () => {
+    const handleEditClick = async () => {
         if (disabled) return;
-        if (uploadedImage || s3ImageUrl) setEditorOpen(true);
+        if (uploadedImage) {
+            setEditorOpen(true);
+            return;
+        }
+        if (!s3ImageUrl) return;
+        setIsFetchingFile(true);
+        try {
+            const res = await fetch(s3ImageUrl);
+            const blob = await res.blob();
+            const name = s3ImageUrl.split('/').pop()?.split('?')[0] || 'cover.jpg';
+            const file = new File([blob], name, { type: blob.type || 'image/jpeg' });
+            const prepared = await prepareCoverForEditor(file);
+            setUploadedImage(prepared);
+            setEditorOpen(true);
+        } catch {
+            toast.error('Failed to load image for editing');
+        } finally {
+            setIsFetchingFile(false);
+        }
     };
 
     const hasImage = !!(previewUrl || s3ImageUrl);
@@ -176,12 +173,12 @@ const ImageAvatar = ({ s3ImageUrl = '', onImageUpload, onDeleteImage, disabled =
                 onSaveImage={handleSaveImage}
                 allowColorEditing={false}
                 allowDrawing={false}
-                modalWidth="min(40rem, calc(100vw - 1rem))"
-                modalHeight="min(90vh, calc(100dvh - 1rem))"
-                canvasWidth="100%"
-                canvasHeight="auto"
-                maxCanvasWidth="calc(100vw - 2rem)"
-                maxCanvasHeight="min(50vh, 60vw)"
+                modalWidth="min(36rem, calc(100vw - 1rem))"
+                modalHeight="min(32rem, calc(100dvh - 2rem))"
+                canvasWidth="min(32rem, calc(100vw - 4rem))"
+                canvasHeight="min(18rem, 56vw)"
+                maxCanvasWidth="min(32rem, calc(100vw - 4rem))"
+                maxCanvasHeight="min(18rem, 56vw)"
             />
         </div>
     );
