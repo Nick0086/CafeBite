@@ -5,7 +5,7 @@ import { ensureBucketExists } from './src/config/minioConfig.js';
 const PORT = process.env.PORT || 3002;
 const ts = () => new Date().toLocaleString();
 
-console.log(`[${ts()}] Starting CafeBite backend...`);
+console.log(`[${ts()}] Starting SmartMenu backend...`);
 
 db.getConnection()
     .then(() => console.log(`[${ts()}] Database connected`))

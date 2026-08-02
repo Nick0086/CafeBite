@@ -13,13 +13,28 @@ import {
   stepFieldMap,
 } from './constants/registration.constants';
 import { fullProfileSchema } from '@/common/validation/profile.schemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, Fragment } from 'react';
+import { useForm } from 'react-hook-form';
+import { Navigate, Link } from 'react-router';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Form } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
+import {
+  getStepIcon,
+  getStepLabel,
+  registerFormDefaultValues,
+  stepFieldMap,
+} from './constants/registration.constants';
+import { fullProfileSchema } from '@/common/validation/profile.schemas';
 import OwnerInfo from './components/RegistrationForm/OwnerInfo';
 import CafeInfo from './components/RegistrationForm/CafeInfo';
 import Location from './components/RegistrationForm/Location';
 import Contact from './components/RegistrationForm/Contact';
 import { useAuthSession } from '../hooks/useAuthSession';
 import { useRegisterMutation } from './hooks/useRegistrationData';
-import CafeIcon from '@/assets/SVG/coffee-cup-coffee.svg?react';
+import SmartMenuLogo from '@/assets/SVG/smart-menu-logo.svg?react';
 
 const TOTAL_STEPS = 4;
 
@@ -106,14 +121,14 @@ export default function RegistrationIndex() {
             <div className="mb-2 flex items-center justify-between sm:mb-5">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 shadow-sm shadow-indigo-100 sm:h-9 sm:w-9 sm:rounded-xl">
-                  <CafeIcon className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
+                  <SmartMenuLogo className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
                 </div>
-                <span className="text-sm font-bold tracking-tight text-slate-900">CafeBite</span>
+                <span className="text-sm font-bold tracking-tight text-slate-900">SmartMenu</span>
               </div>
               <span className="text-xs font-semibold text-slate-400">Step {step} of {TOTAL_STEPS}</span>
             </div>
             <h1 className="text-xl font-bold leading-tight tracking-[-0.03em] text-slate-950 sm:text-3xl">
-              Set up your cafe
+              Set up your business
             </h1>
             <p className="mt-1 hidden max-w-md text-sm leading-6 text-slate-500 sm:block sm:mt-2">
               Create your profile and put your menu in front of more customers.

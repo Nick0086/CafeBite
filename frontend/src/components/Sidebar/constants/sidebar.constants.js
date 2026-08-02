@@ -1,4 +1,4 @@
-import CafeIcon from '@/assets/SVG/coffee-cup-coffee.svg?react';
+import SmartMenuLogo from '@/assets/SVG/smart-menu-logo.svg?react';
 import SvgviewerOutput from '@/assets/SVG/svgviewer-output.svg?react';
 import Menu from '@/assets/SVG/menu.svg?react';
 import User from '@/assets/SVG/users.svg?react';
@@ -27,4 +27,5 @@ export const SIDEBAR_NAV_ITEMS = [
     },
 ];
 
-export { CafeIcon };
+export { SmartMenuLogo, SmartMenuLogo as CafeIcon };
+

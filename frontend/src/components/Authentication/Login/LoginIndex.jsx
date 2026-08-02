@@ -4,13 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, Navigate } from 'react-router';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Link, Navigate } from 'react-router';
 import { loginSchemas } from './validation/login.schema';
 import { loginDefaultValues } from './constants/login.constants';
 import { useAuthSession } from '../hooks/useAuthSession';
 import PilsatingDotesLoader from '@/components/ui/loaders/PilsatingDotesLoader';
 import LoginWithPassword from './components/LoginWithPassword';
 import LoginWithOTP from './components/LoginWithOTP';
-import CafeIcon from '@/assets/SVG/coffee-cup-coffee.svg?react';
+import SmartMenuLogo from '@/assets/SVG/smart-menu-logo.svg?react';
 
 export default function LoginIndex() {
     const { data: userData, isLoading } = useAuthSession();
@@ -54,17 +58,17 @@ export default function LoginIndex() {
                         <div className="mb-4 flex items-center justify-between sm:mb-5">
                             <div className="flex items-center gap-2.5">
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 shadow-sm shadow-indigo-100 sm:h-9 sm:w-9 sm:rounded-xl">
-                                    <CafeIcon className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
+                                    <SmartMenuLogo className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
                                 </div>
-                                <span className="text-sm font-bold tracking-tight text-slate-900">CafeBite</span>
+                                <span className="text-sm font-bold tracking-tight text-slate-900">SmartMenu</span>
                             </div>
                             <span className="text-xs font-semibold text-slate-400">Welcome back</span>
                         </div>
                         <h1 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-slate-950 sm:text-[28px]">
-                            Sign in to CafeBite
+                            Sign in to SmartMenu
                         </h1>
                         <p className="mt-1 text-sm leading-5 text-slate-500">
-                            Manage your cafe menu and connect with more customers.
+                            Manage your digital menu and connect with more customers.
                         </p>
                     </div>
 
@@ -117,7 +121,7 @@ export default function LoginIndex() {
                     </div>
                 </div>
                 <p className="mt-3 text-center text-[11px] leading-5 text-slate-400">
-                    Secure access to your cafe dashboard
+                    Secure access to your restaurant dashboard
                 </p>
             </div>
         </div>

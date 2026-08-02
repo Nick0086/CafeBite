@@ -109,15 +109,15 @@ export const sendOtpEmail = async ({ toEmail, otp, subject, type = 'OTP' }) => {
         </div>
         <div class="content">
           <p>Hello,</p>
-          <p>Thank you for using Cafebit! Your one-time password (OTP) for verification is:</p>
+          <p>Thank you for using SmartMenu! Your one-time password (OTP) for verification is:</p>
           <div class="otp">${otp}</div>
           <p>This code is valid for the next 5 minutes. Please enter it to complete your verification.</p>
           <p class="note">Simply type or paste this code into the verification form.</p>
         </div>
         <div class="footer">
-          <p>If you didn't request this code, please ignore this email or <a href="mailto:support@Cafebit.com">contact us</a>.</p>
-          <p>Best regards, <br> The Cafebit Team</p>
-          <p><a href="https://Cafebit.com/privacy">Privacy Policy</a> | <a href="https://Cafebit.com/terms">Terms of Service</a></p>
+          <p>If you didn't request this code, please ignore this email or <a href="mailto:support@smartmenu.com">contact us</a>.</p>
+          <p>Best regards, <br> The SmartMenu Team</p>
+          <p><a href="https://smartmenu.com/privacy">Privacy Policy</a> | <a href="https://smartmenu.com/terms">Terms of Service</a></p>
         </div>
       </div>
     </body>
@@ -235,7 +235,7 @@ export const sendOtpEmail = async ({ toEmail, otp, subject, type = 'OTP' }) => {
         </div>
         <div class="content">
           <p>Hello,</p>
-          <p>We received a request to reset your Cafebit account password. Click the button below to proceed:</p>
+          <p>We received a request to reset your SmartMenu account password. Click the button below to proceed:</p>
           <a href="${otp}" class="reset-link">Reset Password</a>
           <div class="reset-fallback">
             <p>If the button above doesn't work, copy and paste this link into your browser:</p>
@@ -244,9 +244,9 @@ export const sendOtpEmail = async ({ toEmail, otp, subject, type = 'OTP' }) => {
           <p>This link will expire in 15 minutes.</p>
         </div>
         <div class="footer">
-          <p>If you didn't request a password reset, please ignore this email or <a href="mailto:support@Cafebit.com">contact us</a>.</p>
-          <p>Best regards, <br> The Cafebit Team</p>
-          <p><a href="https://Cafebit.com/privacy">Privacy Policy</a> | <a href="https://Cafebit.com/terms">Terms of Service</a></p>
+          <p>If you didn't request a password reset, please ignore this email or <a href="mailto:support@smartmenu.com">contact us</a>.</p>
+          <p>Best regards, <br> The SmartMenu Team</p>
+          <p><a href="https://smartmenu.com/privacy">Privacy Policy</a> | <a href="https://smartmenu.com/terms">Terms of Service</a></p>
         </div>
       </div>
     </body>
@@ -256,7 +256,7 @@ export const sendOtpEmail = async ({ toEmail, otp, subject, type = 'OTP' }) => {
     const mailOptions = {
       from: process.env.NODEMAILER_AUTH_USER,
       to: toEmail,
-      subject: subject || (type === 'OTP' ? 'Your Cafebit Verification Code' : 'Cafebit Password Reset Request'),
+      subject: subject || (type === 'OTP' ? 'Your SmartMenu Verification Code' : 'SmartMenu Password Reset Request'),
       html: type === 'OTP' ? otpSendTemplate : forgotPasswordTemplate,
     };
 

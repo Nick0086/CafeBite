@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="32" height="32">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="sparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#EF4444"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background squircle -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#bgGrad)"/>
+
+  <!-- Subtle inner background highlight -->
+  <rect x="48" y="48" width="416" height="416" rx="96" fill="none" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="4"/>
+
+  <!-- Dish Plate Ring -->
+  <circle cx="256" cy="276" r="140" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="12"/>
+  <circle cx="256" cy="276" r="100" fill="none" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="6" stroke-dasharray="12 12"/>
+
+  <!-- Smart Digital Menu Card -->
+  <g filter="url(#shadow)">
+    <!-- Menu Card Base -->
+    <rect x="156" y="146" width="184" height="240" rx="20" fill="#FFFFFF"/>
+    
+    <!-- Menu Card Header Line -->
+    <rect x="180" y="174" width="80" height="14" rx="7" fill="url(#bgGrad)"/>
+    
+    <!-- Menu Items Lines -->
+    <rect x="180" y="206" width="136" height="10" rx="5" fill="#E2E8F0"/>
+    <rect x="180" y="226" width="110" height="10" rx="5" fill="#CBD5E1"/>
+    
+    <rect x="180" y="254" width="136" height="10" rx="5" fill="#E2E8F0"/>
+    <rect x="180" y="274" width="90" height="10" rx="5" fill="#CBD5E1"/>
+
+    <rect x="180" y="302" width="136" height="10" rx="5" fill="#E2E8F0"/>
+    <rect x="180" y="322" width="120" height="10" rx="5" fill="#CBD5E1"/>
+
+    <!-- Accent Dot / Check mark on top item -->
+    <circle cx="304" cy="181" r="8" fill="url(#accentGrad)"/>
+  </g>
+
+  <!-- Smart Sparkle (4-point AI Star top right of menu) -->
+  <path d="M 364 126 C 364 150 376 162 400 162 C 376 162 364 174 364 198 C 364 174 352 162 328 162 C 352 162 364 150 364 126 Z" fill="url(#sparkGrad)"/>
+  
+  <!-- Mini Sparkle bottom left -->
+  <path d="M 132 110 C 132 122 138 128 150 128 C 138 128 132 134 132 146 C 132 134 126 128 114 128 C 126 128 132 122 132 110 Z" fill="#FDE047"/>
+</svg>

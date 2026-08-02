@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Check, ChevronRight, ClipboardList, ExternalLink, LayoutGrid, MessageSquare, QrCode, Sparkles, Store, Utensils } from 'lucide-react';
 import { Link } from 'react-router';
 
-import CoffeeCupLogo from '@/assets/SVG/coffee-cup-coffee.svg?react';
+import SmartMenuLogo from '@/assets/SVG/smart-menu-logo.svg?react';
 import { PermissionsContext } from '@/contexts/PermissionsContext';
 import { useContext } from 'react';
 
@@ -88,11 +88,11 @@ export default function DashboardIndex() {
                     <div className="relative max-w-3xl">
                         <div className="mb-7 flex items-center gap-3">
                             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-lg shadow-black/10">
-                                <CoffeeCupLogo className="h-7 w-7" aria-hidden="true" />
+                                <SmartMenuLogo className="h-7 w-7" aria-hidden="true" />
                             </div>
                             <div>
-                                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-200">CafeBite guide</p>
-                                <p className="text-sm text-white/60">Your cafe, beautifully organised</p>
+                                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-indigo-200">SmartMenu guide</p>
+                                <p className="text-sm text-white/60">Your venue, beautifully organised</p>
                             </div>
                         </div>
                         <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-amber-300">
@@ -100,10 +100,10 @@ export default function DashboardIndex() {
                             Welcome back, {firstName}
                         </p>
                         <h1 className="max-w-2xl text-3xl font-bold leading-[1.08] tracking-[-0.04em] sm:text-5xl">
-                            Everything your cafe needs to serve better.
+                            Everything your restaurant needs to serve better.
                         </h1>
                         <p className="mt-4 max-w-xl text-sm leading-6 text-indigo-100/75 sm:text-base">
-                            CafeBite helps you create a polished digital menu, connect every table with a scan, and turn customer feedback into action.
+                            SmartMenu helps you create a polished digital menu, connect every table with a scan, and turn customer feedback into action.
                         </p>
                         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                             <Link
@@ -142,7 +142,7 @@ export default function DashboardIndex() {
                     <div className="mb-5 flex items-end justify-between gap-4">
                         <div>
                             <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Your launch plan</p>
-                            <h2 className="mt-1 text-2xl font-bold tracking-[-0.03em] sm:text-3xl">Get CafeBite ready</h2>
+                            <h2 className="mt-1 text-2xl font-bold tracking-[-0.03em] sm:text-3xl">Get SmartMenu ready</h2>
                         </div>
                         <span className="hidden text-sm text-slate-500 sm:block">A simple path from setup to service</span>
                     </div>
@@ -176,8 +176,8 @@ export default function DashboardIndex() {
                     <div className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-7">
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Why CafeBite</p>
-                                <h2 className="mt-1 text-2xl font-bold tracking-[-0.03em]">Built for busy cafe teams</h2>
+                                <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Why SmartMenu</p>
+                                <h2 className="mt-1 text-2xl font-bold tracking-[-0.03em]">Built for busy restaurant &amp; food teams</h2>
                             </div>
                             <div className="hidden h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700 sm:flex">
                                 <Store className="h-5 w-5" aria-hidden="true" />

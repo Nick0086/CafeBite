@@ -21,7 +21,7 @@ export default function SidebarTopBar() {
                 <SidebarTrigger className="-ml-1" />
                 <Separator orientation="vertical" className="mr-1 h-4" />
                 <span className="truncate text-sm font-semibold text-slate-700 sm:text-base">
-                    {currentPage?.title || 'CafeBite'}
+                    {currentPage?.title || 'SmartMenu'}
                 </span>
             </div>
             <UserNav />

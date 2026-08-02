@@ -5,7 +5,7 @@ class ImageCacheService {
         this.preloadQueue = new Set();
         this.maxCacheSize = 100;
         this.compressionQuality = 0.8;
-        this.dbName = 'CafeBiteImageCache';
+        this.dbName = 'SmartMenuImageCache';
         this.dbVersion = 1;
         this.initIndexedDB();
     }

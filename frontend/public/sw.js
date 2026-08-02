@@ -1,5 +1,5 @@
-const CACHE_NAME = 'cafebite-v1';
-const IMAGE_CACHE_NAME = 'cafebite-images-v1';
+const CACHE_NAME = 'smartmenu-v1';
+const IMAGE_CACHE_NAME = 'smartmenu-images-v1';
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 // Install event
