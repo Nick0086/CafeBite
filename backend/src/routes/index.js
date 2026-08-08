@@ -9,6 +9,8 @@ import tableRoutes from '../modules/table/table.routes.js';
 import customerMenuRoutes from '../modules/customer-menu/customer-menu.routes.js';
 import feedbackRoutes from '../modules/feedback/feedback.routes.js';
 import subscriptionRoutes from '../modules/subscription/subscription.routes.js';
+import adminAuthRoutes from '../modules/admin-auth/admin-auth.routes.js';
+import adminLeadRoutes from '../modules/admin-lead/admin-lead.routes.js';
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.use('/tables', tableRoutes);
 router.use('/customer-menu', customerMenuRoutes);
 router.use('/feedback', feedbackRoutes);
 router.use('/subscription', subscriptionRoutes);
+router.use('/admin/auth', adminAuthRoutes);
+router.use('/admin/leads', adminLeadRoutes);
 
 export default router;

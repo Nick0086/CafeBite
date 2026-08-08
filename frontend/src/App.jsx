@@ -13,6 +13,9 @@ import RegistrationIndex from '@/components/Authentication/Registration/Registra
 import MenuRoutes from '@/routes/MenuRoutes';
 import FeedbackRoutes from '@/routes/FeedbackRoutes';
 import { PermissionsProvider } from '@/contexts/PermissionsContext';
+import AdminPrivateRoutes from '@/common/AdminPrivateRoutes';
+import AdminLoginIndex from '@/components/Admin/Auth/AdminLoginIndex';
+import AdminLeadsIndex from '@/components/Admin/Leads/AdminLeadsIndex';
 
 import '@/App.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,6 +31,14 @@ function App() {
         <Route path="/login" element={<LoginIndex />} />
         <Route path="/register-user" element={<RegistrationIndex />} />
         <Route path="/reset-password" element={<ResetPasswordIndex />} />
+
+        {/* Admin CRM Routes */}
+        <Route path="/admin/login" element={<AdminLoginIndex />} />
+        <Route path="/admin" element={<AdminPrivateRoutes />}>
+          <Route index element={<Navigate to="/admin/leads" replace />} />
+          <Route path="leads" element={<AdminLeadsIndex />} />
+          <Route path="*" element={<Navigate to="/admin/leads" replace />} />
+        </Route>
 
         <Route element={<PermissionsProvider><PrivateRoutes /></PermissionsProvider>}>
           <Route element={<SidebarIndex />}>

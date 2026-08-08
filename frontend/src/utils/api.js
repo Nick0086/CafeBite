@@ -82,6 +82,35 @@ const waitForToken = () => {
     });
 };
 
+export const adminApi = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+        "Content-Type": "application/json",
+    },
+    withCredentials: true,
+});
+
+adminApi.interceptors.request.use((config) => {
+    const adminAccessToken = localStorage.getItem('adminAccessToken');
+    if (adminAccessToken) {
+        config.headers.Authorization = `Bearer ${adminAccessToken}`;
+    }
+    return config;
+}, (error) => Promise.reject(error));
+
+adminApi.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401 && !error.config?.skipAuthRedirect) {
+            localStorage.removeItem('adminAccessToken');
+            if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+                window.location.href = '/admin/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const handleApiError = (error) => {
     const defaultErrorMessage = "Hmmm... something seems to have gone wrong. Please try again later.";
     return {
