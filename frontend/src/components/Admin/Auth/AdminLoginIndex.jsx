@@ -1,21 +1,56 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ShieldCheck, Lock, ArrowRight, Smartphone } from 'lucide-react';
+import { ShieldCheck, Lock, ArrowRight, Smartphone, Loader2 } from 'lucide-react';
 import { verifyTotpPin } from '@/service/adminAuth.service';
 import { toastSuccess, toastError } from '@/utils/toast-utils';
 
+// OTP Digit Input
+function OtpDigit({ value, inputRef, onChange, onKeyDown, onPaste, disabled, index, isFilled }) {
+    return (
+        <input
+            ref={inputRef}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={1}
+            value={value}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            onPaste={onPaste}
+            disabled={disabled}
+            aria-label={`Authentication code digit ${index + 1}`}
+            autoComplete={index === 0 ? 'one-time-code' : 'off'}
+            className={[
+                'w-10 h-11 rounded-lg border text-center text-base font-bold',
+                'transition-all duration-150 select-none outline-none',
+                'focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500',
+                'disabled:opacity-40 disabled:cursor-not-allowed',
+                isFilled
+                    ? 'bg-indigo-500/10 border-indigo-500/60 text-indigo-200 shadow-sm shadow-indigo-500/10'
+                    : 'bg-slate-900 border-slate-700 text-slate-100 focus:border-indigo-500',
+            ].join(' ')}
+        />
+    );
+}
+
+// Main Component
 export function AdminLoginIndex() {
     const [pin, setPin] = useState(['', '', '', '', '', '']);
+    const [hasError, setHasError] = useState(false);
     const inputRefs = useRef([]);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        if (inputRefs.current[0]) {
-            inputRefs.current[0].focus();
-        }
+        inputRefs.current[0]?.focus();
     }, []);
+
+    useEffect(() => {
+        if (!hasError) return;
+        const t = setTimeout(() => setHasError(false), 1500);
+        return () => clearTimeout(t);
+    }, [hasError]);
 
     const verifyMutation = useMutation({
         mutationFn: verifyTotpPin,
@@ -27,17 +62,19 @@ export function AdminLoginIndex() {
         onError: (error) => {
             toastError(error?.err?.message || 'Invalid code. Please try again.');
             setPin(['', '', '', '', '', '']);
-            if (inputRefs.current[0]) inputRefs.current[0].focus();
+            setHasError(true);
+            inputRefs.current[0]?.focus();
         },
     });
 
-    const handleDigitChange = (index, value) => {
+    const handleDigitChange = (index, e) => {
+        const value = e.target.value;
         if (!/^\d*$/.test(value)) return;
         const newPin = [...pin];
         newPin[index] = value.slice(-1);
         setPin(newPin);
-        if (value && index < 5 && inputRefs.current[index + 1]) {
-            inputRefs.current[index + 1].focus();
+        if (value && index < 5) {
+            inputRefs.current[index + 1]?.focus();
         }
     };
 
@@ -45,19 +82,34 @@ export function AdminLoginIndex() {
         if (e.key === 'Backspace' && !pin[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
         }
+        if (e.key === 'ArrowLeft' && index > 0) {
+            e.preventDefault();
+            inputRefs.current[index - 1]?.focus();
+        }
+        if (e.key === 'ArrowRight' && index < 5) {
+            e.preventDefault();
+            inputRefs.current[index + 1]?.focus();
+        }
+        if (e.key === 'Enter') {
+            handleSubmit();
+        }
     };
 
     const handlePaste = (e) => {
         e.preventDefault();
-        const pasted = e.clipboardData.getData('text').trim();
-        if (/^\d{6}$/.test(pasted)) {
-            setPin(pasted.split(''));
-            inputRefs.current[5]?.focus();
+        const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (pasted.length > 0) {
+            const newPin = [...pin];
+            pasted.split('').forEach((digit, i) => {
+                if (i < 6) newPin[i] = digit;
+            });
+            setPin(newPin);
+            inputRefs.current[Math.min(pasted.length, 5)]?.focus();
         }
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e?.preventDefault();
         const fullPin = pin.join('');
         if (fullPin.length !== 6) {
             toastError('Please enter the complete 6-digit TOTP code');
@@ -70,97 +122,96 @@ export function AdminLoginIndex() {
     const pinFilled = pin.join('').length === 6;
 
     return (
-        <div className="min-h-screen min-h-dvh bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-            {/* Background Gradients */}
-            <div className="absolute -top-32 -left-32 w-80 h-80 sm:w-96 sm:h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-32 -right-32 w-80 h-80 sm:w-96 sm:h-96 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="h-dvh bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            <div aria-hidden="true" className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-indigo-600/15 blur-3xl" />
+            <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-violet-600/10 blur-3xl" />
 
-            {/* Brand mark */}
-            <div className="mb-6 flex items-center gap-2 text-slate-400 text-xs font-semibold tracking-widest uppercase">
-                <ShieldCheck className="w-4 h-4 text-indigo-400" />
+            <div className="mb-5 flex items-center gap-1.5 text-slate-500 text-[11px] font-semibold tracking-widest uppercase select-none">
+                <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" aria-hidden="true" />
                 CafeBite Admin
             </div>
 
-            {/* Card */}
-            <div className="w-full max-w-sm bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10">
-
-                {/* Header */}
-                <div className="flex flex-col items-center text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
-                        <ShieldCheck className="w-8 h-8 text-indigo-400" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Admin Access</h1>
-                    <p className="text-slate-400 text-sm mt-1.5 leading-relaxed">
-                        Enter your 6-digit Google Authenticator code to continue
-                    </p>
-                </div>
-
-                {/* PIN Form */}
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Digit Inputs */}
+            <div
+                role="main"
+                className={[
+                    'relative z-10 w-full max-w-[340px]',
+                    'bg-slate-900/80 backdrop-blur-xl',
+                    'border rounded-2xl shadow-2xl shadow-black/40',
+                    'p-6 sm:p-7',
+                    'transition-all duration-300',
+                    hasError
+                        ? 'border-red-500/50 ring-1 ring-red-500/20'
+                        : 'border-slate-800/80',
+                ].join(' ')}
+            >
+                <header className="flex flex-col items-center text-center mb-5">
                     <div
-                        className="flex justify-between items-center gap-2 sm:gap-3"
-                        onPaste={handlePaste}
+                        aria-hidden="true"
+                        className="mb-3 w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-violet-500/15 border border-indigo-500/25 shadow-inner shadow-indigo-500/10"
                     >
+                        <ShieldCheck className="w-5 h-5 text-indigo-400" />
+                    </div>
+                    <h1 className="text-lg font-bold text-slate-100 tracking-tight leading-tight">
+                        Two-Factor Authentication
+                    </h1>
+                    <p className="mt-1 text-xs text-slate-400 leading-relaxed max-w-[220px]">
+                        Enter your 6-digit Google Authenticator code
+                    </p>
+                </header>
+
+                <form onSubmit={handleSubmit} noValidate>
+                    <fieldset className="flex justify-center gap-2 mb-4" aria-label="6-digit authentication code">
+                        <legend className="sr-only">Enter your 6-digit authentication code</legend>
                         {pin.map((digit, idx) => (
-                            <input
+                            <OtpDigit
                                 key={idx}
-                                ref={(el) => (inputRefs.current[idx] = el)}
-                                type="text"
-                                inputMode="numeric"
-                                maxLength={1}
+                                index={idx}
                                 value={digit}
-                                onChange={(e) => handleDigitChange(idx, e.target.value)}
-                                onKeyDown={(e) => handleKeyDown(idx, e)}
+                                isFilled={!!digit}
                                 disabled={isSubmitting}
-                                aria-label={`Digit ${idx + 1}`}
-                                className={`
-                                    flex-1 aspect-square max-w-[52px]
-                                    text-center text-xl sm:text-2xl font-bold
-                                    rounded-xl border transition-all duration-150
-                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/40
-                                    disabled:opacity-50 select-none
-                                    ${digit
-                                        ? 'bg-indigo-600/15 border-indigo-500 text-indigo-200 shadow-md shadow-indigo-500/10'
-                                        : 'bg-slate-950/70 border-slate-700 text-slate-100 focus:border-indigo-500'
-                                    }
-                                `}
+                                inputRef={(el) => (inputRefs.current[idx] = el)}
+                                onChange={(e) => handleDigitChange(idx, e)}
+                                onKeyDown={(e) => handleKeyDown(idx, e)}
+                                onPaste={handlePaste}
                             />
                         ))}
-                    </div>
+                    </fieldset>
 
-                    {/* Submit Button */}
+                    {hasError && (
+                        <p role="alert" className="text-center text-xs text-red-400 mb-3 animate-pulse">
+                            Invalid code — please try again
+                        </p>
+                    )}
+
                     <button
                         type="submit"
                         disabled={isSubmitting || !pinFilled}
-                        className="w-full py-4 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-base rounded-2xl shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        className="w-full h-10 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/20 transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 cursor-pointer"
                     >
                         {isSubmitting ? (
                             <>
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
                                 <span>Verifying...</span>
                             </>
                         ) : (
                             <>
                                 <span>Verify Access</span>
-                                <ArrowRight className="w-5 h-5" />
+                                <ArrowRight className="w-4 h-4" aria-hidden="true" />
                             </>
                         )}
                     </button>
                 </form>
 
-                {/* Hint */}
-                <div className="mt-6 flex items-start gap-2.5 p-3 bg-slate-800/60 border border-slate-700/60 rounded-xl">
-                    <Smartphone className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                        Open <span className="text-indigo-300 font-semibold">Google Authenticator</span> on your phone and enter the current 6-digit code for <span className="text-slate-200">CafeBite Admin</span>.
+                <div className="mt-4 flex items-start gap-2 p-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg">
+                    <Smartphone className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" aria-hidden="true" />
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Open <span className="text-indigo-300 font-medium">Google Authenticator</span> on your phone and enter the code for <span className="text-slate-300 font-medium">CafeBite Admin</span>.
                     </p>
                 </div>
 
-                {/* Footer Security Notice */}
-                <div className="mt-5 flex items-center justify-center gap-2 text-slate-600 text-[11px]">
-                    <Lock className="w-3 h-3" />
-                    <span>TOTP RFC 6238 · 256-bit Encrypted</span>
+                <div className="mt-4 flex items-center justify-center gap-1.5 text-slate-600 text-[10px]">
+                    <Lock className="w-2.5 h-2.5" aria-hidden="true" />
+                    <span>TOTP . RFC 6238 . 256-bit Encrypted</span>
                 </div>
             </div>
         </div>

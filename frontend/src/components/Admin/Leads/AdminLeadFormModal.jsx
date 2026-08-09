@@ -47,7 +47,7 @@ function FieldInput({ icon: Icon, error, ...props }) {
             <input
                 {...props}
                 className={`
-                    w-full ${Icon ? 'pl-9' : 'px-3'} pr-3 py-3
+                    w-full ${Icon ? 'pl-9' : 'px-3'} pr-3 py-2.5
                     bg-slate-950 border rounded-xl text-sm text-slate-100
                     placeholder-slate-500 focus:outline-none transition-colors
                     disabled:opacity-50
@@ -187,10 +187,10 @@ export function AdminLeadFormModal({ open, mode = 'create', initialData = null, 
                 <form
                     id="lead-form"
                     onSubmit={handleSubmit}
-                    className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 space-y-4"
+                    className="flex-1 overflow-y-auto px-5 sm:px-6 py-4 space-y-3"
                 >
                     {/* Restaurant Name & Contact Person */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <FieldGroup label="Restaurant Name" required error={errors.restaurant_name}>
                             <FieldInput
                                 icon={Building2}
@@ -217,7 +217,7 @@ export function AdminLeadFormModal({ open, mode = 'create', initialData = null, 
                     </div>
 
                     {/* Phone & Email */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <FieldGroup label="Phone Number" required error={errors.phone}>
                             <FieldInput
                                 icon={Phone}
@@ -245,7 +245,7 @@ export function AdminLeadFormModal({ open, mode = 'create', initialData = null, 
                     </div>
 
                     {/* City & State */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                         <FieldGroup label="City" required error={errors.city}>
                             <FieldInput
                                 icon={MapPin}
@@ -279,7 +279,7 @@ export function AdminLeadFormModal({ open, mode = 'create', initialData = null, 
                             value={formData.address}
                             onChange={handleChange}
                             disabled={isPending}
-                            className="w-full px-3 py-3 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
+                            className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
                         />
                     </FieldGroup>
 
@@ -326,18 +326,18 @@ export function AdminLeadFormModal({ open, mode = 'create', initialData = null, 
                             value={formData.notes}
                             onChange={handleChange}
                             disabled={isPending}
-                            className="w-full px-3 py-3 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
+                            className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
                         />
                     </FieldGroup>
                 </form>
 
                 {/* ── Sticky Footer Actions ── */}
-                <div className="px-5 sm:px-6 py-4 border-t border-slate-800 bg-slate-900/90 backdrop-blur-sm flex items-center gap-3 shrink-0">
+                <div className="px-5 sm:px-6 py-3 border-t border-slate-800 bg-slate-900/90 backdrop-blur-sm flex items-center gap-3 shrink-0">
                     <button
                         type="button"
                         onClick={onClose}
                         disabled={isPending}
-                        className="flex-1 sm:flex-none px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold rounded-xl transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+                        className="flex-1 sm:flex-none px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold rounded-xl transition-all cursor-pointer disabled:opacity-50 active:scale-95"
                     >
                         Cancel
                     </button>
@@ -345,7 +345,7 @@ export function AdminLeadFormModal({ open, mode = 'create', initialData = null, 
                         type="submit"
                         form="lead-form"
                         disabled={isPending}
-                        className="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50 active:scale-95"
                     >
                         {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
                         <span>{isEdit ? 'Save Changes' : 'Create Lead'}</span>
