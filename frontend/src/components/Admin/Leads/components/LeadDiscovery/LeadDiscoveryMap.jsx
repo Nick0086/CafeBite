@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Map, ChevronUp, ChevronDown } from 'lucide-react';
 
 const defaultIcon = L.icon({
     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -16,12 +17,12 @@ export function LeadDiscoveryMap({
     locationInput,
     discoveryData,
     onMapClick,
-    heightClass = "h-60 sm:h-80 lg:h-[540px]"
 }) {
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
     const circleLayerRef = useRef(null);
     const markerLayerGroupRef = useRef(null);
+    const [mobileExpanded, setMobileExpanded] = useState(false);
 
     useEffect(() => {
         if (!mapRef.current) return;
@@ -31,6 +32,7 @@ export function LeadDiscoveryMap({
                 center: [centerCoords.lat, centerCoords.lng],
                 zoom: 15,
                 zoomControl: true,
+                scrollWheelZoom: false,
             });
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -97,11 +99,31 @@ export function LeadDiscoveryMap({
     }, [centerCoords, selectedRadius, discoveryData, locationInput, onMapClick]);
 
     return (
-        <div className={`relative ${heightClass} rounded-xl overflow-hidden`}>
-            <div ref={mapRef} className="w-full h-full z-10" />
-            <div className="absolute top-2.5 left-2.5 z-20 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-slate-200 flex items-center gap-2 pointer-events-none shadow-lg">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-semibold text-[11px]">Center: ({centerCoords.lat.toFixed(4)}, {centerCoords.lng.toFixed(4)})</span>
+        <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-xl w-full">
+            {/* Mobile Header Bar to toggle map size */}
+            <div className="lg:hidden px-3 py-2 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between text-xs text-slate-300">
+                <span className="flex items-center gap-1.5 font-semibold">
+                    <Map className="w-3.5 h-3.5 text-indigo-400" />
+                    Radar Map View
+                </span>
+                <button
+                    onClick={() => setMobileExpanded((v) => !v)}
+                    className="flex items-center gap-1 text-[11px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-lg border border-indigo-500/20 active:scale-95 transition-transform"
+                >
+                    <span>{mobileExpanded ? 'Compact Map' : 'Expand Map'}</span>
+                    {mobileExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+            </div>
+
+            {/* Responsive Map Container with max 60dvh */}
+            <div className={`relative w-full ${mobileExpanded ? 'h-72 sm:h-96' : 'h-48 sm:h-64'} lg:h-[60dvh] max-h-[60dvh] transition-all duration-200`}>
+                <div ref={mapRef} className="w-full h-full z-10" />
+                
+                {/* Lat / Lng Pill Badge */}
+                <div className="absolute top-2.5 left-2.5 z-20 bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded-xl border border-slate-800 text-[10px] sm:text-xs text-slate-200 flex items-center gap-1.5 pointer-events-none shadow-lg">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="font-mono text-[10px]">({centerCoords.lat.toFixed(4)}, {centerCoords.lng.toFixed(4)})</span>
+                </div>
             </div>
         </div>
     );

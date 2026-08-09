@@ -10,9 +10,12 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
     const [selectedRadius, setSelectedRadius] = useState(500);
     const [centerCoords, setCenterCoords] = useState({ lat: 23.0333, lng: 72.5647 });
     const [activeTab, setActiveTab] = useState('all'); // 'all' | 'new' | 'duplicates'
+    const [searchQuery, setSearchQuery] = useState(''); // Text search in discovered list
+    const [viewMode, setViewMode] = useState('table'); // 'table' | 'grid'
     const [hideDuplicates, setHideDuplicates] = useState(false);
     const [selectedLeads, setSelectedLeads] = useState({});
     const [discoveryData, setDiscoveryData] = useState(null);
+    const [previewLead, setPreviewLead] = useState(null); // Lead currently opened in side drawer
 
     const scanMutation = useMutation({
         mutationFn: (params) => discoverAdminLeads(params),
@@ -55,10 +58,12 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
     });
 
     const handleSearchScan = () => {
+        setPreviewLead(null);
+        const isCoords = locationInput && /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(locationInput.trim());
         scanMutation.mutate({
             locationQuery: locationInput,
-            lat: centerCoords.lat,
-            lng: centerCoords.lng,
+            lat: isCoords ? centerCoords.lat : undefined,
+            lng: isCoords ? centerCoords.lng : undefined,
             radiusMeters: selectedRadius,
         });
     };
@@ -66,6 +71,7 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
     const handleLocationPresetClick = (loc) => {
         setLocationInput(loc.label);
         setCenterCoords({ lat: loc.lat, lng: loc.lng });
+        setPreviewLead(null);
         scanMutation.mutate({
             locationQuery: loc.label,
             lat: loc.lat,
@@ -75,10 +81,21 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
     };
 
     const allLeads = discoveryData?.leads || [];
+    const newLeadsOnly = allLeads.filter((l) => l.duplicateStatus === 'NEW');
+
     const filteredLeads = allLeads.filter((lead) => {
         if (hideDuplicates && lead.duplicateStatus !== 'NEW') return false;
-        if (activeTab === 'new') return lead.duplicateStatus === 'NEW';
-        if (activeTab === 'duplicates') return lead.duplicateStatus !== 'NEW';
+        if (activeTab === 'new' && lead.duplicateStatus !== 'NEW') return false;
+        if (activeTab === 'duplicates' && lead.duplicateStatus === 'NEW') return false;
+
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            const name = (lead.restaurant_name || '').toLowerCase();
+            const city = (lead.city || lead.address || '').toLowerCase();
+            const cuisine = (lead.cuisine || '').toLowerCase();
+            const phone = (lead.phone || '').toLowerCase();
+            return name.includes(q) || city.includes(q) || cuisine.includes(q) || phone.includes(q);
+        }
         return true;
     });
 
@@ -86,7 +103,6 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
 
     const handleToggleSelectAllNew = () => {
         const newSelected = { ...selectedLeads };
-        const newLeadsOnly = allLeads.filter((l) => l.duplicateStatus === 'NEW');
         const allNewAreSelected = newLeadsOnly.every((l) => newSelected[l.osm_id]);
 
         newLeadsOnly.forEach((l) => {
@@ -97,6 +113,18 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
             }
         });
         setSelectedLeads(newSelected);
+    };
+
+    const handleSelectAllFiltered = () => {
+        const newSelected = {};
+        filteredLeads.forEach((l) => {
+            newSelected[l.osm_id] = true;
+        });
+        setSelectedLeads(newSelected);
+    };
+
+    const handleDeselectAll = () => {
+        setSelectedLeads({});
     };
 
     const handleToggleLead = (osm_id) => {
@@ -114,6 +142,19 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
         importMutation.mutate(selectedLeadObjects);
     };
 
+    const handleImportOnlyNewLeads = () => {
+        if (newLeadsOnly.length === 0) {
+            toastError('No verified new leads available to import');
+            return;
+        }
+        importMutation.mutate(newLeadsOnly);
+    };
+
+    const handleImportSingleLead = (lead) => {
+        if (!lead) return;
+        importMutation.mutate([lead]);
+    };
+
     return {
         locationInput,
         setLocationInput,
@@ -123,11 +164,18 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
         setCenterCoords,
         activeTab,
         setActiveTab,
+        searchQuery,
+        setSearchQuery,
+        viewMode,
+        setViewMode,
         hideDuplicates,
         setHideDuplicates,
         selectedLeads,
+        previewLead,
+        setPreviewLead,
         discoveryData,
         allLeads,
+        newLeadsOnly,
         filteredLeads,
         selectedLeadObjects,
         scanMutation,
@@ -135,7 +183,11 @@ export function useLeadDiscovery({ onImportSuccess } = {}) {
         handleSearchScan,
         handleLocationPresetClick,
         handleToggleSelectAllNew,
+        handleSelectAllFiltered,
+        handleDeselectAll,
         handleToggleLead,
         handleBulkImport,
+        handleImportOnlyNewLeads,
+        handleImportSingleLead,
     };
 }

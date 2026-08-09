@@ -1,8 +1,10 @@
 import React from 'react';
-import { MapPin, PhoneCall, ExternalLink, BrainCircuit, Pencil, Trash2 } from 'lucide-react';
+import { MapPin, PhoneCall, ExternalLink, BrainCircuit, Pencil, Trash2, Search } from 'lucide-react';
 import { LeadStatusBadge } from './LeadStatusBadge';
 
 export function LeadCard({ lead, onEdit, onDelete, onCoaching }) {
+    const hasValidPhone = lead.phone && lead.phone !== '+91 00000 00000';
+
     return (
         <div className="bg-slate-900/80 border border-slate-800/80 rounded-xl p-3.5 space-y-2.5 active:scale-[0.99] transition-transform">
             {/* Header */}
@@ -26,7 +28,7 @@ export function LeadCard({ lead, onEdit, onDelete, onCoaching }) {
                         <span className="font-medium">{lead.city}</span>
                     </div>
                 )}
-                {lead.phone && (
+                {hasValidPhone ? (
                     <a
                         href={`tel:${lead.phone.replace(/\s+/g, '')}`}
                         title={lead.restaurant_name}
@@ -34,6 +36,17 @@ export function LeadCard({ lead, onEdit, onDelete, onCoaching }) {
                     >
                         <PhoneCall className="w-3 h-3" />
                         <span>{lead.phone}</span>
+                    </a>
+                ) : (
+                    <a
+                        href={`https://www.google.com/search?q=${encodeURIComponent((lead.restaurant_name || '') + ' ' + (lead.city || '') + ' phone number')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg font-semibold hover:bg-amber-500/20 transition-colors"
+                        title="Search phone number on Google"
+                    >
+                        <Search className="w-3 h-3" />
+                        <span>Find Phone</span>
                     </a>
                 )}
                 {lead.google_maps_url && (

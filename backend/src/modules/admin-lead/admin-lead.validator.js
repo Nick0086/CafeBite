@@ -21,7 +21,7 @@ export const createLeadValidator = [
         .isString().withMessage('Contact person must be text')
         .trim(),
     body('phone')
-        .notEmpty().withMessage('Phone number is required')
+        .optional({ checkFalsy: true })
         .isString().withMessage('Phone number must be text')
         .trim(),
     body('email')
@@ -66,8 +66,7 @@ export const updateLeadValidator = [
         .optional({ checkFalsy: true })
         .isString().trim(),
     body('phone')
-        .optional()
-        .notEmpty().withMessage('Phone number cannot be empty')
+        .optional({ checkFalsy: true })
         .isString().trim(),
     body('email')
         .optional({ checkFalsy: true })

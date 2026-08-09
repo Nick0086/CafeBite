@@ -40,7 +40,7 @@ export function LeadFormFields({
 
             {/* Phone & Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <FieldGroup label="Phone Number" required error={errors.phone}>
+                <FieldGroup label="Phone Number" error={errors.phone}>
                     <FieldInput
                         icon={Phone}
                         type="tel"

@@ -56,7 +56,6 @@ export function LeadFormModal({ open, mode = 'create', initialData = null, onClo
     const validateForm = () => {
         const newErrors = {};
         if (!formData.restaurant_name.trim()) newErrors.restaurant_name = 'Restaurant name is required';
-        if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
         if (!formData.city.trim()) newErrors.city = 'City is required';
         if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()))
             newErrors.email = 'Invalid email address';

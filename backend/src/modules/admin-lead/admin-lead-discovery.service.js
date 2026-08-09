@@ -1,6 +1,8 @@
 import * as adminLeadRepository from './admin-lead.repository.js';
 import { createUniqueId } from '../../utils/utils.js';
 import { HttpError } from '../../utils/errorHelper.js';
+import { fetchGooglePlaces } from './google-places.service.js';
+import { batchEnrichLeads } from './google-enricher.service.js';
 
 // ─── Utility: Haversine distance in meters ───────────────────────────────────
 export function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
@@ -120,20 +122,73 @@ export const geocodeLocation = async (query) => {
 };
 
 // ─── Fetch POIs from Overpass API with multi-server failover ────────────────────
+// ─── Fetch POIs from Nominatim API as fallback ───────────────────────────────
+export const fetchNominatimPlaces = async (lat, lng, cityName = '') => {
+    try {
+        const delta = 0.035; // ~3.5km bounding box
+        const viewbox = `${lng - delta},${lat + delta},${lng + delta},${lat - delta}`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=restaurant&bounded=1&viewbox=${viewbox}&limit=60&addressdetails=1`;
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'CafeBite-CRM-LeadFinder/1.0 (contact@cafebite.in)',
+            },
+            signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data || []).map((item) => {
+            const name = item.display_name?.split(',')[0] || item.name;
+            if (!name) return null;
+            const street = item.address?.road || item.address?.suburb || '';
+            const city = item.address?.city || item.address?.town || cityName;
+            const fullAddress = [street, city].filter(Boolean).join(', ') || item.display_name;
+            return {
+                osm_id: `node/${item.osm_id}`,
+                restaurant_name: name,
+                contact_person: null,
+                phone: null,
+                email: null,
+                address: fullAddress,
+                city: city || cityName,
+                state: item.address?.state || null,
+                google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (city || cityName || ''))}`,
+                latitude: parseFloat(item.lat),
+                longitude: parseFloat(item.lon),
+                cuisine: item.type || 'Restaurant',
+                website: null,
+                place_source: 'nominatim',
+            };
+        }).filter(Boolean);
+    } catch (err) {
+        console.warn('Nominatim fallback failed:', err.message);
+        return [];
+    }
+};
+
+// ─── Fetch POIs from Overpass API with multi-server failover ────────────────────
 export const fetchOSMPlaces = async (lat, lng, radiusMeters = 500, cityName = '') => {
+    const effectiveRadius = Math.min(radiusMeters, 2000); // Cap at 2km for fast server response
+
     const overpassEndpoints = [
         'https://overpass-api.de/api/interpreter',
         'https://overpass.kumi.systems/api/interpreter',
+        'https://overpass.nchc.org.tw/api/interpreter',
         'https://overpass.private.coffee/api/interpreter',
     ];
 
     const overpassQuery = `
         [out:json][timeout:15];
         (
-          node["amenity"~"restaurant|cafe|fast_food|bakery|food_court|bar|pub"](around:${radiusMeters},${lat},${lng});
-          way["amenity"~"restaurant|cafe|fast_food|bakery|food_court|bar|pub"](around:${radiusMeters},${lat},${lng});
+          node["amenity"~"restaurant|cafe|fast_food|bakery"](around:${effectiveRadius},${lat},${lng});
+          way["amenity"~"restaurant|cafe|fast_food|bakery"](around:${effectiveRadius},${lat},${lng});
         );
-        out center body 100;
+        out center body 80;
     `;
 
     let lastError = null;
@@ -142,7 +197,7 @@ export const fetchOSMPlaces = async (lat, lng, radiusMeters = 500, cityName = ''
     for (const endpoint of overpassEndpoints) {
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout per endpoint
 
             const res = await fetch(endpoint, {
                 method: 'POST',
@@ -158,7 +213,7 @@ export const fetchOSMPlaces = async (lat, lng, radiusMeters = 500, cityName = ''
 
             if (res.ok) {
                 data = await res.json();
-                break; // Successfully retrieved data!
+                if (data && data.elements) break; // Successfully retrieved data!
             } else {
                 console.warn(`Overpass endpoint ${endpoint} status ${res.status}`);
                 lastError = new Error(`Overpass server ${endpoint} status ${res.status}`);
@@ -169,9 +224,9 @@ export const fetchOSMPlaces = async (lat, lng, radiusMeters = 500, cityName = ''
         }
     }
 
-    if (!data || !data.elements) {
-        console.warn('All Overpass API servers timed out or failed:', lastError?.message);
-        return [];
+    if (!data || !data.elements || data.elements.length === 0) {
+        console.warn('Overpass API servers timed out or returned no elements. Triggering Nominatim POI fallback...');
+        return await fetchNominatimPlaces(lat, lng, cityName);
     }
 
     const elements = data.elements || [];
@@ -194,9 +249,7 @@ export const fetchOSMPlaces = async (lat, lng, radiusMeters = 500, cityName = ''
             const city = tags['addr:city'] || cityName || '';
             const fullAddress = [street, suburb, city].filter(Boolean).join(', ') || tags['addr:full'] || suburb || city;
 
-            const mapsUrl = itemLat && itemLng
-                ? `https://maps.google.com/?q=${itemLat},${itemLng}`
-                : website || null;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + (city || cityName || ''))}`;
 
             return {
                 osm_id: `${el.type}/${el.id}`,
@@ -218,6 +271,31 @@ export const fetchOSMPlaces = async (lat, lng, radiusMeters = 500, cityName = ''
         .filter(Boolean);
 };
 
+// ─── Reverse Geocode lat/lng to get City & State ─────────────────────────────
+export const reverseGeocodeLocation = async (lat, lng) => {
+    try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`;
+        const res = await fetch(url, {
+            headers: {
+                'User-Agent': 'CafeBite-CRM-LeadFinder/1.0 (contact@cafebite.in)',
+            },
+        });
+        if (!res.ok) return { city: '', state: '' };
+        const data = await res.json();
+        const city =
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.village ||
+            data.address?.suburb ||
+            data.address?.state_district ||
+            '';
+        const state = data.address?.state || '';
+        return { city, state, displayName: data.display_name || '' };
+    } catch (err) {
+        return { city: '', state: '' };
+    }
+};
+
 // ─── Discover & Verify Duplicates Pipeline ────────────────────────────────────
 export const discoverLeads = async ({ locationQuery, lat, lng, radiusMeters = 500 }) => {
     let centerLat = lat;
@@ -226,8 +304,10 @@ export const discoverLeads = async ({ locationQuery, lat, lng, radiusMeters = 50
     let city = '';
     let state = '';
 
-    // Geocode if lat/lng are missing
-    if (!centerLat || !centerLng) {
+    const isCoordsQuery = locationQuery && /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(locationQuery.trim());
+
+    // Geocode if locationQuery is text (e.g. "Surat") or if coordinates are missing
+    if ((locationQuery && locationQuery.trim() && !isCoordsQuery) || !centerLat || !centerLng) {
         if (!locationQuery || !locationQuery.trim()) {
             throw new HttpError('Either locationQuery or (lat, lng) coordinates are required', 400);
         }
@@ -239,8 +319,31 @@ export const discoverLeads = async ({ locationQuery, lat, lng, radiusMeters = 50
         state = geo.state;
     }
 
-    // Fetch places from OSM
-    const discoveredList = await fetchOSMPlaces(centerLat, centerLng, radiusMeters, city);
+    // Reverse geocode if city is empty (e.g. when lat/lng pin was clicked)
+    if (!city && centerLat && centerLng) {
+        const rev = await reverseGeocodeLocation(centerLat, centerLng);
+        city = rev.city || '';
+        state = rev.state || state;
+    }
+
+    // Fetch places from Google Places API if key configured, otherwise OSM
+    let discoveredList = await fetchGooglePlaces(centerLat, centerLng, radiusMeters, locationQuery, city);
+    if (!discoveredList || discoveredList.length === 0) {
+        discoveredList = await fetchOSMPlaces(centerLat, centerLng, radiusMeters, city);
+    }
+
+    // Run parallel free web contact enrichment for items missing phone numbers
+    discoveredList = await batchEnrichLeads(discoveredList, city);
+
+    // Format final lead entries (ensure valid city & exact Google Maps search query link)
+    discoveredList = discoveredList.map((item) => {
+        const itemCity = item.city || city || 'Surat';
+        return {
+            ...item,
+            city: itemCity,
+            google_maps_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.restaurant_name + ' ' + itemCity)}`,
+        };
+    });
 
     // Fetch all existing leads from database for duplicate checking
     const existingLeads = await adminLeadRepository.findLeads({ search: '', status: 'all' });
@@ -359,7 +462,7 @@ export const bulkImportLeads = async (leadsArray) => {
         }
 
         const unique_id = createUniqueId('LEAD');
-        const phone = item.phone || '+91 00000 00000'; // Default placeholder if missing in OSM
+        const phone = (item.phone && item.phone !== '+91 00000 00000') ? item.phone : null;
 
         await adminLeadRepository.createLead({
             unique_id,
