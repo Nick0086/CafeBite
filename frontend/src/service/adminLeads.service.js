@@ -66,4 +66,27 @@ export const fetchAdminLeadRecordings = async (leadId) => {
     }
 };
 
+export const discoverAdminLeads = async ({ locationQuery, lat, lng, radiusMeters }) => {
+    try {
+        const response = await adminApi.post('/admin/leads/discover', {
+            locationQuery,
+            lat,
+            lng,
+            radiusMeters,
+        });
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+};
+
+export const bulkImportAdminLeads = async (leads) => {
+    try {
+        const response = await adminApi.post('/admin/leads/bulk-import', { leads });
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
+};
+
 

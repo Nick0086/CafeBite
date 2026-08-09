@@ -3,6 +3,7 @@ import { HttpError } from '../../utils/errorHelper.js';
 import { createUniqueId } from '../../utils/utils.js';
 import { uploadObject, getSignedUrl } from '../../providers/minio/minio.provider.js';
 import { analyzeSalesAudio } from '../../providers/gemini/gemini.provider.js';
+export { discoverLeads, bulkImportLeads } from './admin-lead-discovery.service.js';
 
 export const fetchLeads = async ({ search, status }) => {
     const leads = await adminLeadRepository.findLeads({ search, status });

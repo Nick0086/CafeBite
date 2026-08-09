@@ -29,8 +29,8 @@ export const findLeads = async ({ search = '', status = 'all' }, connection = nu
     }
 
     if (search && search.trim() !== '') {
-        const searchPattern = `%${search.trim()}%`;
-        conditions.push('(restaurant_name LIKE ? OR city LIKE ? OR contact_person LIKE ?)');
+        const searchPattern = `%${search.trim().toLowerCase()}%`;
+        conditions.push('(LOWER(restaurant_name) LIKE ? OR LOWER(city) LIKE ? OR LOWER(contact_person) LIKE ?)');
         params.push(searchPattern, searchPattern, searchPattern);
     }
 
@@ -47,6 +47,10 @@ export const findLeads = async ({ search = '', status = 'all' }, connection = nu
             city,
             state,
             google_maps_url,
+            latitude,
+            longitude,
+            place_source,
+            osm_id,
             status,
             notes,
             created_at,
@@ -81,7 +85,8 @@ export const findLeadById = async (leadId, connection = null) => {
     const sql = `
         SELECT 
             id, unique_id, restaurant_name, contact_person, phone, email,
-            address, city, state, google_maps_url, status, notes, created_at, updated_at
+            address, city, state, google_maps_url, latitude, longitude, place_source, osm_id,
+            status, notes, created_at, updated_at
         FROM admin_leads
         WHERE unique_id = ?
         LIMIT 1
@@ -101,6 +106,10 @@ export const createLead = async (
         city,
         state = null,
         google_maps_url = null,
+        latitude = null,
+        longitude = null,
+        place_source = 'manual',
+        osm_id = null,
         status = 'call_needed',
         notes = null,
     },
@@ -109,12 +118,28 @@ export const createLead = async (
     const sql = `
         INSERT INTO admin_leads (
             unique_id, restaurant_name, contact_person, phone, email,
-            address, city, state, google_maps_url, status, notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            address, city, state, google_maps_url, latitude, longitude, place_source, osm_id, status, notes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     return await query(
         sql,
-        [unique_id, restaurant_name, contact_person, phone, email, address, city, state, google_maps_url, status, notes],
+        [
+            unique_id,
+            restaurant_name,
+            contact_person,
+            phone,
+            email,
+            address,
+            city,
+            state,
+            google_maps_url,
+            latitude,
+            longitude,
+            place_source,
+            osm_id,
+            status,
+            notes,
+        ],
         connection
     );
 };
@@ -132,6 +157,10 @@ export const updateLead = async (leadId, updateData, connection = null) => {
         'city',
         'state',
         'google_maps_url',
+        'latitude',
+        'longitude',
+        'place_source',
+        'osm_id',
         'status',
         'notes',
     ];

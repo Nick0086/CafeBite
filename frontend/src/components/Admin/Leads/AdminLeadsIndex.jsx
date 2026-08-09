@@ -20,6 +20,7 @@ import {
     Sparkles,
     X,
     TrendingUp,
+    Radar,
 } from 'lucide-react';
 import { logoutAdmin, adminTokenStore } from '@/service/adminAuth.service';
 import { fetchAdminLeads } from '@/service/adminLeads.service';
@@ -27,6 +28,7 @@ import { toastSuccess } from '@/utils/toast-utils';
 import { AdminLeadFormModal } from './AdminLeadFormModal';
 import { AdminLeadDeleteDialog } from './AdminLeadDeleteDialog';
 import { AdminLeadCoachingPanelModal } from './AdminLeadCoachingPanelModal';
+import { AdminLeadDiscoveryView } from './AdminLeadDiscoveryView';
 
 const STATUS_CONFIG = {
     all:             { label: 'All',             color: 'bg-slate-700/60 text-slate-300 border-slate-600/60',       dot: 'bg-slate-400'   },
@@ -156,6 +158,7 @@ export function AdminLeadsIndex() {
     const queryClient = useQueryClient();
     const adminUser = adminTokenStore.getAdminUser();
 
+    const [mainTab, setMainTab] = useState('pipeline'); // 'pipeline' | 'discovery'
     const [activeTab, setActiveTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchVisible, setSearchVisible] = useState(false);
@@ -197,10 +200,10 @@ export function AdminLeadsIndex() {
     const handleOpenCoaching = (lead) => setCoachingModalState({ open: true, lead });
 
     return (
-        <div className="h-dvh overflow-auto bg-slate-950 text-slate-100 flex flex-col pb-20 md:pb-6">
+        <div className="h-dvh overflow-x-hidden overflow-y-auto bg-slate-950 text-slate-100 flex flex-col pb-20 md:pb-6">
 
-            {/* ── Sticky Top Navigation ── */}
-            <header className="border-b border-slate-800 bg-slate-900/70 backdrop-blur-md px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-20">
+            {/* ── Sticky Top Navigation Header ── */}
+            <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-30">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-indigo-600/20 border border-indigo-500/30 rounded-lg flex items-center justify-center shrink-0">
                         <ShieldCheck className="w-4 h-4 text-indigo-400" />
@@ -212,13 +215,15 @@ export function AdminLeadsIndex() {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                    <button
-                        onClick={() => setSearchVisible((v) => !v)}
-                        className="md:hidden p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                        title="Search"
-                    >
-                        {searchVisible ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
-                    </button>
+                    {mainTab === 'pipeline' && (
+                        <button
+                            onClick={() => setSearchVisible((v) => !v)}
+                            className="md:hidden p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                            title="Search"
+                        >
+                            {searchVisible ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
+                        </button>
+                    )}
 
                     <button
                         onClick={() => refetch()}
@@ -244,8 +249,41 @@ export function AdminLeadsIndex() {
                 </div>
             </header>
 
-            {/* ── Mobile Search Bar ── */}
-            {searchVisible && (
+            {/* ── Sub-header Dedicated Tab Navigation (Outside Header - Fixes Mobile Horizontal Overflow) ── */}
+            <div className="border-b border-slate-800/80 bg-slate-950/90 px-4 sm:px-6 py-2 sticky top-[49px] z-20 backdrop-blur-md">
+                <div className="max-w-7xl mx-auto flex items-center justify-center sm:justify-start">
+                    <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl w-full sm:w-auto">
+                        <button
+                            onClick={() => setMainTab('pipeline')}
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                mainTab === 'pipeline'
+                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                            }`}
+                        >
+                            <Building2 className="w-4 h-4" />
+                            <span>CRM Pipeline</span>
+                        </button>
+                        <button
+                            onClick={() => setMainTab('discovery')}
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                mainTab === 'discovery'
+                                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30'
+                                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                            }`}
+                        >
+                            <Radar className="w-4 h-4 animate-spin-slow text-purple-300" />
+                            <span>Auto-Discover Leads</span>
+                            <span className="hidden md:inline-block px-1.5 py-0.5 rounded text-[9px] bg-purple-500/20 text-purple-300 font-extrabold border border-purple-500/30">
+                                OSM Radar
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Mobile Search Bar (Pipeline View) ── */}
+            {mainTab === 'pipeline' && searchVisible && (
                 <div className="md:hidden px-4 pt-2.5 pb-1">
                     <div className="relative">
                         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -261,32 +299,37 @@ export function AdminLeadsIndex() {
                 </div>
             )}
 
-            {/* ── Main Content ── */}
+            {/* ── Main Content Area ── */}
             <main className="flex-1 px-4 sm:px-6 py-4 max-w-7xl w-full mx-auto space-y-3">
-
-                {/* Desktop page title */}
-                <div className="hidden md:flex items-center justify-between border-b border-slate-800/80 pb-3">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-tight text-white">Target Restaurant Leads</h2>
-                        <p className="text-slate-400 text-xs mt-0.5">Manage leads, outreach, visits, and sales pipeline.</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={handleOpenCreate}
-                            className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Add Lead
-                        </button>
-                        <button
-                            onClick={() => refetch()}
-                            className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-medium rounded-lg transition-all cursor-pointer"
-                        >
-                            <RefreshCw className={`w-3.5 h-3.5 ${isRefetching ? 'animate-spin text-indigo-400' : ''}`} />
-                            Refresh
-                        </button>
-                    </div>
-                </div>
+                {mainTab === 'discovery' ? (
+                    /* ── TAB 2: Dedicated Full Screen Auto Discovery View ── */
+                    <AdminLeadDiscoveryView onImportSuccess={() => setMainTab('pipeline')} />
+                ) : (
+                    /* ── TAB 1: CRM Pipeline View ── */
+                    <>
+                        {/* Desktop page title */}
+                        <div className="hidden md:flex items-center justify-between border-b border-slate-800/80 pb-3">
+                            <div>
+                                <h2 className="text-xl font-bold tracking-tight text-white">Target Restaurant Leads</h2>
+                                <p className="text-slate-400 text-xs mt-0.5">Manage leads, outreach, visits, and sales pipeline.</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleOpenCreate}
+                                    className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Add Lead
+                                </button>
+                                <button
+                                    onClick={() => refetch()}
+                                    className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm font-medium rounded-lg transition-all cursor-pointer"
+                                >
+                                    <RefreshCw className={`w-3.5 h-3.5 ${isRefetching ? 'animate-spin text-indigo-400' : ''}`} />
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
 
                 {/* Mobile page heading */}
                 <div className="md:hidden">
@@ -510,18 +553,22 @@ export function AdminLeadsIndex() {
                         </div>
                     </>
                 )}
-            </main>
+            </>
+        )}
+    </main>
 
-            {/* ── Mobile FAB ── */}
-            <div className="md:hidden fixed bottom-5 right-4 z-30">
-                <button
-                    onClick={handleOpenCreate}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-sm rounded-xl shadow-2xl shadow-indigo-600/40 active:scale-95 transition-all cursor-pointer"
-                >
-                    <Plus className="w-4 h-4" />
-                    Add Lead
-                </button>
-            </div>
+            {/* ── Mobile FAB (Pipeline View) ── */}
+            {mainTab === 'pipeline' && (
+                <div className="md:hidden fixed bottom-5 right-4 z-30">
+                    <button
+                        onClick={handleOpenCreate}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-sm rounded-xl shadow-2xl shadow-indigo-600/40 active:scale-95 transition-all cursor-pointer"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Add Lead
+                    </button>
+                </div>
+            )}
 
             {/* ── Modals & Dialogs ── */}
             <AdminLeadFormModal

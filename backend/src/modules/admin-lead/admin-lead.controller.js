@@ -26,6 +26,23 @@ export const deleteLead = asyncHandler(async (req, res) => {
     return res.status(200).json(response);
 });
 
+export const discoverLeads = asyncHandler(async (req, res) => {
+    const { locationQuery, lat, lng, radiusMeters } = req.body;
+    const response = await adminLeadService.discoverLeads({
+        locationQuery,
+        lat: lat ? parseFloat(lat) : null,
+        lng: lng ? parseFloat(lng) : null,
+        radiusMeters: radiusMeters ? parseInt(radiusMeters, 10) : 500,
+    });
+    return res.status(200).json(response);
+});
+
+export const bulkImportLeads = asyncHandler(async (req, res) => {
+    const { leads } = req.body;
+    const response = await adminLeadService.bulkImportLeads(leads);
+    return res.status(201).json(response);
+});
+
 const upload = multer({
     limits: { fileSize: 25 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {

@@ -7,6 +7,8 @@ import {
     updateLeadValidator,
     deleteLeadValidator,
     leadRecordingValidator,
+    discoverLeadsValidator,
+    bulkImportLeadsValidator,
 } from './admin-lead.validator.js';
 import * as adminLeadController from './admin-lead.controller.js';
 
@@ -26,6 +28,22 @@ router.post(
     createLeadValidator,
     validate,
     adminLeadController.createLead
+);
+
+router.post(
+    '/discover',
+    adminAuthMiddleware,
+    discoverLeadsValidator,
+    validate,
+    adminLeadController.discoverLeads
+);
+
+router.post(
+    '/bulk-import',
+    adminAuthMiddleware,
+    bulkImportLeadsValidator,
+    validate,
+    adminLeadController.bulkImportLeads
 );
 
 router.put(

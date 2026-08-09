@@ -108,4 +108,30 @@ export const leadRecordingValidator = [
         .isString().trim(),
 ];
 
+export const discoverLeadsValidator = [
+    body('locationQuery')
+        .optional({ checkFalsy: true })
+        .isString().trim(),
+    body('lat')
+        .optional()
+        .isNumeric().withMessage('Latitude must be a valid number'),
+    body('lng')
+        .optional()
+        .isNumeric().withMessage('Longitude must be a valid number'),
+    body('radiusMeters')
+        .optional()
+        .isInt({ min: 50, max: 10000 }).withMessage('Radius must be between 50 and 10000 meters'),
+];
+
+export const bulkImportLeadsValidator = [
+    body('leads')
+        .isArray({ min: 1 }).withMessage('Leads must be a non-empty array'),
+    body('leads.*.restaurant_name')
+        .notEmpty().withMessage('Each lead must have a restaurant_name')
+        .isString().trim(),
+    body('leads.*.city')
+        .notEmpty().withMessage('Each lead must have a city')
+        .isString().trim(),
+];
+
 
