@@ -1,26 +1,8 @@
 import React, { useState } from 'react';
-import {
-    X,
-    Building2,
-    CheckCircle2,
-    AlertTriangle,
-    Phone,
-    MapPin,
-    ExternalLink,
-    Download,
-    Copy,
-    Check,
-    Compass,
-    Search,
-} from 'lucide-react';
+import { X, Building2, CheckCircle2, AlertTriangle, Phone, MapPin, ExternalLink, Download, Copy, Check, Compass, Search, Sparkles } from 'lucide-react';
 import { toastSuccess } from '@/utils/toast-utils';
 
-export function LeadPreviewDrawer({
-    lead,
-    onClose,
-    onImportLead,
-    isImporting,
-}) {
+export function LeadPreviewDrawer({ lead, onClose, onImportLead, isImporting }) {
     const [copied, setCopied] = useState(false);
 
     if (!lead) return null;
@@ -63,11 +45,10 @@ export function LeadPreviewDrawer({
                                         Verified New
                                     </span>
                                 ) : (
-                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
-                                        isDuplicate
-                                            ? 'bg-rose-500/15 text-rose-400 border-rose-500/25'
-                                            : 'bg-amber-500/15 text-amber-400 border-amber-500/25'
-                                    }`}>
+                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${isDuplicate
+                                        ? 'bg-rose-500/15 text-rose-400 border-rose-500/25'
+                                        : 'bg-amber-500/15 text-amber-400 border-amber-500/25'
+                                        }`}>
                                         <AlertTriangle className="w-3 h-3" />
                                         {lead.duplicateStatus}
                                     </span>
